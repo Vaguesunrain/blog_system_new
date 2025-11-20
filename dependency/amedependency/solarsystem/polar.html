@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星系展开动画图标</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #1a1a2e; /* 深色背景更适合星系主题 */
+            color: #e0e0e0;
+        }
+
+        .icon-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.5); /* 发光效果 */
+            background-color: #162447; /* 图标背景 */
+            /* overflow: hidden; */ /* 保持注释，让扇形展开 */
+        }
+
+        .icon-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .expanding-sector {
+            position: absolute;
+            /* 基础宽高设为1px，方便scale计算最终半径 */
+            width: 1px;
+            height: 1px;
+            top: 50%;
+            right: 50%;
+            background-color: rgba(22, 36, 71, 0.8); /* 扇区背景色，深蓝 */
+            border-radius: 0 0 0 100%;
+            transform-origin: top right; /* 原点在容器中心 */
+            transform: scale(0);
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* 稍慢一点 */
+            z-index: 1;
+            /* 很重要：让内部绝对定位的元素相对于这个变换后的容器 */
+            overflow: visible; /* 确保内容不被裁剪 */
+             /* 防止扇区和内部元素干扰鼠标事件 */
+            pointer-events: none;
+        }
+
+        /* 当容器展开时 */
+        .icon-container.expanded .expanding-sector {
+            /* 最终扇区半径约为 600px */
+            transform: scale(6);
+        }
+
+        /* --- 弧线样式 --- */
+        .arc {
+            position: absolute;
+            top: 0; /* 相对于 sector 的 top right 原点 */
+            right: 0;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* 弧线颜色和透明度 */
+            /* 只保留左边和底边框，形成1/4圆弧 */
+            border-top: none;
+            border-right: none;
+            border-radius: 0 0 0 100%;
+            background-color: transparent;
+             /* 确保弧线在行星下方 */
+             z-index: 3;
+        }
+
+        /* 定义不同半径的弧线 (尺寸是最终展开后的大小) */
+        .arc-1 {
+            width: 20px; /* 半径约 200px */
+            height: 20px;
+        }
+        .arc-2 {
+            width: 40px; /* 半径约 400px */
+            height: 40px;
+            border-width: 2px; /* 外层弧线稍粗 */
+        }
+        .arc-3 {
+            width: 55px; /* 半径约 550px */
+            height: 55px;
+            border-width: 1px; /* 最外层细一点 */
+             border-style: dashed; /* 可以尝试虚线效果 */
+             border-color: rgba(0, 191, 255, 0.4);
+        }
+
+        /* --- 行星样式 --- */
+             /* --- 行星样式 (使用 rotate/translateY) --- */
+             .planet {
+            position: absolute;
+            /* 定位在扇区的原点 (右上角) */
+            top: 0;
+            right: 0;
+            border-radius: 50%;
+            z-index: 4;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+
+            /* 设置变换原点为扇区的原点 */
+            transform-origin: top right;
+
+            /*
+             * 变换顺序：
+             * 1. rotate(var(--angle)): 围绕原点旋转 (0deg=下, 90deg=左)
+             * 2. translateY(var(--radius)): 沿着旋转后的Y轴(半径方向)移动R距离
+             * 3. translate(-50%, -50%): 将行星自身中心对齐到目标点
+             */
+            transform:
+                rotate(var(--angle))
+                translateY(var(--radius))
+                translate(-50%, -50%);
+
+            /* 从 CSS 变量获取大小和颜色 */
+            width: var(--size);
+            height: var(--size);
+            background-color: var(--color);
+
+            /* 添加过渡效果 (可选) */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out 0.3s;
+        }
+        /* 展开时显示行星 */
+        .icon-container.expanded .planet {
+            opacity: 1;
+        }
+
+
+        .demo-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(30, 30, 50, 0.8);
+            color: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="icon-container" id="myIconContainer">
+    <img src="https://via.placeholder.com/50/00BFFF/1a1a2e?text=★" alt="可点击图标" class="icon-img"> <!-- 深空蓝图标 -->
+
+    <div class="expanding-sector">
+        <!-- 弧线 -->
+        <div class="arc arc-1"></div>
+        <div class="arc arc-2"></div>
+        <div class="arc arc-3"></div>
+
+        <!-- 行星 (放在弧线之后，确保在HTML结构上更靠后，默认层级更高，或者用z-index) -->
+            <!-- 行星 (使用 inline styles 定义变量) -->
+        <!-- 角度 0deg = 向下, 90deg = 向左 -->
+        <div class="planet" style="--angle: 20deg; --radius: 55px; --size: 10px; --color: #FFD700;"></div>
+        <div class="planet" style="--angle: 70deg; --radius: 40px; --size: 8px; --color: #C0C0C0;"></div>
+        <!-- ... 其他行星 ... -->
+         <!-- 可以继续添加更多行星 -->
+
+    </div>
+</div>
+
+<div class="demo-info">
+    点击右上角图标查看星系展开效果。<br>
+    扇形从中心展开，内部包含同心弧线和行星。
+</div>
+
+<script>
+    const iconContainer = document.getElementById('myIconContainer');
+    const expandingSector = iconContainer.querySelector('.expanding-sector');
+
+    iconContainer.addEventListener('click', () => {
+        iconContainer.classList.toggle('expanded');
+
+        // 可选：为了防止在收缩动画时还能点击内部元素（如果它们有事件）
+        if (!iconContainer.classList.contains('expanded')) {
+            expandingSector.style.pointerEvents = 'none';
+        } else {
+            expandingSector.style.pointerEvents = 'auto'; // 或 'none' 如果都不需要交互
+        }
+    });
+
+    // 初始设置pointer-events为none
+    expandingSector.style.pointerEvents = 'none';
+
+</script>
+
+</body>
+</html>

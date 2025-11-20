@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="login_style.css">
+  <title>Login</title>
+
+</head>
+<body>
+
+<div class="cont">
+  <!-- Sign-in Form -->
+  <div class="form sign-in">
+    <h2>Welcome back,</h2>
+    <label>
+      <span>Email</span>
+      <input type="email" id="signin-email" />
+    </label>
+    <label>
+      <span>Password</span>
+      <input type="password" id="signin-password" />
+    </label>
+    <p class="forgot-pass">Forgot password?</p>
+    <button type="button" class="submit" onclick="signIn()">Sign In</button>
+    <button type="button" class="fb-btn">Connect with <span class="wechat">Wechat</span> or <span class="qq">QQ</span></button>
+  </div>
+
+  <!-- Sub-container for Image and Sign-up form -->
+  <div class="sub-cont">
+    <div class="img">
+      <div class="img__text m--up">
+        <h2>New here?</h2>
+        <p>Sign up and discover great amount of new opportunities!</p>
+      </div>
+      <div class="img__text m--in">
+        <h2>One of us?</h2>
+        <p>If you already have an account, just sign in. We've missed you!</p>
+      </div>
+      <div class="img__btn">
+        <span class="m--up">Sign Up</span>
+        <span class="m--in">Sign In</span>
+      </div>
+    </div>
+    <div class="form sign-up">
+      <h2>Time to feel like home,</h2>
+      <label>
+        <span>Name</span>
+        <input id="signup-name" type="text" />
+      </label>
+      <label>
+        <span>Email</span>
+        <input id="signup-email" type="email" />
+      </label>
+      <label>
+        <span>Password</span>
+        <input id="signup-password" type="password" />
+      </label>
+      <button type="button" class="submit" onclick="signUp()">Sign Up</button>
+      <button type="button" class="fb-btn">Join with <span class="wechat">Wechat</span> or <span class="qq">QQ</span></button>
+    </div>
+  </div>
+
+  <!-- NEW: Success Card -->
+ <div class="success-overlay" id="success-overlay">
+    <div class="success-icon">✔</div>
+    <h2 id="success-title">Success!</h2>
+    <p id="success-message">You are now logged in.</p>
+  </div>
+
+</div>
+
+<!-- Your original config script -->
+<script src="../administrator/config.js"></script>
+
+<script>
+document.querySelector('.img__btn').addEventListener('click', function() {
+    document.querySelector('.cont').classList.toggle('s--signup');
+});
+
+function showSuccessAndRequestClose(message) {
+    // 1. Get the overlay element and update its message
+    const overlay = document.getElementById('success-overlay');
+    overlay.querySelector('#success-message').textContent = message;
+
+    // 2. Make the overlay visible with a smooth transition
+    overlay.classList.add('is-active');
+
+    // 3. Set a timer (e.g., 2.5 seconds) to give user time to read the message
+    setTimeout(() => {
+        // This sends the "close me" request to the parent window
+        // The parent window MUST be listening for this message.
+        console.log('Sending close request to parent window...');
+        window.parent.postMessage('close-login-iframe', '*');
+    }, 2500); // Wait 2.5 seconds before sending the close request
+}
+
+function signUp() {
+    var name = document.getElementById('signup-name').value;
+    var email = document.getElementById('signup-email').value;
+    var password = document.getElementById('signup-password').value;
+
+    var data = {
+        name: name,
+        email: email,
+        password: password
+    };
+    const signupUrl = API_BASE_URL + "/signup";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", signupUrl, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.withCredentials = true;
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                // MODIFIED: Call the new success function instead of alert/redirect
+                showSuccessAndRequestClose('Signup successful! Welcome.');
+            } else {
+                alert('Signup failed: ' + response.message + response.conflict_field + response.conflict_value);
+            }
+        }
+    };
+    xhr.send(JSON.stringify(data));
+}
+
+function signIn() {
+    var email = document.getElementById('signin-email').value;
+    var password = document.getElementById('signin-password').value;
+
+    var data = {
+        email: email,
+        password: password
+    };
+
+    const loginUrl = API_BASE_URL + "/login";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", loginUrl, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.withCredentials = true;
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                // MODIFIED: Call the new success function instead of alert/redirect
+                showSuccessAndRequestClose('Login successful! Welcome back.');
+            } else {
+                alert('Login failed: ' + response.message);
+            }
+        }
+    };
+    xhr.send(JSON.stringify(data));
+}
+</script>
+
+</body>
+</html>

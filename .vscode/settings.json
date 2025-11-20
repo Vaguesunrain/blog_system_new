@@ -1,0 +1,10 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\Ame\\Downloads\\commons-io-2.16.1-bin\\commons-io-2.16.1\\commons-io-2.16.1-sources.jar",
+        "c:\\Users\\Ame\\Downloads\\commons-io-2.16.1-bin\\commons-io-2.16.1\\commons-io-2.16.1-test-sources.jar",
+        "c:\\Users\\Ame\\Downloads\\commons-fileupload-1.5-bin\\commons-fileupload-1.5.jar",
+        "c:\\Users\\Ame\\Downloads\\servlet-api-2.5.jar",
+        "c:\\Users\\Ame\\Downloads\\json-20230618.jar"
+    ]
+}

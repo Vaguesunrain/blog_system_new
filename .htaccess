@@ -1,0 +1,17 @@
+Options +MultiViews
+RewriteEngine On
+
+# 如果请求的不是一个已存在的文件
+RewriteCond %{REQUEST_FILENAME} !-f
+# 如果请求的不是一个已存在的目录
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# 将请求重写到对应的.html文件
+RewriteRule ^(.*)$ $1.html [L]
+
+
+
+
+
+
+

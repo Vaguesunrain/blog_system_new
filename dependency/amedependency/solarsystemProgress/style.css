@@ -1,0 +1,119 @@
+
+
+h1 {
+  margin-bottom: 40px;
+}
+
+.solar-system-progress {
+  position: relative;
+  width: 80%; /* Adjust width as needed */
+  max-width: 1000px;
+  height: 100px; /* Increased height to accommodate labels */
+  margin: 50px auto;
+}
+
+.progress-track {
+  position: absolute;
+  width: 100%;
+  height: 4px; /* Thickness of the line */
+  background-color: #ffffff; /* White for uncompleted */
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.progress-fill {
+  position: absolute;
+  height: 100%;
+  background-color: #808080; /* Gray for completed */
+  left: 0;
+  top: 0;
+  border-radius: 2px;
+  z-index: 1; /* Above track, below planets */
+  transition: width 0.5s ease-in-out;
+}
+
+.celestial-body {
+  position: absolute;
+  top: 50%; /* Center vertically on the track */
+  transform: translate(-50%, -50%); /* Center the element itself at its 'left' coordinate */
+  border-radius: 50%;
+  background-color: #cccccc; /* Default gray/inactive color */
+  border: 1px solid #aaa; /* Slight border for inactive */
+  z-index: 2; /* Above the track fill */
+  transition: background-color 0.5s ease, border-color 0.5s ease;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* Subtle glow */
+}
+
+/* --- Sizes and Positions (Approx based on image) --- */
+/* Positions: 10 bodies -> 9 segments -> 100/9 = 11.11% per segment */
+
+#sun { width: 80px; height: 80px; left: 0%; }
+#mercury { width: 18px; height: 18px; left: 11.11%; }
+#venus { width: 28px; height: 28px; left: 22.22%; }
+#earth { width: 30px; height: 30px; left: 33.33%; }
+#mars { width: 22px; height: 22px; left: 44.44%; }
+#jupiter { width: 60px; height: 60px; left: 55.55%; }
+#saturn { width: 55px; height: 55px; left: 66.66%; position: relative; } /* Relative for ring */
+#uranus { width: 40px; height: 40px; left: 77.77%; }
+#neptune { width: 38px; height: 38px; left: 88.88%; }
+#pluto { width: 15px; height: 15px; left: 100%; }
+
+/* --- Active Colors (Approx based on image) --- */
+.celestial-body.active {
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6); /* Brighter glow */
+}
+
+#sun.active { background-color: #fcdc12; box-shadow: 0 0 20px #fcdc12; }
+#mercury.active { background-color: #a09c98; }
+#venus.active { background-color: #e6a555; }
+#earth.active { background: linear-gradient(135deg, #4f86f7 40%, #52a55b 60%); } /* Simple blue/green */
+#mars.active { background-color: #c1440e; }
+#jupiter.active { background: linear-gradient(90deg, #d8caae, #b18f6a, #d8caae, #ab8c6e); } /* Simple bands */
+#saturn.active { background-color: #e0cf9a; }
+#uranus.active { background-color: #afdde9; }
+#neptune.active { background-color: #3f54ba; }
+#pluto.active { background-color: #bfb8a1; }
+
+/* Simple Saturn Ring */
+#saturn::after {
+  content: '';
+  position: absolute;
+  width: 180%; /* Wider than the planet */
+  height: 180%;/* Taller than the planet */
+  border: 3px solid #c5b88b; /* Ring color */
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(20deg) scaleY(0.4); /* Position, rotate, flatten */
+  z-index: -1; /* Behind Saturn's body */
+  box-sizing: border-box;
+  opacity: 0.8;
+}
+#saturn.active::after {
+  border-color: #e0cf9a; /* Match active planet */
+  opacity: 1;
+}
+
+
+/* --- Labels --- */
+.planet-label {
+  position: absolute;
+  bottom: calc(100% + 5px); /* Position above the planet */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #ffffff;
+  white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0.5); /* Slight background for readability */
+  padding: 1px 4px;
+  border-radius: 3px;
+  transition: color 0.5s ease;
+  z-index: 3;
+}
+
+.celestial-body:not(.active) .planet-label {
+  color: #aaa; /* Dimmer label for inactive planets */
+}

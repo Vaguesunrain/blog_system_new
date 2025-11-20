@@ -1,0 +1,42 @@
+
+
+.navbar {
+  /* --- 定位和布局 --- */
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  /* --- 初始背景 --- */
+  background: linear-gradient(to right, rgba(255, 252, 252, 0), rgba(255, 255, 255, 0.6));
+  box-sizing: border-box;
+
+  /* --- 动画关键 --- */
+  transform: translateY(0);
+  /* 同时为 transform 和 background 添加过渡效果 */
+  transition: transform 0.4s ease-in-out, background 0.3s ease-in-out; /* 调整背景过渡时间 */
+}
+
+/* 控制导航栏向上隐藏 */
+.navbar-hidden-above {
+  transform: translateY(-100%);
+}
+
+.navbar-solid-bg {
+  /* --- 滚动后的目标背景 --- */
+  background: rgba(255, 255, 255, 0.6); /* 直接使用目标颜色 */
+
+}
+    .content {
+    padding-top: 90px; /* 添加与导航栏高度相同的 padding-top */
+}
+
+    .tooltip {
+        cursor: pointer;
+        margin-left: 20px;
+    }

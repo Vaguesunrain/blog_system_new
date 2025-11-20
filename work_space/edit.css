@@ -1,0 +1,154 @@
+.navbar {
+    position: absolute; /* 绝对定位 */
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background-color: rgba(0, 0, 0, 0.5); /* 设置导航栏半透明背景 */
+
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.navbar li {
+    display: inline;
+    height: 60px;
+    line-height: 60px;
+    margin: 0 20px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    font-size: 20px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+}
+
+
+.navbar .icon img {
+    width: 60px; /* 图片宽度 */
+    height: 60px; /* 图片高度 */
+    margin-right: 40px;
+    border-radius: 50%; /* 边框半径设置为50%将图片变成圆形 */
+}
+
+#editor_title {
+    position: relative; /* 将位置属性改为 relative */
+    margin-top: 200px;
+    margin-left: 10%;
+    margin-right: 10%;
+    width: 80%;
+    min-height: 50px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+p {
+
+font-weight: bold;
+    margin-bottom: 10px;
+}
+
+
+
+#editor_title:empty::before {
+    content: attr(placeholder);
+    color: #999; /* 灰色 */
+    pointer-events: none; /* 防止影响编辑 */
+}
+
+
+
+#editor:empty::before {
+    content: attr(placeholder);
+    color: #999; /* 灰色 */
+    pointer-events: none; /* 防止影响编辑 */
+}
+
+#editor {
+    position: relative; /* 将位置属性改为 relative */
+    margin-top: 30px;
+    margin-left: 10%;
+    margin-right: 10%;
+    width: 80%;
+    min-height: 300px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+img {
+    max-width: 100%;
+    max-height: 200px;
+    margin-bottom: 10px;
+}
+p {
+    margin-bottom: 10px;
+}
+.image-placeholder {
+    position: absolute;
+    margin-left: 10%;
+    margin-top: 20px;
+
+}
+.image-placeholder.show {
+    display: block;
+}
+.image-placeholder input[type="file"] {
+    display: none;
+}
+.image-placeholder button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+   
+.btn-container {
+    position: relative;
+    width: 400px;
+    height: 50px;
+    position: absolute;
+    margin-top: 100px; /* 距离底部 100px */
+    left: 50%; /* 从左侧开始水平居中 */
+    transform: translateX(-50%); /* 水平居中 */
+    overflow: hidden;
+  }
+
+  .left, .right {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    transition: width 0.5s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    border-radius: 10px;
+  }
+
+  .left {
+    
+    left: 0;
+    background:url("sky.png");
+    clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
+    
+  }
+
+  .right {
+    background: url("grass.png");
+    right: 0;
+    clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
+  }

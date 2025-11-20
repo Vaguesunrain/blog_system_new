@@ -1,0 +1,298 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="../dependency/amedependency/solarsystem/style.css" />
+        <link rel="stylesheet" type="text/css" href="../dependency/amedependency/solarsystemProgress/style.css" />
+        <link rel="stylesheet" type="text/css" href="../dependency/amedependency/style-all.css" />
+        <link rel="stylesheet" type="text/css" href="../dependency/tooltipster-3.3.0/css/tooltipster.css" />
+        <script type="text/javascript" src="../dependency/jquery-1.7.0.min.js"></script>
+        <script type="text/javascript" src="script.js"></script>
+        <script type="text/javascript" src="../administrator/config.js"></script>
+        <script type="text/javascript" src="../dependency/tooltipster-3.3.0/js/jquery.tooltipster.min.js"></script>
+        <title>Galaxy Blog</title>
+    </head>
+    <div class="background-star" style="height: 100%;">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+        <img id="picture" src="../sources/space-probe.webp" alt="Loading ">
+        <img id="picture2" src="../sources/saturn.png" alt="Loading ">
+    </div>
+
+    <body style=" background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);">
+        <div class="main-content" id="main-content">
+            <div class="navbar " id="nav">
+                <h1 class="title" style="font-size: 50px; font-family: emmm; ; font-weight: bolder;">Galaxy</h1>
+                <div class="container_right">
+                    <svg onclick="goToHomePage()" xmlns="http://www.w3.org/2000/svg" width="60" height="30" fill="white"  class="house tooltip"  viewBox="0 0 16 16"   title="Back to home"><path fill-rule="evenodd" d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207l-5-5-5 5V13.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7.207Z"/></svg>
+                    <svg onclick="goToViewPage()" t="1745048103601" class="blog tooltip" title="Start to view" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17352" width="60" height="30"><path d="M298.666667 256a42.666667 42.666667 0 0 1 42.666666-42.666667h341.333334a42.666667 42.666667 0 0 1 42.666666 42.666667v85.333333a42.666667 42.666667 0 0 1-42.666666 42.666667H341.333333a42.666667 42.666667 0 0 1-42.666666-42.666667V256z m64 64h298.666666v-42.666667h-298.666666v42.666667z" p-id="17353" fill="#ffffff"></path><path d="M170.666667 192A106.666667 106.666667 0 0 1 277.333333 85.333333H768a106.666667 106.666667 0 0 1 106.666667 106.666667v608a32 32 0 0 1-32 32H234.666667a42.666667 42.666667 0 0 0 42.666666 42.666667h565.333334a32 32 0 0 1 0 64H277.333333A106.666667 106.666667 0 0 1 170.666667 832v-640zM234.666667 768H810.666667V192a42.666667 42.666667 0 0 0-42.666667-42.666667H277.333333a42.666667 42.666667 0 0 0-42.666666 42.666667V768z" p-id="17354" fill="#ffffff"></path></svg>
+                    <svg onclick="goToEditPage()" t="1745048381731" class="write tooltip" title="Write something" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17534" width="60" height="30"><path d="M897.28 126.72a152.661333 152.661333 0 0 1 0 215.893333L386.645333 853.333333a96 96 0 0 1-42.624 24.746667l-218.282666 59.52a32 32 0 0 1-39.253334-39.296l59.52-218.282667a96 96 0 0 1 24.746667-42.624L681.386667 126.72a152.661333 152.661333 0 0 1 215.893333 0zM640 258.56L215.978667 682.666667a32 32 0 0 0-8.234667 14.208l-44.8 164.266666 164.266667-44.8A32 32 0 0 0 341.333333 808.021333L765.44 384 640 258.56z m86.613333-86.613333l-41.386666 41.386666L810.666667 338.773333l41.386666-41.386666a88.704 88.704 0 0 0-125.44-125.44z" p-id="17535" fill="#ffffff"></path></svg>
+                    <svg onclick="goToSpecialPage()" t="1745048496861" class="super tooltip" title="Try special style" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17716" width="60" height="30"><path d="M767.957333 128a32 32 0 0 1 25.813334 13.056l2.346666 3.712 139.221334 257.194667 1.621333 3.968 0.512 1.706666 0.853333 4.352 0.256 4.010667a32 32 0 0 1-1.152 8.533333l-2.005333 5.333334-1.621333 2.944a32.341333 32.341333 0 0 1-3.2 4.352l2.56-3.328-1.066667 1.493333-394.666667 448.213333a30.933333 30.933333 0 0 1-12.672 9.898667l-4.181333 1.408-3.328 0.725333L512 896l-4.266667-0.256-5.034666-1.109333a30.677333 30.677333 0 0 1-7.424-3.242667l-0.384-0.298667a28.757333 28.757333 0 0 1-5.546667-4.437333l-396.373333-449.962667-1.109334-1.365333-1.706666-2.517333a31.786667 31.786667 0 0 1-4.522667-12.842667L85.333333 416l0.128-2.816 0.554667-3.797333a31.018667 31.018667 0 0 1 1.024-3.669334l0.938667-2.517333 1.194666-2.432 138.666667-256a32 32 0 0 1 23.765333-16.469333L255.957333 128h512z m-128.085333 320H383.914667l128 327.978667 127.957333-327.978667z m-324.608 0h-127.146667l228.309334 259.157333L315.264 448z m520.448 0h-127.104l-101.034667 258.986667 228.138667-258.986667z m-452.949333-256H274.986667L170.965333 384h150.357334l61.44-192z m191.146666 0h-123.946666L388.48 384h246.826667l-61.44-192z m174.933334 0h-107.733334l61.44 192h150.272l-103.936-192z" p-id="17717" fill="#ffffff"></path></svg>
+                </div>
+
+                <div class="container_left">
+                    <div class="icon-container" id="myIconContainer">
+                        <img src="../person_img/none.jpg" alt="可点击图标" class="icon-img"> <!-- 深空蓝图标 -->
+                        <div class="expanding-sector">
+                            <!-- 弧线 -->
+                            <div class="arc arc-1" style="--arc1-radius:58px "></div>
+                            <div class="arc arc-1" style="--arc1-radius:36px"></div>
+                            <!-- 角度 0deg = 向下, 90deg = 向左 -->
+                            <div id="Login-button" class="planet" style="--angle: 20deg; --radius: 55px; --size: 15px; --color:#615608; font-size: 4px; color: aliceblue;" data-iframe-src="../Login/login_page.html">
+                                去登陆
+                            </div>
+                            <div class="planet" style="--angle: 40deg; --radius: 30px; --size: 18px; --color: #C0C0C0; font-size: 4px; color: aliceblue;"  data-iframe-src="../Login/login_page.html">
+                                联系我
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="textContainer" >
+                <h2 id="h2part" style="font-size: 45px;margin: 0; font-weight: 100;">望向星河,从不止步</h2>
+                <h1 style="font-size: 100px;margin: 0; height: 80px;font-weight: 500;">Galaxy Blog</h1>
+            </div>
+
+            <div class="buttonrow">
+                <!-- 按钮为透明毛玻璃。白色边 -->
+                <button class="button" id="button1" style="margin-right: 30px;  " onclick="FindAdmin()" >找到站主</button>
+                <button class="button" id="button2">中英切换</button>
+            </div>
+            <!-- <div class="divider" style="height: 1px; width: 40%; margin-left: 30%; margin-top: 5%;"></div> -->
+            <div class="progress-box">
+                <div class="progress-tracker is-collapsed" id="progressTracker">
+                    <!-- Header Section (Clickable) -->
+                    <div class="progress-header" id="progressHeader">
+                        <h1>开发进度</h1>
+                        <button class="toggle-button" id="toggleButton" aria-expanded="false" aria-controls="listContainer">▶</button>
+                    </div>
+
+                    <!-- Collapsible List Container -->
+                    <div class="list-container" id="listContainer" role="region" aria-hidden="true" aria-labelledby="progressHeader">
+                         <ul>
+                            <li class="completed"><span class="planet-task">水星</span><span class="task">完成web前端服务器搭建</span></li>
+                <li class="completed"><span class="planet-task">金星</span><span class="task">完成网页构架决策</span></li>
+                <li class="completed"><span class="planet-task">地球</span><span class="task">基本完成后端服务器</span></li>
+                <li class="completed"><span class="planet-task">火星</span><span class="task">基本完成前端功能</span></li>
+                <li class="completed"><span class="planet-task">木星</span><span class="task">前端编辑器合入</span></li>
+                <li><span class="planet-task">土星</span><span class="task">统一化前端主题</span></li>
+                <li><span class="planet-task">天王星</span><span class="task">彻底调通前后端</span></li>
+                <li><span class="planet-task">海王星</span><span class="task">挂上公网ip使用</span></li>
+                <li><span class="planet-task">冥王星</span><span class="task">开发高级blog功能</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="solar-system-progress"style="margin-top: 80px;">
+                    <div class="progress-track">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <!-- Celestial Bodies -->
+                    <div id="sun" class="celestial-body" data-position="0">
+                        <span class="planet-label">Sun</span>
+                    </div>
+                    <div id="mercury" class="celestial-body" data-position="0.111">
+                         <span class="planet-label">Mercury</span>
+                    </div>
+                    <div id="venus" class="celestial-body" data-position="0.222">
+                         <span class="planet-label">Venus</span>
+                    </div>
+                    <div id="earth" class="celestial-body" data-position="0.333">
+                         <span class="planet-label">Earth</span>
+                    </div>
+                    <div id="mars" class="celestial-body" data-position="0.444">
+                         <span class="planet-label">Mars</span>
+                    </div>
+                    <div id="jupiter" class="celestial-body" data-position="0.555">
+                         <span class="planet-label">Jupiter</span>
+                    </div>
+                    <div id="saturn" class="celestial-body" data-position="0.666">
+                         <span class="planet-label">Saturn</span>
+                    </div>
+                    <div id="uranus" class="celestial-body" data-position="0.777">
+                         <span class="planet-label">Uranus</span>
+                    </div>
+                    <div id="neptune" class="celestial-body" data-position="0.888">
+                         <span class="planet-label">Neptune</span>
+                    </div>
+                    <div id="pluto" class="celestial-body" data-position="1.0">
+                         <span class="planet-label">Pluto</span>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="text-pic-container">
+                <div class="left">
+                  <p>Galaxy Blog，一个穿越星辰与思绪的空间。
+                    在这里，每一篇文字都是一颗微光的星辰，汇聚成浩瀚的银河。
+                    无论是灵感的闪耀，还是平静的记录，
+                    都如同夜空中那颗独属于你的星星，静静闪烁，等待被发现。
+                    欢迎来到我的星系，在文字的宇宙中自由航行。</p>
+
+                </div> -->
+                <!-- <div class="divider"></div> -->
+                <!-- <div class="right">
+                  <img src="你的图片地址.png" alt="图片">
+                </div>
+              </div> -->
+
+
+            <div class="foot-container">
+                <div class="fcolumn_svg">
+                    <svg onclick="window.location.href='https://github.com/Vaguesunrain';" role="img" height="50px" width="65px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF">
+                        <title>GitHub</title>
+                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                      </svg>
+                      <svg onclick="window.location.href='https://x.com/Sunrain_ame?s=09';" role="img" height="50px" width="65px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF">
+                        <title>X</title>
+                        <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
+                      </svg>
+                      <svg onclick="window.location.href='../wechat.png';" role="img"height="50px" width="65px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF">
+                        <title>WeChat</title>
+                        <path d="M11.97 1.903c-6.075 0-10.995 4.17-10.995 9.318 0 3.134 1.89 5.9 4.8 7.57l-1.01 3.653 3.745-1.965a13.2 13.2 0 0 0 3.46.496c6.075 0 10.995-4.17 10.995-9.317s-4.92-9.318-10.995-9.318zm-3.51 9.16c-.413 0-.748-.336-.748-.748 0-.413.335-.748.748-.748.412 0 .747.335.747.748 0 .412-.335.748-.747.748zm7.016 0c-.412 0-.747-.336-.747-.748 0-.413.335-.748.747-.748.413 0 .748.335.748.748 0 .412-.335.748-.748.748z"/>
+                      </svg>
+                </div>
+
+                <div class="foot-text">
+                    <p style = " text-align: center;">© 2023 Galaxy Blog. All rights reserved.</p>
+                    <p style = " text-align: center;">Powered by Ame</p>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <div id="focus-container">
+            <div id="focus-element">
+                <iframe id="focus-iframe" allowfullscreen></iframe>
+            </div>
+            <button id="close-focus-btn">×</button>
+        </div>
+    </body>
+</html>
+
+
+
+<style>
+    html, body {
+            height: 100%; /* 确保 html 也能撑开 */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 防止图片或其他内容可能引起的滚动条 */
+        }
+        body {
+            /* 将背景样式移到这里 */
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            /* 使用 vh 确保 body 至少和视口一样高 */
+            min-height: 100vh;
+        }
+        .background-star {
+            position: fixed; /* 可以作为星星定位的参考，如果需要的话 */
+            width: 100%;
+            height: 100%; /* 继承 body 的高度 */
+            z-index: 1; /* 确保在图片下方，如果星星在图片上方的话调整 */
+        }
+        #picture {
+            position: fixed; /* 相对于视口（或最近的已定位祖先）定位 */
+            bottom: 0;         /* 距离底部 0px */
+            left: 0;           /* 距离左侧 0px */
+            width: auto;       /* 保持原始宽度比例 */
+            height: auto;      /* 保持原始高度比例 */
+            /* 可以添加最大宽度/高度以防图片过大 */
+            /* min-width: 30%; */
+            max-width: 50vh;
+            max-height: 50vh;
+            z-index: 2; /* 确保图片在星星背景之上 */
+            /* 移除了不必要的 margin */
+        }
+        #picture2 {
+            position: fixed; /* 相对于视口（或最近的已定位祖先）定位 */
+            top: 500px;         /* 距离底部 0px */
+            left: 1300px;           /* 距离左侧 0px */
+            width: auto;       /* 保持原始宽度比例 */
+            height: auto;      /* 保持原始高度比例 */
+            /* 可以添加最大宽度/高度以防图片过大 */
+            /* min-width: 30%; */
+            max-width: 10vh;
+            max-height: 10vh;
+            rotate: 20deg; /* 旋转图片 */
+            /* 模糊 */
+            /* filter: blur(2px);  */
+            z-index: 2; /* 确保图片在星星背景之上 */
+            /* 移除了不必要的 margin */
+        }
+        .main-content {
+            position: relative; /* 使其相对于背景星星定位 */
+            z-index: 3; /* 确保在星星和图片之上 */
+            /* padding: 20px;  */
+            color: white; /* 设置文字颜色为白色以便于阅读 */
+            overflow-y: auto;
+            height: 100vh;     /* 占据整个视口高度 */
+
+        }
+
+</style>
+
+<script src="../dependency/amedependency/solarsystem/script.js"></script>
+<script src="../dependency/amedependency/solarsystemProgress/script.js"></script>
+<script src="change_language.js"></script>
+<script>
+    // updateProgress(50); // Set initial progress to 40%
+      // activate tooltipster for the circle icon
+  $(document).ready(function() {
+    theme: 'my-custom-theme',
+        $('.tooltip').tooltipster();
+
+    });
+getusername()
+// 列表展开
+document.addEventListener('DOMContentLoaded', function() {
+    const progressTracker = document.getElementById('progressTracker');
+    const header = document.getElementById('progressHeader');
+    const button = document.getElementById('toggleButton');
+    const listContainer = document.getElementById('listContainer');
+
+    function toggleList() {
+        const isCollapsed = progressTracker.classList.contains('is-collapsed');
+
+        if (isCollapsed) {
+            // Expand
+            progressTracker.classList.remove('is-collapsed');
+            button.textContent = '▼'; // Update arrow down
+            button.setAttribute('aria-expanded', 'true');
+            listContainer.removeAttribute('aria-hidden'); // For accessibility
+        } else {
+            // Collapse
+            progressTracker.classList.add('is-collapsed');
+            button.textContent = '▶'; // Update arrow right
+            button.setAttribute('aria-expanded', 'false');
+            listContainer.setAttribute('aria-hidden', 'true'); // For accessibility
+        }
+    }
+
+    if (header) {
+        header.addEventListener('click', toggleList);
+
+        header.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault(); // Prevent default space scroll
+                toggleList();
+            }
+        });
+    }
+
+    const initiallyCollapsed = progressTracker.classList.contains('is-collapsed');
+    if (initiallyCollapsed) {
+         button.textContent = '▶';
+         button.setAttribute('aria-expanded', 'false');
+         listContainer.setAttribute('aria-hidden', 'true');
+    } else {
+         button.textContent = '▼';
+         button.setAttribute('aria-expanded', 'true');
+         listContainer.removeAttribute('aria-hidden');
+    }
+     header.setAttribute('tabindex', '0');
+
+});
+</script>

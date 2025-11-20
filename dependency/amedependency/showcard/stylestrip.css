@@ -1,0 +1,146 @@
+
+.stellar-log-strip {
+    --card-bg-color: #121829;
+    --glow-color: #00f6ff;
+    --text-color: #cdd5f7;
+    --text-muted-color: #6f7a9b;
+    --border-width: 2px;
+
+    font-family: 'Orbitron', sans-serif;
+    height: 250px;
+
+    display: flex; /* 关键：使用 Flexbox 实现横向布局 */
+    /* max-width: 750px; */
+    min-width: 770px;
+    width: 100%;
+    background-color: var(--card-bg-color);
+    border: var(--border-width) solid rgba(var(--glow-color), 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+
+    /* 适配横向布局的切角 */
+    clip-path: polygon(
+        0% 15px, 15px 0%, 100% 0%, 100% calc(100% - 15px),
+        calc(100% - 15px) 100%, 0% 100%
+    );
+
+    box-shadow: 0 0 15px rgba(var(--glow-color), 0.2),
+                0 0 30px rgba(var(--glow-color), 0.1);
+}
+
+.stellar-log-strip:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(var(--glow-color), 0.8);
+    box-shadow: 0 0 25px rgba(var(--glow-color), 0.5),
+                0 0 50px rgba(var(--glow-color), 0.3);
+}
+
+/* --- 左侧图片 --- */
+.stellar-log-strip .strip-image-wrapper {
+    flex: 0 0 200px; /* 不拉伸，不收缩，基础宽度 200px */
+    overflow: hidden;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%); /* 给图片右侧一个斜切，增加动感 */
+}
+
+.stellar-log-strip .strip-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.stellar-log-strip:hover .strip-image-wrapper img {
+    transform: scale(1.1);
+}
+
+/* --- 右侧内容 --- */
+.stellar-log-strip .strip-content {
+    flex: 1; /* 占据剩余空间 */
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column; /* 使内容垂直排列 */
+    justify-content: space-between; /* 上下部分内容分开 */
+}
+
+.stellar-log-strip .strip-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+    text-shadow: 0 0 5px rgba(var(--glow-color), 0.7);
+        overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+/* --- 元数据（日期和阅读次数） --- */
+.stellar-log-strip .strip-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    display: flex;
+    flex-wrap: wrap; /* 在小屏幕上可以换行 */
+    align-items: center;
+    gap: 1.5rem; /* 加大元数据之间的间距 */
+    margin-bottom: 1rem;
+}
+
+.stellar-log-strip .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stellar-log-strip .strip-meta svg {
+    fill: var(--text-muted-color);
+    width: 16px;
+    height: 16px;
+    transition: fill 0.3s ease;
+}
+
+.stellar-log-strip:hover .strip-meta svg {
+    fill: var(--glow-color);
+}
+
+
+.stellar-log-strip .strip-excerpt {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+/* limit 2 lines */
+     overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+/* --- 底部内容（主要是按钮） --- */
+.stellar-log-strip .content-bottom {
+    margin-top: auto; /* 关键：将此部分推到容器底部 */
+    text-align: right; /* 让按钮靠右 */
+}
+
+.stellar-log-strip .strip-read-more {
+    display: inline-block;
+    color: var(--glow-color);
+    text-decoration: none;
+    font-weight: 700;
+    border: 2px solid var(--glow-color);
+    padding: 0.5rem 1rem;
+    transition: background-color 0.3s, color 0.3s;
+    /* 按钮也使用切角 */
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.stellar-log-strip .strip-read-more:hover {
+    background-color: var(--glow-color);
+    color: var(--card-bg-color);
+    text-shadow: none;
+}

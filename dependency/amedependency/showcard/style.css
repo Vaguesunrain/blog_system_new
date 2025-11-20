@@ -1,0 +1,155 @@
+
+.stellar-log-card {
+
+    --card-bg-color: #121829;
+    --glow-color: #00f6ff;
+    --text-color: #cdd5f7;
+    --text-muted-color: #6f7a9b;
+    --border-width: 2px;
+
+    font-family: 'Orbitron', sans-serif;
+
+   max-width: 400px;
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    border: var(--border-width) solid rgba(var(--glow-color), 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+
+    clip-path: polygon(
+        0% 20px, 20px 0%, 100% 0%, 100% calc(100% - 20px),
+        calc(100% - 20px) 100%, 0% 100%
+    );
+
+    box-shadow: 0 0 15px rgba(var(--glow-color), 0.2),
+                0 0 30px rgba(var(--glow-color), 0.1);
+}
+
+.stellar-log-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(var(--glow-color), 0.8);
+    box-shadow: 0 0 25px rgba(var(--glow-color), 0.5),
+                0 0 50px rgba(var(--glow-color), 0.3);
+}
+
+.stellar-log-card .card-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+}
+
+.stellar-log-card .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.stellar-log-card:hover .card-image img {
+    transform: scale(1.1);
+}
+
+.stellar-log-card .card-content {
+    padding: 1.5rem;
+}
+
+.stellar-log-card .card-user {
+    display: inline-block;
+    background-color: rgba(var(--glow-color), 0.1);
+    color: var(--glow-color);
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-left: 3px solid var(--glow-color);
+    margin-bottom: 1rem;
+}
+
+.stellar-log-card .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+    text-shadow: 0 0 5px rgba(var(--glow-color), 0.7);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+@media (orientation: portrait) {
+    .stellar-log-card .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+    text-shadow: 0 0 5px rgba(var(--glow-color), 0.7);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+}
+.stellar-log-card .card-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.stellar-log-card .card-meta svg {
+    fill: var(--text-muted-color);
+}
+
+.stellar-log-card .card-excerpt {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    /* limit 3 lines */
+     overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+
+}
+@media (orientation: portrait) {
+    .stellar-log-card .card-excerpt {
+    font-size: 0.7rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    /* limit 3 lines */
+     overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+
+}
+}
+.stellar-log-card .card-read-more {
+    display: inline-block;
+    color: var(--glow-color);
+    text-decoration: none;
+    font-weight: 700;
+    border: 2px solid var(--glow-color);
+    padding: 0.5rem 1rem;
+    transition: background-color 0.3s, color 0.3s;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.stellar-log-card .card-read-more:hover {
+    background-color: var(--glow-color);
+    color: var(--card-bg-color);
+}

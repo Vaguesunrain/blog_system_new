@@ -1,0 +1,261 @@
+/* static/styles.css */
+
+/* ==========================================================================
+   Part 1: Base Card Styles (默认卡片样式)
+   ========================================================================== */
+
+.articles-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; /* 卡片之间的默认垂直间距 */
+    width: 100%;
+    align-items: center; /* 让卡片在容器中居中 */
+}
+
+.stellar-log-strip {
+    --card-bg-color: #121829;
+    --glow-color: #00f6ff;
+    --text-color: #cdd5f7;
+    --text-muted-color: #6f7a9b;
+    --border-width: 2px;
+    --edit-glow-color: #ffc400;
+    --delete-glow-color: #ff3333;
+
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    height: 250px; /* 默认高度 */
+    width: 100%;
+    max-width: 770px; /* 默认最大宽度 */
+    background-color: var(--card-bg-color);
+    border: var(--border-width) solid rgba(var(--glow-color), 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 15px rgba(var(--glow-color), 0.2), 0 0 30px rgba(var(--glow-color), 0.1);
+    clip-path: polygon(0% 15px, 15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%);
+
+    /* 将动画属性放在这里，以便全局卡片都能使用 */
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out, transform 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.stellar-log-strip.is-visible {
+    opacity: 1;
+}
+
+.stellar-log-strip:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(var(--glow-color), 0.8);
+    box-shadow: 0 0 25px rgba(var(--glow-color), 0.5), 0 0 50px rgba(var(--glow-color), 0.3);
+}
+
+/* --- Base: Image --- */
+.stellar-log-strip .strip-image-wrapper {
+    flex: 0 0 200px;
+    overflow: hidden;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+}
+
+.stellar-log-strip .strip-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.stellar-log-strip:hover .strip-image-wrapper img {
+    transform: scale(1.1);
+}
+
+/* --- Base: Content --- */
+.stellar-log-strip .strip-content {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden; /* 防止内容溢出 */
+}
+
+.stellar-log-strip .strip-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+    text-shadow: 0 0 5px rgba(var(--glow-color), 0.7);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.stellar-log-strip .strip-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.stellar-log-strip .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stellar-log-strip .strip-meta svg {
+    fill: var(--text-muted-color);
+    width: 16px;
+    height: 16px;
+    transition: fill 0.3s ease;
+}
+
+.stellar-log-strip:hover .strip-meta svg {
+    fill: var(--glow-color);
+}
+
+/* 【重要修正】这里是摘要的正确选择器和样式 */
+.stellar-log-strip .strip-excerpt {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    /* 多行文本截断 */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 默认显示2行 */
+    -webkit-box-orient: vertical;
+}
+
+/* --- Base: Bottom Content (Buttons) --- */
+.stellar-log-strip .content-bottom {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.strip-read-more, .action-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, text-shadow 0.3s;
+}
+
+.strip-read-more {
+    display: inline-block;
+    color: var(--glow-color);
+    text-decoration: none;
+    border: 2px solid var(--glow-color);
+    padding: 0.5rem 1rem;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.strip-read-more:hover {
+    background-color: var(--glow-color);
+    color: var(--card-bg-color);
+    text-shadow: none;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.action-btn {
+    background: transparent;
+    border: 2px solid;
+    padding: 0.5rem 1rem;
+    clip-path: polygon(0 8px, 8px 0, 100% 0, 100% 100%, calc(100% - 8px) 100%, 0 100%);
+}
+.strip-edit-btn { border-color: var(--edit-glow-color); color: var(--edit-glow-color); }
+.strip-edit-btn:hover { background-color: var(--edit-glow-color); color: var(--card-bg-color); text-shadow: 0 0 8px rgba(0,0,0,0.5); }
+.strip-delete-btn { border-color: var(--delete-glow-color); color: var(--delete-glow-color); }
+.strip-delete-btn:hover { background-color: var(--delete-glow-color); color: #fff; text-shadow: 0 0 8px rgba(0,0,0,0.5); }
+
+
+/* ==========================================================================
+   Part 2: Modifier Styles for .page_two (紧凑版卡片的覆盖样式)
+   ========================================================================== */
+
+/* 仅当 .articles-grid 在 .page_two 内部时，修改它的间距 */
+.page_two .articles-grid {
+    gap: 1rem; /* 减小卡片间距 */
+    padding: 0 2rem; /* 增加左右内边距 */
+    box-sizing: border-box;
+}
+
+/* 仅修改 .page_two 内部卡片的特定属性 */
+.page_two .stellar-log-strip {
+    height: 150px;       /* 覆盖: 减小高度 */
+    max-width: 700px;    /* 覆盖: 减小最大宽度 */
+    flex-shrink: 0;
+}
+
+.page_two .strip-image-wrapper {
+    flex-basis: 150px;  /* 覆盖: 减小图片宽度 */
+    clip-path: polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%); /* 覆盖: 减小斜切 */
+}
+
+.page_two .strip-content {
+    padding: 1rem; /* 覆盖: 减小内边距 */
+}
+
+.page_two .strip-title {
+    font-size: 1.2rem;   /* 覆盖: 减小字号 */
+    margin-bottom: 0.5rem;
+}
+
+.page_two .strip-meta {
+    font-size: 0.7rem;   /* 覆盖: 减小字号 */
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.page_two .strip-meta svg {
+    width: 14px;         /* 覆盖: 减小图标大小 */
+    height: 14px;
+}
+
+.page_two .strip-excerpt {
+    font-size: 0.8rem;      /* 覆盖: 减小字号 */
+    -webkit-line-clamp: 1;  /* 覆盖: 只显示1行 */
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+}
+
+.page_two .content-bottom {
+    align-items: flex-end;
+}
+
+.page_two .strip-read-more,
+.page_two .action-btn {
+    padding: 0.2rem 0.6rem; /* 覆盖: 减小按钮内边距 */
+    font-size: 0.75rem;     /* 覆盖: 减小按钮字号 */
+    border-width: 1px;
+}
+
+.page_two .strip-read-more {
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+
+
+#loadingIndicator {
+    color: var(--glow-color);
+    text-align: center;
+    font-size: 1.2rem;
+}
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(0, 246, 255, 0.3);
+    border-top-color: var(--glow-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

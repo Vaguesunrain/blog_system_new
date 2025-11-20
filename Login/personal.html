@@ -1,0 +1,674 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="../dependency/amedependency/follow_nav/navbar.css"/>
+        <link rel="stylesheet" type="text/css" href="../dependency/amedependency/starsback/stars.css"/>
+        <link rel="stylesheet" type="text/css" href="../dependency/amedependency/style-all.css"/>
+        <link rel="stylesheet" type="text/css" href="../dependency/tooltipster-3.3.0/css/tooltipster.css"/>
+        <script src="personal.js"></script>
+        <link rel="stylesheet" href="personnal_new.css">
+        <script src="../administrator/config.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+        <script type="text/javascript" src="../dependency/jquery-1.7.0.min.js"></script>
+        <script type="text/javascript" src="../dependency/tooltipster-3.3.0/js/jquery.tooltipster.min.js"></script>
+        <title>个人主页</title>
+    </head>
+    <div class="background-star" style="height: 100%;">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+    </div>
+
+    <body style=" background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);">
+        <div class="main-content" id="main-content">
+            <div class="navbar " id="nav">
+                <h1 class="title" style="font-size: 50px; font-family: emmm; ; font-weight: bolder;">Galaxy</h1>
+                <div class="container_right">
+
+                    <div class="carousel-top">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="30" fill="white" class="bi-house tooltip"  viewBox="0 0 16 16"   data-placement="bottom" title="back to home" onclick="redirectToHome()">
+
+      <path fill-rule="evenodd" d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207l-5-5-5 5V13.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7.207Z"/>
+    </svg>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="30" fill="white" class="bi-person-up tooltip" viewBox="0 0 16 16"    data-placement="bottom" title="i want to change my image" onclick="showModal_icon()">
+      <path fill-rule="evenodd" d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.354-5.854a.5.5 0 0 0-.708 0l-1.5 1.5a.5.5 0 0 0 .708.708l.646-.647V14.5a.5.5 0 0 0 1 0v-2.793l.646.647a.5.5 0 0 0 .708-.708l-1.5-1.5ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+      <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Z"/>
+    </svg>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="30" fill="white" class="bi-pen tooltip" viewBox="0 0 16 16"   data-placement="bottom" title="i want to change the text infomation" onclick="showModal()">
+      <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"/>
+    </svg>
+
+  </div>
+                </div>
+
+
+            </div>
+            <div id="myModal" class="modal_text">
+    <div class="modal-content">
+        <input type="text" placeholder="Enter motto here..." name="motto">
+        <input type="text" placeholder="Enter name here..." name="name">
+        <input type="text" placeholder="Enter gender here..." name="gender">
+        <button class="btn cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="btn close-btn" onclick="closeModal()">Confirm</button>
+    </div>
+</div>
+
+<div id="myModal_icon" class="modal-icon">
+    <div class="modal-icon-content">
+        <button class="close-icon-btn" onclick="closeModal_icon()">&times;</button>
+        <h2>choose your image and cut it</h2>
+        <div class="avatar-container">
+            <img id="avatarImg" src="#" alt="Avatar Preview">
+        </div>
+        <input type="file" id="imageInput" accept="image/*" style="display:none;">
+        <button class="icon-btn open-btn" onclick="openFilePicker()">Open Image</button>
+        <button class="icon-btn confirm-btn" onclick="confirmChanges()">Confirm Changes</button>
+    </div>
+</div>
+
+<aside>
+
+    <div class="pagination-dots">
+      <span class="dot active" data-index="0"></span>
+      <span class="dot" data-index="1"></span>
+      <span class="dot" data-index="2"></span>
+
+  </div>
+</aside>
+
+<div class="carousel">
+    <div class="carousel-inner">
+
+        <section class="carousel-item page_one" id="page1">
+            <div class="cen_con">
+                <div class="portrait">
+                    <img class="icon" id="userAvatar" src="../person_img/none.jpg">
+                </div>
+
+                <HR  width=300 color=white SIZE=1>
+
+
+                <div class="cen_text">
+
+                    <h2 class="motto" style="color: white; text-align: center; text-size-adjust: 100%; font-size: 40px">Witness my best years with the time of a flower's reincarnation.</h2>
+                    &nbsp;
+                    &nbsp;
+                    &nbsp;
+                    <h2 class="name" style="color: white; text-align: left; font-size: medium;text-size-adjust: 100%; font-size: 20px ">• NAME: Vaguesunrain</h2>
+                    <h2 class="email" style="color: white; text-align: left; font-size: medium; text-size-adjust: 100%; font-size: 20px">• EMAIL: example@gmail.com</h2>
+                    <h2 class="male" style="color: white; text-align: left; font-size: medium; text-size-adjust: 100%; font-size: 20px">• GENDER: Girl/Boy</h2>
+                </div>
+            </div>
+        </section>
+        <section class="carousel-item page_two" id="page2">
+
+            <div class="text_head">Your Blog List:</div>
+            <div id="myArticlesContainer" class="articles-grid" style="display: none;">
+        <!-- 文章卡片将由 JavaScript 动态插入到这里 -->
+            </div>
+<div class="cross">
+                    <div class="horizontal"></div>
+                    <div class="vertical"></div>
+                </div>
+    <!-- 3. “无数据”提示：默认显示，有数据时由JS隐藏 -->
+            <div id="emptyStateMessage">
+
+                <div class="text">
+                    You don't have any footprints yet.
+                    <a href="../work_space/blue_card_edit.html">Write something now!</a>
+                </div>
+            </div>
+
+            <div class="text_end" id="moreBlogsLink" style="display: none;"> <a href="../BlogManage/blogManage.html">More about my blogs>> </a></div>
+
+        </section>
+        <section class="carousel-item page_three" id="page3">
+            <div class="text">THIS PAGE IS EMPTY,WE HAVE NOT DESIGN IT.</div>
+
+        </section>
+<!-- 假设你还有一个加载指示器 -->
+<div id="loadingIndicator" style="display: none;">
+    <div class="spinner"></div>
+    <p>Accessing secure server...</p>
+</div>
+    </div>
+</div>
+        </div>
+
+        <div id="focus-container">
+            <div id="focus-element">
+                <iframe id="focus-iframe" allowfullscreen></iframe>
+            </div>
+            <button id="close-focus-btn">×</button>
+        </div>
+    </body>
+</html>
+
+
+
+<style>
+
+</style>
+
+<script src="../dependency/amedependency/solarsystem/script.js"></script>
+<script src="../dependency/amedependency/follow_nav/navbar.js"></script>
+<script>
+
+  $(document).ready(function() {
+    theme: 'my-custom-theme',
+        $('.tooltip').tooltipster();
+
+    });
+
+
+getusernameForInfo()
+// 这里要使用特殊的方法来获取用户名和图片
+loadMyArticles()
+
+ document.addEventListener('DOMContentLoaded', function() {
+    const carouselInner = document.querySelector('.carousel-inner');
+    const items = document.querySelectorAll('.carousel-item');
+    const dots = document.querySelectorAll('.dot');
+    const totalItems = items.length;
+    let currentIndex = 0;
+
+    function showPage(index, is_up) {
+    // --- 边界处理：处理滚动到第一页之前和最后一页之后的情况 ---
+        let newIndex = currentIndex;
+        if (is_up) {
+            if (currentIndex > 0) newIndex--;
+        } else {
+            if (currentIndex < totalItems - 1) newIndex++;
+        }
+    // 如果索引没有变化，则不执行任何操作
+        if (newIndex === currentIndex) return;
+
+        const currentItem = items[currentIndex];
+        if (currentItem) {
+            currentItem.style.display = 'none';
+        // 如果我们正要离开的是第二页，则重置它的动画
+            if (currentIndex === 1) {
+                resetPageTwoAnimations();
+            }
+        }
+
+        const newItem = items[newIndex];
+        if (newItem) {
+            newItem.style.display = 'flex'; // 或者 'block'，根据你的布局
+        // 如果我们刚刚进入的是第二页，则触发它的动画
+            if (newIndex === 1) {
+            // 在主要文字动画开始后（例如1秒后）再开始卡片动画，效果更好
+            // 你的 .text 动画延迟是 1s，所以我们可以在这之后开始
+                setTimeout(triggerPageTwoAnimations, 1000); // 延迟1秒触发
+            }
+        }
+        currentIndex = newIndex;
+        updateDots();
+    }
+
+    function updateDots() {
+        dots.forEach(dot => dot.classList.remove('active'));
+        dots[currentIndex].classList.add('active');
+    }
+
+    function handleWheel(event) {
+        if (event.deltaY < 0) {
+            showPage(currentIndex - 1,true);
+        } else if (event.deltaY > 0) {
+            showPage(currentIndex + 1,false);
+        }
+    }
+
+    function handleTouchStart(event) {
+    const touchStartY = event.touches[0].clientY;
+    event.target.dataset.touchStartY = touchStartY;
+    console.log(touchStartY,"start y");
+}
+
+function handleTouchEnd(event) {
+    const touchEndY = event.changedTouches[0].clientY;
+    const touchStartY = parseFloat(event.target.dataset.touchStartY);
+    const swipeThreshold = 30; // Minimum swipe distance in pixels to detect a swipe
+    console.log("end y",touchEndY);
+    if (touchStartY - touchEndY > swipeThreshold) {
+        showPage(currentIndex - 1, true);
+    } else if (touchEndY - touchStartY > swipeThreshold) {
+        showPage(currentIndex + 1, false);
+    }
+}
+
+
+    // dots.forEach(dot => {
+    //     dot.addEventListener('click', () => {
+    //         const index = parseInt(dot.getAttribute('data-index'));
+    //         console.log(index);
+    //         showPage(index);
+    //     });
+    // });//这部分代码使用showpage 参数不对，懒得改了，先删除了
+
+    document.addEventListener('wheel', handleWheel);
+    document.addEventListener('touchstart', handleTouchStart);
+document.addEventListener('touchend', handleTouchEnd);
+    // 初始化第一个页面和对应的dot
+    showPage(currentIndex);
+});
+
+
+var cropper;
+function openFilePicker() {
+    document.getElementById('imageInput').click();
+}
+
+document.getElementById('imageInput').addEventListener('change', function() {
+    var file = this.files[0];
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var img = document.getElementById('avatarImg');
+            img.src = event.target.result;
+             // 销毁旧的 Cropper 实例（如果存在）
+             if (cropper) {
+                cropper.destroy();
+            }
+            // 初始化 Cropper.js
+            cropper = new Cropper(img, {
+                aspectRatio: 1, // 设置裁剪框比例为1:1，即正方形
+                viewMode: 2, // 显示裁剪框的模式：限制在容器内并且不超出容器
+                autoCropArea: 0.8, // 初始裁剪框大小占图像大小的比例
+                movable: true,
+                zoomable: true,
+                rotatable: true,
+                scalable: true
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function confirmChanges() {
+    if (cropper) {
+        // 获取裁剪后的图像数据
+        var croppedCanvas = cropper.getCroppedCanvas();
+        if (croppedCanvas) {
+            // 将裁剪后的图像显示在预览区域
+            document.getElementById('avatarImg').src = croppedCanvas.toDataURL();
+        }
+        // 可以在这里处理上传等逻辑
+    }
+     croppedCanvas.toBlob(function(blob) {
+    if (!blob) {
+      alert('无法生成图片数据(Blob)！');
+      return;
+    }
+
+
+    uploadAvatar(blob)
+      .then(serverData => {
+        // 【成功处理】
+        console.log('上传成功，服务器返回:', serverData);
+        var modal = document.getElementById('myModal');
+        modal.style.display = 'none';
+        alert('Changes confirmed!');
+        closeModal_icon();
+        onlyGetperson_photo();
+      })
+      .catch(error => {
+        // 【失败处理】
+        console.error('上传失败详情:', error);
+        alert(`Error: ${error.message}`); // 失败时，显示更详细的错误提示
+      });
+  });
+
+}
+
+</script>
+
+
+<style>
+    .modal_text {
+    display: none; /* 初始隐藏 */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(214, 203, 203, 0.4);
+
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+.modal-content {
+    background-color: rgba(255, 255, 255,0.2); /* 半透明背景 */
+    margin: 10% auto; /* 调整上下边距 */
+    padding: 30px; /* 调整内边距 */
+    border: 1px solid #888;
+    width: 90%; /* 调整宽度 */
+    max-width: 600px; /* 调整最大宽度 */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    border-radius: 15px;
+}
+
+/* 输入框样式 */
+.modal-content input[type="text"] {
+    background-color: rgba(214, 203, 203, 0.4);
+    color: rgb(255, 255, 255);
+    width: 100%;
+    padding: 16px;
+    margin: 10px 0; /* 调整输入框之间的间距 */
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 18px; /* 调整字体大小 */
+}
+
+/* 按钮容器样式 */
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px; /* 调整顶部间距 */
+}
+
+/* 按钮样式 */
+.modal-content .btn {
+    width: 48%; /* 调整按钮宽度 */
+    padding: 16px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.close-btn {
+    background-color: rgba(41, 33, 33, 0.5);
+    color: white;
+}
+
+.cancel-btn {
+    background-color: rgba(18, 14, 14, 0.5);
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+/* 添加淡入动画 */
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+
+.carousel {
+position: relative;
+width: 100%;
+height: 80%;
+z-index: 1; /* 确保carousel有z-index */
+}
+
+
+
+
+
+.carousel-inner {
+display: flex;
+flex-direction: column;
+width: 100%;
+height: 100%;
+transition: transform 0.5s ease;
+}
+
+.carousel-item {
+min-height: 100%;
+width: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+
+
+.pagination-dots {
+position: fixed;
+top: 50%;
+right: 10px;
+transform: translateY(-50%);
+display: flex;
+flex-direction: column;
+gap: 10px;
+z-index: 2; /* 确保pagination-dots有更高的z-index */
+}
+
+.dot {
+width: 10px;
+height: 10px;
+background-color: gray;
+border-radius: 50%;
+cursor: pointer;
+}
+
+.dot.active {
+background-color: orange;
+}
+.icon{
+width: 150px;
+height: 150px;
+border-radius: 50%;
+margin-left: auto;
+margin-right: auto;
+display: block;
+}
+
+
+.modal-icon {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+    z-index: 2;
+}
+
+/* 模态框内容 */
+.modal-icon-content {
+    background-color: rgba(255, 255, 255,0.2);
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative; /* 设置相对定位，以便绝对定位关闭按钮 */
+    border-radius: 15px;
+}
+
+/* 图像预览容器 */
+.avatar-container {
+    width: 100%;
+    height: 300px; /* 调整预览容器高度 */
+    margin-bottom: 20px;
+}
+.close-icon-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 24px;
+    background: none;
+    border: none;
+    outline: none;
+}
+
+/* 按钮样式 */
+.icon-btn {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.open-btn {
+    background-color: rgba(41, 33, 33, 0.5);
+    color: white;
+}
+
+.confirm-btn {
+    background-color: rgba(18, 14, 14, 0.5);
+    color: white;
+}
+
+.page_one {
+    display: flex;
+    animation: slideInFromBottom 0.5s ease forwards;
+}
+
+
+
+.page_three{
+    position: relative;
+
+    display: none;
+    /* animation: slideInFromBottom 0.5s ease forwards; */
+}
+
+
+@keyframes slideInFromBottom {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutToBottom {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.page_two{
+    display: none;
+}
+.cross {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    top:10%;
+    left: 10%;
+    background-color: transparent;
+  pointer-events: none; /*make card hover enabled*/
+}
+
+.horizontal, .vertical {
+    position: absolute;
+    background-color: white;
+}
+
+.horizontal {
+    width: 100%;
+    height: 2px;
+    top: 50%;
+    left: 0;
+    animation: moveHorizontal 1s forwards;
+}
+
+.vertical {
+    width: 2px;
+    height: 100%;
+    left: 50%;
+    top: 0;
+    animation: moveVertical 1s forwards;
+}
+.text_head{
+    position: absolute;
+    top:15%;
+    left: 15%;
+    color: white;
+    font-size: 40px;
+
+    text-align: center;
+    opacity: 0;
+    animation: showText 1s forwards 1s;
+}
+#page_three .text{
+    position: absolute;
+    color: white;
+    font-size: 40px;
+    text-align: center;
+    opacity: 0;
+}
+.text {
+    position: absolute;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    opacity: 0;
+    animation: showText 1s forwards 1s;
+}
+.text_end{
+    position: absolute;
+    bottom: 15%;
+    right: 15%;
+    color: white;
+    font-size: 25px;
+    text-align: center;
+    opacity: 0;
+    animation: showText 1s forwards 1s;
+}
+@keyframes moveHorizontal {
+    0% {
+        top: 50%;
+        width: 0;
+    }
+    100% {
+        top: 4%;
+        width: 100%;
+    }
+}
+
+@keyframes moveVertical {
+    0% {
+        left: 50%;
+        height: 0;
+    }
+    100% {
+        left: 4%;
+        height: 100%;
+    }
+}
+
+@keyframes showText {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+</style>

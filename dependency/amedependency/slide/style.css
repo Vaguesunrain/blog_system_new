@@ -1,0 +1,98 @@
+
+.slideshow-container {
+    position: relative; /* Needed for absolute positioning of elements if required later */
+
+    width: 90%;
+    overflow: hidden; /* Hides the slides that are not active */
+    border: 2px solid black; /* Matches the border in your image */
+    background-color: white; /* Matches the background in your image */
+    min-height: 400px; /* Give it some default height */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack slides container and dots */
+}
+
+.slides-wrapper {
+    display: flex; /* Arrange slides side-by-side */
+    transition: transform 0.5s ease-in-out; /* Animation for sliding */
+    flex-grow: 1; /* Allow wrapper to take up space */
+}
+
+.slide {
+    min-width: 100%; /* Each slide takes full container width */
+    flex-shrink: 0; /* Prevent slides from shrinking */
+    box-sizing: border-box;
+}
+
+.slide img {
+    display: block; /* Remove extra space below image */
+    width: 100%;   /* Make image fill the slide width */
+    height: auto;  /* Maintain aspect ratio */
+    max-height: 500px; /* Optional: limit image height */
+    object-fit: contain; /* Ensure image fits without distortion */
+}
+
+/* Optional: Style for the dots container */
+.dots-container {
+    text-align: center;
+    padding: 15px 0;
+    background-color: white; /* Ensure dots are on white background */
+}
+
+/* Style for the dots */
+.dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #bbb; /* Default dot color (grey) */
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Style for the active dot */
+.dot.active {
+    background-color: #333; /* Active dot color (dark grey/black) */
+}
+
+ /* Style for the button inside the image (recreated approximately) */
+ .image-content-wrapper {
+    position: relative; /* Needed for positioning elements on top */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* Arrange image and simulated elements */
+    justify-content: space-between; /* Pushes elements apart */
+    align-items: center;
+    min-height: 350px; /* Ensure minimum height */
+    padding-bottom: 50px; /* Space for the dots */
+ }
+
+.simulated-button {
+    border: 2px solid black;
+    padding: 10px 20px;
+    margin-top: auto; /* Push to bottom relative to its vertical space */
+    margin-bottom: 20px; /* Spacing from bottom */
+    margin-left: 5%; /* Position roughly like the image */
+    margin-right: auto;
+    font-size: 18px; /* Approximate size */
+    display: inline-block; /* Make it only as wide as content */
+    align-self: flex-start; /* Align to the left */
+}
+
+ .simulated-dots-on-image {
+    position: absolute; /* Position relative to wrapper */
+    bottom: 20px; /* Distance from bottom */
+    right: 5%; /* Distance from right */
+ }
+ .simulated-dot {
+     display: inline-block;
+     width: 12px;
+     height: 12px;
+     border-radius: 50%;
+     margin-left: 8px;
+     background-color: #ccc; /* Light grey */
+ }
+ .simulated-dot.dark {
+     background-color: #ccc; /* Dark grey/black */
+ }

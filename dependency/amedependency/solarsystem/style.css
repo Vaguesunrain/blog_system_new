@@ -1,0 +1,146 @@
+:root {
+    --sector-final-scale: 6;
+    --arc1-radius: 2px;
+    --arc2-radius: 4px;
+    --arc3-radius: 5px;
+    --focus-transition-duration: 0.5s;
+}
+
+/* body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+    overflow: hidden;
+} */
+
+/* --- 图标和扇区样式 (基本不变) --- */
+.icon-container {
+    /* ... (省略之前的样式) ... */
+    position: fixed; top: 10px; right: 20px; width: 50px; height: 50px;
+    border-radius: 50%; cursor: pointer; z-index: 1000;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5); background-color: #162447;
+}
+.icon-img { /* ... */ display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 2;}
+.expanding-sector { /* ... */ position: absolute; width: 1px; height: 1px; top: 50%; right: 50%; background-color: rgba(22, 36, 71, 0.8); border-radius: 0 0 0 100%; transform-origin: top right; transform: scale(0); transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 1; overflow: visible; pointer-events: none;}
+.icon-container.expanded .expanding-sector { transform: scale(var(--sector-final-scale)); pointer-events: auto; /* 展开后允许内部点击 */ }
+
+/* --- 弧线样式 (不变) --- */
+.arc { /* ... */ position: absolute; top: 0; right: 0; border: 1px solid rgba(255, 255, 255, 0.3); border-top: none; border-right: none; border-radius: 0 0 0 100%; background-color: transparent; z-index: 3; box-sizing: border-box; pointer-events: none;}
+.arc-1 { width: var(--arc1-radius); height: var(--arc1-radius); }
+.arc-2 { width: var(--arc2-radius); height: var(--arc2-radius); border-width: 2px; }
+.arc-3 { width: var(--arc3-radius); height: var(--arc3-radius); border-style: dashed; border-color: rgba(0, 191, 255, 0.4); }
+
+/* --- 行星样式 (添加 pointer-events) --- */
+.planet {
+    position: absolute; top: 0; right: 0; border-radius: 50%; z-index: 4;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.7); transform-origin: top right;
+    transform: rotate(var(--angle)) translateY(var(--radius)) translate(-50%, -50%);
+    width: var(--size); height: var(--size); background-color: var(--color);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out 0.3s;
+    pointer-events: none; /* 默认不可点击 */
+    cursor: pointer; /* 悬停时显示指针 */
+
+    display: flex;            /* 将行星容器设为 Flex 容器 */
+    justify-content: center; /* 子项（文字）水平居中 */
+    align-items: center;    /* 子项（文字）垂直居中 */
+    text-align: center;       /* 确保文字本身也是居中的（对于多行情况有帮助） */
+}
+.icon-container.expanded .planet {
+    opacity: 1;
+    pointer-events: auto; /* 展开后可点击 */
+}
+
+
+/* --- 聚焦容器和元素样式 --- */
+#focus-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* 半透明背景 */
+    z-index: 1100; /* 比图标高 */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--focus-transition-duration) ease-in-out;
+    display: flex; /* 使用 flex 布局方便后续可能的居中 */
+    justify-content: center;
+    align-items: center;
+}
+#focus-container.focus-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#focus-element {
+    position: absolute; /* 相对于 viewport 定位，由 JS 设置 top/left */
+    border-radius: 50%; /* 初始是圆形 */
+    z-index: 1101;
+    transition: top var(--focus-transition-duration) ease-in-out,
+                left var(--focus-transition-duration) ease-in-out,
+                width var(--focus-transition-duration) ease-in-out,
+                height var(--focus-transition-duration) ease-in-out,
+                border-radius var(--focus-transition-duration) ease-in-out,
+                background-color var(--focus-transition-duration) ease-in-out,
+                transform var(--focus-transition-duration) ease-in-out;
+    opacity: 0; /* 初始由 JS 设置为1 */
+    overflow: hidden; /* 隐藏内部 iframe 直到加载 */
+    width: auto;
+    height: auto;
+    overflow: hidden;
+}
+
+/* 状态：移动到中心 */
+#focus-element.focus-element-moving {
+    top: 50% !important; /* 使用 !important 覆盖 JS 设置的 inline style */
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* 状态：展开成矩形 */
+#focus-element.focus-element-expanding {
+    width: 900.5px !important;
+    height: 550.5px !important;
+    border-radius: 10px !important;
+      overflow: hidden;
+    background-color: #fff !important;
+}
+
+#focus-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block; /* 防止底部空隙 */
+    opacity: 0;
+     transform-origin: top left;
+    transition: opacity 0.4s ease-in-out 0.1s; /* 延迟显示 */
+}
+
+#focus-iframe.iframe-visible {
+    opacity: 1;
+}
+
+#close-focus-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 1102;
+    opacity: 0;
+    transition: opacity var(--focus-transition-duration) ease-in-out;
+}
+ #focus-container.focus-active #close-focus-btn {
+    opacity: 1;
+ }
+

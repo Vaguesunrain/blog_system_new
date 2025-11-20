@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Progress Bar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Solar System Progress</h1>
+
+<div class="solar-system-progress">
+    <div class="progress-track">
+        <div class="progress-fill"></div>
+    </div>
+
+    <!-- Celestial Bodies -->
+    <div id="sun" class="celestial-body" data-position="0">
+        <span class="planet-label">Sun</span>
+    </div>
+    <div id="mercury" class="celestial-body" data-position="0.111">
+         <span class="planet-label">Mercury</span>
+    </div>
+    <div id="venus" class="celestial-body" data-position="0.222">
+         <span class="planet-label">Venus</span>
+    </div>
+    <div id="earth" class="celestial-body" data-position="0.333">
+         <span class="planet-label">Earth</span>
+    </div>
+    <div id="mars" class="celestial-body" data-position="0.444">
+         <span class="planet-label">Mars</span>
+    </div>
+    <div id="jupiter" class="celestial-body" data-position="0.555">
+         <span class="planet-label">Jupiter</span>
+    </div>
+    <div id="saturn" class="celestial-body" data-position="0.666">
+         <span class="planet-label">Saturn</span>
+    </div>
+    <div id="uranus" class="celestial-body" data-position="0.777">
+         <span class="planet-label">Uranus</span>
+    </div>
+    <div id="neptune" class="celestial-body" data-position="0.888">
+         <span class="planet-label">Neptune</span>
+    </div>
+    <div id="pluto" class="celestial-body" data-position="1.0">
+         <span class="planet-label">Pluto</span>
+    </div>
+
+</div>
+
+<!-- Example Control (Optional) -->
+<div style="margin-top: 100px; text-align: center;">
+    <label for="progressInput">Set Progress (0-100): </label>
+    <input type="range" id="progressInput" min="0" max="100" value="30" oninput="updateProgress(this.value)">
+    <span id="progressValue">30%</span>
+</div>
+
+
+<script src="script.js"></script>
+<script>
+    // Update display for optional slider
+    const progressInput = document.getElementById('progressInput');
+    const progressValueSpan = document.getElementById('progressValue');
+    if (progressInput) {
+        progressInput.addEventListener('input', () => {
+            progressValueSpan.textContent = progressInput.value + '%';
+        });
+    }
+</script>
+
+</body>
+</html>

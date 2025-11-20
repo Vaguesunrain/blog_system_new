@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Users</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        ul { list-style: none; padding: 0; }
+        li { border: 1px solid #ccc; margin-bottom: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        button { cursor: pointer; padding: 5px 10px; }
+        .user-info { flex-grow: 1; margin-right: 10px; }
+        .error { color: red; margin-top: 10px; }
+        .message { color: green; margin-top: 10px; }
+        #controls { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>User Management</h1>
+
+    <div id="controls">
+        <button onclick="fetchUsers()">Refresh User List</button>
+    </div>
+
+    <h2>User List</h2>
+    <ul id="userList">
+        <!-- User list will be populated here -->
+    </ul>
+
+    <div id="statusMessage" class="message" style="display: none;"></div>
+    <div id="errorMessage" class="error" style="display: none;"></div>
+
+    <script>
+        const userListElement = document.getElementById('userList');
+        const statusMessageElement = document.getElementById('statusMessage');
+        const errorMessageElement = document.getElementById('errorMessage');
+
+        // Function to display status messages
+        function showMessage(message, isError = false) {
+            const element = isError ? errorMessageElement : statusMessageElement;
+            const otherElement = isError ? statusMessageElement : errorMessageElement;
+
+            element.textContent = message;
+            element.style.display = 'block';
+            otherElement.style.display = 'none'; // Hide the other message type
+
+            // Optional: Hide message after a few seconds
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to fetch users from the backend
+        async function fetchUsers() {
+            showMessage("Fetching users...", false); // Show loading status
+            try {
+                // Use the correct endpoint URL relative to your application setup
+                // If the blueprint is mounted at '/admin', the URL would be '/admin/getlist'
+                // Assuming it's mounted at the root for simplicity here:
+                const response = await fetch('http://192.168.43.77:5000/getlist'); // Adjust URL if blueprint has a prefix
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: "Unknown error structure" }));
+                    throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error || 'Failed to fetch'}`);
+                }
+
+                const users = await response.json();
+                displayUsers(users);
+                if (users.length > 0) {
+                     showMessage("User list updated.", false);
+                } else {
+                     showMessage("No users found in the list.", false);
+                }
+
+            } catch (error) {
+                console.error('Error fetching users:', error);
+                showMessage(`Error fetching users: ${error.message}`, true);
+                userListElement.innerHTML = '<li>Failed to load users.</li>'; // Clear list on error
+            }
+        }
+
+        // Function to display users in the list
+        function displayUsers(users) {
+            userListElement.innerHTML = ''; // Clear existing list
+
+            if (users.length === 0) {
+                userListElement.innerHTML = '<li>No users found.</li>';
+                return;
+            }
+
+            users.forEach(user => {
+                const listItem = document.createElement('li');
+
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user-info';
+                userInfo.textContent = `Name: ${user.name || 'N/A'} - Email: ${user.email}`; // Added fallback for name
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteUser(user.email ,user.name); // Pass email to delete function
+
+                listItem.appendChild(userInfo);
+                listItem.appendChild(deleteButton);
+                userListElement.appendChild(listItem);
+            });
+        }
+
+        // Function to delete a user
+        async function deleteUser(email ,name) {
+            if (!confirm(`Are you sure you want to delete user: ${email}?`)) {
+                return; // User cancelled
+            }
+
+            showMessage(`Deleting ${email}...`, false);
+
+            try {
+                 // Adjust URL if blueprint has a prefix
+                const response = await fetch('http://192.168.43.77:5000/delete_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email ,name:name }), // Send email ,name in JSON body
+                });
+
+                const result = await response.json(); // Always try to parse JSON response
+
+                if (!response.ok) {
+                     // Use message from backend if available, otherwise generic error
+                     throw new Error(result.message || result.error || `HTTP error! Status: ${response.status}`);
+                }
+
+                showMessage(result.message || 'User deleted successfully.', false); // Show success message from backend
+                fetchUsers(); // Refresh the list after successful deletion
+
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showMessage(`Error deleting user: ${error.message}`, true);
+            }
+        }
+
+        // Initial fetch when the page loads
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+
+    </script>
+
+</body>
+</html>

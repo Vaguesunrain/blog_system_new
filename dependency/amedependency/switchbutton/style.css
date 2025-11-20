@@ -1,0 +1,81 @@
+
+.language-switch {
+    position: relative; /* Crucial for positioning children absolutely */
+    width: 200px;      /* Button width */
+    height: 60px;     /* Button height */
+    border-radius: 30px; /* Half of height for fully rounded ends */
+    border: 3px solid black;
+    overflow: hidden;  /* Clip the content to the rounded border */
+    cursor: pointer;
+    box-sizing: border-box; /* Include border in width/height */
+    user-select: none; /* Prevent text selection on click */
+    transition: background-color 0.4s ease-in-out; /* Optional: slight bg transition */
+}
+
+.language-switch:focus {
+    outline: 2px solid dodgerblue; /* Accessibility focus indicator */
+    outline-offset: 2px;
+}
+
+.bg-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: clip-path 0.4s ease-in-out; /* Animate the clip-path */
+}
+
+.bg-blue {
+    background-color: #00AEEF; /* Your blue color */
+    z-index: 1; /* Blue is underneath */
+}
+
+.bg-green {
+    background-color: #3CB371; /* Your green color */
+    z-index: 2; /* Green is on top */
+    /* Initial state (EN active): Green only visible on the right */
+    /* Defines a polygon cutting off most of the left side diagonally */
+    /* Points: top-right-start, top-right-end, bottom-right-end, bottom-right-start */
+    clip-path: polygon(85% 0%, 100% 0%, 100% 100%, 75% 100%);
+}
+
+/* State 2: Chinese Active (triggered by JS adding the class) */
+.language-switch.chinese-active .bg-green {
+    /* Green covers most area, revealing blue only on the left */
+    /* Points: top-left-end, top-right, bottom-right, bottom-left-end */
+    clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 15% 100%);
+}
+
+.text {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    z-index: 3; /* Text is on top of everything */
+    pointer-events: none; /* Text doesn't interfere with clicks */
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+/* Position English text in the blue area */
+.text-en {
+    left: 35%; /* Adjust as needed for centering in the blue part */
+}
+
+/* Position Chinese text in the green area */
+.text-zh {
+    right: 30%; /* Adjust as needed for centering in the green part */
+    opacity: 0; /* Initially hidden */
+}
+
+/* State 2: Chinese Active */
+.language-switch.chinese-active .text-en {
+    opacity: 0; /* Hide English text */
+}
+
+.language-switch.chinese-active .text-zh {
+    opacity: 1; /* Show Chinese text */
+}

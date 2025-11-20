@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天蝎座 (Scorpius)</title>
+    <style>
+        body {
+            background-color: #00001a;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #bf40ff, 0 0 20px #bf40ff;
+        }
+
+        p {
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        #constellation-container {
+            position: relative;
+            width: 600px;
+            height: 550px;
+            background: radial-gradient(ellipse at center, #1a1a3a 0%, #00001a 70%);
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(191, 64, 255, 0.3);
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #fff, 0 0 12px #fff;
+            transform: translate(-50%, -50%); /* Center the star on its coordinates */
+            transition: transform 0.3s ease;
+        }
+
+        .star:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+        }
+
+        /* 心宿二 (Antares), 天蝎座最亮的星，是颗红超巨星 */
+        #antares {
+            background-color: #ffddae;
+            box-shadow: 0 0 12px #ffddae, 0 0 20px #ff6347;
+        }
+
+        #line-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* 让Canvas不阻挡鼠标与星星的交互 */
+        }
+
+        #connect-button {
+            margin-top: 25px;
+            padding: 12px 25px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #8a2be2; /* BlueViolet */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+        }
+
+        #connect-button:hover {
+            background-color: #9932cc; /* DarkOrchid */
+            box-shadow: 0 0 25px rgba(153, 50, 204, 0.8);
+        }
+
+        #connect-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>天蝎座 (Scorpius)</h1>
+    <p>点击按钮，连接天蝎座的主要恒星</p>
+
+    <div id="constellation-container">
+        <!-- 星星将由JS动态创建 -->
+        <canvas id="line-canvas"></canvas>
+    </div>
+
+    <button id="connect-button">连接星星</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('constellation-container');
+            const canvas = document.getElementById('line-canvas');
+            const ctx = canvas.getContext('2d');
+            const button = document.getElementById('connect-button');
+
+            // 设置Canvas的绘图尺寸和其CSS尺寸一致
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+
+            // 天蝎座主要恒星的相对坐标和大小 (id用于连接)
+            const stars = [
+                { id: 'deneb-acrab', name: '房宿四', x: 280, y: 150, size: 4 },
+                { id: 'dschubba', name: '房宿三', x: 290, y: 195, size: 5 },
+                { id: 'antares', name: '心宿二', x: 350, y: 250, size: 9 }, // 主星
+                { id: 'alniyat', name: '心宿一', x: 365, y: 290, size: 4 },
+                { id: 'sargas', name: '尾宿五', x: 390, y: 390, size: 5 },
+                { id: 'epsilon-sco', name: '尾宿六', x: 440, y: 440, size: 4 },
+                { id: 'mu-sco', name: '尾宿二', x: 475, y: 470, size: 5 },
+                { id: 'zeta-sco', name: '尾宿四', x: 490, y: 500, size: 4 },
+                { id: 'eta-sco', name: '尾宿三', x: 460, y: 515, size: 5 },
+                { id: 'theta-sco', name: '尾宿一', x: 410, y: 505, size: 5 },
+                { id: 'lambda-sco', name: '尾宿八 (Shaula)', x: 430, y: 475, size: 6 },
+                { id: 'upsilon-sco', name: '尾宿九 (Lesath)', x: 445, y: 465, size: 5 },
+                { id: 'jabbah', name: '房宿二', x: 250, y: 190, size: 3 },
+            ];
+
+            // 星星之间的连接顺序
+            const connections = [
+                { from: 'deneb-acrab', to: 'dschubba' },
+                { from: 'dschubba', to: 'antares' },
+                { from: 'dschubba', to: 'jabbah' },
+                { from: 'antares', to: 'alniyat' },
+                { from: 'alniyat', to: 'sargas' },
+                { from: 'sargas', to: 'epsilon-sco' },
+                { from: 'epsilon-sco', to: 'mu-sco' },
+                { from: 'mu-sco', to: 'zeta-sco' },
+                { from: 'zeta-sco', to: 'eta-sco' },
+                { from: 'eta-sco', to: 'theta-sco' },
+                { from: 'theta-sco', to: 'lambda-sco' },
+                { from: 'lambda-sco', to: 'upsilon-sco' },
+            ];
+
+            // 创建星星DOM元素
+            stars.forEach(star => {
+                const starEl = document.createElement('div');
+                starEl.className = 'star';
+                starEl.id = star.id;
+                starEl.style.width = `${star.size}px`;
+                starEl.style.height = `${star.size}px`;
+                starEl.style.left = `${star.x}px`;
+                starEl.style.top = `${star.y}px`;
+                starEl.title = star.name; // 鼠标悬停时显示星星名字
+                container.appendChild(starEl);
+            });
+
+            // 绘制连接线的函数
+            function drawConnection(conn) {
+                const fromStar = stars.find(s => s.id === conn.from);
+                const toStar = stars.find(s => s.id === conn.to);
+                if (fromStar && toStar) {
+                    ctx.beginPath();
+                    ctx.moveTo(fromStar.x, fromStar.y);
+                    ctx.lineTo(toStar.x, toStar.y);
+                    ctx.stroke();
+                }
+            }
+
+            // 动画绘制所有连接线
+            function animateLines() {
+                // 禁用按钮防止重复点击
+                button.disabled = true;
+                button.textContent = '正在连接...';
+
+                // 清除之前的画布
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 设置线条样式
+                ctx.strokeStyle = 'rgba(191, 64, 255, 0.8)'; // 紫色
+                ctx.lineWidth = 2;
+                ctx.shadowColor = 'rgba(191, 64, 255, 0.8)';
+                ctx.shadowBlur = 10;
+
+                let i = 0;
+                function drawNextLine() {
+                    if (i < connections.length) {
+                        drawConnection(connections[i]);
+                        i++;
+                        setTimeout(drawNextLine, 150); // 每150毫秒画一条线
+                    } else {
+                        // 动画结束后恢复按钮
+                        button.disabled = false;
+                        button.textContent = '再次连接';
+                    }
+                }
+                drawNextLine();
+            }
+
+            button.addEventListener('click', animateLines);
+        });
+    </script>
+
+</body>
+</html>

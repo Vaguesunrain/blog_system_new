@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .loader {
+            position: relative;
+            z-index: 1;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 24px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+    <div class="loader">Loading System</div>
+
+    <script>
+        /**
+         * 模块1：动态星空背景 (Canvas)
+         */
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        const STAR_COUNT = 200;
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.z = Math.random() * 2; // 深度
+                this.size = Math.random() * 1.5;
+                this.speed = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < 0) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.8 + 0.2})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const initStars = () => {
+            stars = Array.from({ length: STAR_COUNT }, () => new Star());
+        };
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animate);
+        };
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        initStars();
+        animate();
+
+        /**
+         * 模块2：预加载与跳转逻辑
+         */
+        const preloadAndRedirect = (targetUrl) => {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = targetUrl;
+            
+            iframe.onload = () => {
+                // 可以在此增加最小展示时间，防止闪烁
+                window.location.href = targetUrl;
+            };
+
+            iframe.onerror = () => {
+                console.error("Target page load failed, redirecting anyway.");
+                window.location.href = targetUrl;
+            };
+
+            document.body.appendChild(iframe);
+        };
+
+        // 页面资源加载完毕后触发预加载
+        window.addEventListener('load', () => {
+            preloadAndRedirect('main/index'); 
+        });
+    </script>
+</body>
+</html>

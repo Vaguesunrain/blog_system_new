@@ -1,0 +1,368 @@
+.modal_text {
+    display: none; /* 初始隐藏 */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(214, 203, 203, 0.4);
+
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+.modal-content {
+    background-color: rgba(255, 255, 255,0.2); /* 半透明背景 */
+    margin: 10% auto; /* 调整上下边距 */
+    padding: 30px; /* 调整内边距 */
+    border: 1px solid #888;
+    width: 90%; /* 调整宽度 */
+    max-width: 600px; /* 调整最大宽度 */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    border-radius: 15px;
+}
+
+/* 输入框样式 */
+.modal-content input[type="text"] {
+    background-color: rgba(214, 203, 203, 0.4);
+    color: rgb(255, 255, 255);
+    width: 100%;
+    padding: 16px;
+    margin: 10px 0; /* 调整输入框之间的间距 */
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 18px; /* 调整字体大小 */
+}
+
+/* 按钮容器样式 */
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px; /* 调整顶部间距 */
+}
+
+/* 按钮样式 */
+.modal-content .btn {
+    width: 48%; /* 调整按钮宽度 */
+    padding: 16px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.close-btn {
+    background-color: rgba(41, 33, 33, 0.5);
+    color: white;
+}
+
+.cancel-btn {
+    background-color: rgba(18, 14, 14, 0.5);
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+/* 添加淡入动画 */
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.carousel {
+background-image: url('../work_space/person_background.jpg');
+position: relative;
+width: 100%;
+height: 100%;
+z-index: 1; /* 确保carousel有z-index */
+}
+
+
+.carousel-top {
+position: relative;
+
+}
+
+
+.carousel-inner {
+display: flex;
+flex-direction: column;
+width: 100%;
+height: 100%;
+transition: transform 0.5s ease;
+}
+
+.carousel-item {
+min-height: 100%;
+width: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+
+
+.pagination-dots {
+position: fixed;
+top: 50%;
+right: 10px;
+transform: translateY(-50%);
+display: flex;
+flex-direction: column;
+gap: 10px;
+z-index: 2; /* 确保pagination-dots有更高的z-index */
+}
+
+.dot {
+width: 10px;
+height: 10px;
+background-color: gray;
+border-radius: 50%;
+cursor: pointer;
+}
+
+.dot.active {
+background-color: orange;
+}
+.icon{
+width: 150px;
+height: 150px;
+border-radius: 50%;
+margin-left: auto;
+margin-right: auto;
+display: block;
+}
+/* 修改提示气泡的背景颜色 */
+.tooltip {
+background-color: transparent; /* 自定义背景颜色 */
+color: #fff; /* 自定义字体颜色 */
+/* 其他样式 */
+}
+/* 修改 Tooltip 箭头的颜色 */
+.tooltip.bs-tooltip-auto[x-placement^=top] .arrow::before,
+.tooltip.bs-tooltip-auto[x-placement^=top] .arrow::after {
+border-top-color: #ff0000; /* 设置箭头颜色为红色 */
+}
+
+.tooltip-inner {
+background-color: #786f6f; /* 自定义背景颜色 */
+color: #fff; /* 自定义字体颜色 */
+font-size: 14px; /* 自定义字体大小 */
+/* 其他样式 */
+}
+/* 鼠标悬停时的样式 */
+
+
+.modal-icon {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+    z-index: 2;
+}
+
+/* 模态框内容 */
+.modal-icon-content {
+    background-color: rgba(255, 255, 255,0.2);
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative; /* 设置相对定位，以便绝对定位关闭按钮 */
+    border-radius: 15px;
+}
+
+/* 图像预览容器 */
+.avatar-container {
+    width: 100%;
+    height: 300px; /* 调整预览容器高度 */
+    margin-bottom: 20px;
+}
+.close-icon-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 24px;
+    background: none;
+    border: none;
+    outline: none;
+}
+
+/* 按钮样式 */
+.icon-btn {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.open-btn {
+    background-color: rgba(41, 33, 33, 0.5);
+    color: white;
+}
+
+.confirm-btn {
+    background-color: rgba(18, 14, 14, 0.5);
+    color: white;
+}
+
+.page_one {
+    display: flex;
+    animation: slideInFromBottom 0.5s ease forwards;
+}
+
+
+
+.page_three{
+    position: relative;
+
+    display: none;
+    /* animation: slideInFromBottom 0.5s ease forwards; */
+}
+
+
+@keyframes slideInFromBottom {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutToBottom {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.page_two{
+    display: none;
+}
+.cross {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    top:10%;
+    left: 10%;
+    background-color: transparent;
+
+}
+
+.horizontal, .vertical {
+    position: absolute;
+    background-color: white;
+}
+
+.horizontal {
+    width: 100%;
+    height: 2px;
+    top: 50%;
+    left: 0;
+    animation: moveHorizontal 1s forwards;
+}
+
+.vertical {
+    width: 2px;
+    height: 100%;
+    left: 50%;
+    top: 0;
+    animation: moveVertical 1s forwards;
+}
+.text_head{
+    position: absolute;
+    top:15%;
+    left: 15%;
+    color: white;
+    font-size: 40px;
+
+    text-align: center;
+    opacity: 0;
+    animation: showText 1s forwards 1s;
+}
+#page_three .text{
+    position: absolute;
+    color: white;
+    font-size: 40px;
+    text-align: center;
+    opacity: 0;
+}
+.text {
+    position: absolute;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    opacity: 0;
+    animation: showText 1s forwards 1s;
+}
+.text_end{
+    position: absolute;
+    bottom: 15%;
+    right: 15%;
+    color: white;
+    font-size: 25px;
+    text-align: center;
+    opacity: 0;
+    animation: showText 1s forwards 1s;
+}
+@keyframes moveHorizontal {
+    0% {
+        top: 50%;
+        width: 0;
+    }
+    100% {
+        top: 4%;
+        width: 100%;
+    }
+}
+
+@keyframes moveVertical {
+    0% {
+        left: 50%;
+        height: 0;
+    }
+    100% {
+        left: 4%;
+        height: 100%;
+    }
+}
+
+@keyframes showText {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

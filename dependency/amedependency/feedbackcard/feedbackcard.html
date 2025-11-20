@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私信/反馈</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="feedback-form-container">
+        <div class="feedback-form">
+            <div class="form-header">
+                <h2>私信/反馈</h2>
+                <small>感谢您的反馈 ~</small>
+            </div>
+
+            <form action="#" method="post">
+                <div class="form-group">
+                    <label for="contact-info">联系方式</label>
+                    <input type="text" id="contact-info" name="contact" placeholder="微信/QQ/邮箱">
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback-message">反馈意见</label>
+                    <textarea id="feedback-message" name="message" rows="6" placeholder="请输入 ~"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit">发送</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+  /* Basic Reset & Body Styling */
+* {
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f7f7f7; /* Light grey background like outside the card */
+    display: flex; /* Optional: helps center the form */
+    justify-content: center; /* Optional: helps center the form */
+    align-items: center; /* Optional: helps center the form */
+    min-height: 100vh; /* Optional: ensures centering works vertically */
+    padding: 20px; /* Add some padding for smaller screens */
+    color: #333; /* Default text color */
+}
+
+/* Form Container */
+.feedback-form-container {
+    width: 100%;
+    max-width: 600px; /* Limit form width */
+}
+
+/* The main form card */
+.feedback-form {
+    background-color: #ffffff; /* White background for the card */
+    border-radius: 16px;     /* Rounded corners */
+    padding: 35px 40px;      /* Inner spacing (top/bottom, left/right) */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+/* Form Header */
+.form-header {
+    margin-bottom: 30px;
+    display: flex; /* Arrange title and subtitle side-by-side */
+    align-items: baseline; /* Align text baselines */
+}
+
+.form-header h2 {
+    font-size: 1.8em; /* Larger font size for the main title */
+    font-weight: 600;
+    color: #333; /* Darker color for the main title */
+    margin-right: 10px; /* Space between title and subtitle */
+}
+
+.form-header small {
+    font-size: 0.9em;
+    color: #777; /* Lighter color for the subtitle */
+}
+
+/* Form Groups (Label + Input/Textarea) */
+.form-group {
+    margin-bottom: 25px; /* Space between form groups */
+}
+
+.form-group label {
+    display: block; /* Make label take its own line */
+    font-size: 0.95em;
+    font-weight: 500;
+    margin-bottom: 8px; /* Space between label and input */
+    color: #444;
+}
+
+/* Input Fields and Textarea */
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: none; /* No border */
+    border-radius: 8px; /* Slightly rounded corners for inputs */
+    background-color: #f8f9fa; /* Very light grey background for inputs */
+    font-size: 1em;
+    color: #555;
+    transition: background-color 0.2s ease; /* Smooth transition on focus */
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    outline: none; /* Remove default focus outline */
+    background-color: #f1f3f5; /* Slightly darker background on focus */
+}
+
+/* Style placeholders */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #aaa;
+    font-size: 0.95em;
+}
+
+/* Textarea specific styling */
+.form-group textarea {
+    resize: vertical; /* Allow vertical resizing, disable horizontal */
+    min-height: 120px; /* Minimum height for the textarea */
+}
+
+/* Form Actions (Button container) */
+.form-actions {
+    margin-top: 30px; /* Space above the button */
+    text-align: right; /* Align button to the right */
+}
+
+/* Submit Button */
+.form-actions button {
+    background-color: #6c757d; /* Grey background for the button */
+    color: #ffffff; /* White text */
+    border: none;
+    padding: 10px 30px; /* Button padding */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease; /* Smooth hover effect */
+}
+
+.form-actions button:hover {
+    background-color: #5a6268; /* Slightly darker grey on hover */
+}
+
+/* Responsive adjustments (optional, but good practice) */
+@media (max-width: 480px) {
+    .feedback-form {
+        padding: 25px 20px;
+    }
+
+    .form-header h2 {
+        font-size: 1.5em;
+    }
+
+     .form-header {
+        flex-direction: column; /* Stack title and subtitle on small screens */
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .form-header small {
+        margin-top: 5px;
+    }
+
+    .form-actions {
+        text-align: center; /* Center button on small screens */
+    }
+
+    .form-actions button {
+        width: 100%; /* Make button full width */
+    }
+}
+</style>

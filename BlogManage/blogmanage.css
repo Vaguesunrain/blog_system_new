@@ -1,0 +1,406 @@
+#articles-container {
+    display: grid;
+    /* 让网格列的最小宽度适应卡片，最大为1fr */
+    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+    gap: 25px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* --- 卡片主样式 --- */
+.stellar-log-strip {
+    --card-bg-color: #121829;
+    --glow-color: #00f6ff;
+    --secondary-glow-color: #ff57f4; /* 为修改按钮添加一个新颜色 */
+    --text-color: #cdd5f7;
+    --text-muted-color: #6f7a9b;
+    --border-width: 2px;
+
+    font-family: 'Orbitron', sans-serif;
+    display: flex; /* 默认横向布局 */
+    width: 100%; /* 宽度自适应容器 */
+    min-height: 250px; /* 保持一个最小高度 */
+    background-color: var(--card-bg-color);
+    border: var(--border-width) solid rgba(var(--glow-color), 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+
+    clip-path: polygon(
+        0% 15px, 15px 0%, 100% 0%, 100% calc(100% - 15px),
+        calc(100% - 15px) 100%, 0% 100%
+    );
+
+    box-shadow: 0 0 15px rgba(var(--glow-color), 0.2),
+                0 0 30px rgba(var(--glow-color), 0.1);
+}
+
+.stellar-log-strip:hover {
+    transform: translateY(-8px) scale(1.01);
+    border-color: rgba(var(--glow-color), 0.8);
+    box-shadow: 0 0 25px rgba(var(--glow-color), 0.5),
+                0 0 50px rgba(var(--glow-color), 0.3);
+}
+
+/* --- 左侧图片 --- */
+.strip-image-wrapper {
+    flex: 0 0 220px; /* 图片宽度固定 */
+    overflow: hidden;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+    transition: flex-basis 0.3s ease;
+}
+
+.strip-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.stellar-log-strip:hover .strip-image-wrapper img {
+    transform: scale(1.1);
+}
+
+/* --- 右侧内容 --- */
+.strip-content {
+    flex: 1;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.strip-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+    text-shadow: 0 0 5px rgba(var(--glow-color), 0.7);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.strip-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.strip-meta svg {
+    fill: var(--text-muted-color);
+    width: 16px;
+    height: 16px;
+    transition: fill 0.3s ease;
+}
+
+.stellar-log-strip:hover .strip-meta svg {
+    fill: var(--glow-color);
+}
+
+.strip-excerpt {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 限制摘要最多显示2行 */
+    -webkit-box-orient: vertical;
+    margin-bottom: 1rem;
+}
+
+/* --- 底部按钮区域 --- */
+.content-bottom {
+    margin-top: auto; /* 将按钮推到底部 */
+}
+
+.strip-actions {
+    display: flex;
+    justify-content: flex-end; /* 按钮靠右对齐 */
+    align-items: center;
+    gap: 1rem; /* 按钮之间的间距 */
+}
+
+.strip-action-btn {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+    border: 2px solid;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    cursor: pointer;
+}
+
+.btn-primary {
+    color: var(--glow-color);
+    border-color: var(--glow-color);
+}
+.btn-primary:hover {
+    background-color: var(--glow-color);
+    color: var(--card-bg-color);
+    box-shadow: 0 0 15px var(--glow-color);
+}
+
+/* 新增的修改按钮样式 */
+.btn-secondary {
+    color: var(--secondary-glow-color);
+    border-color: var(--secondary-glow-color);
+}
+.btn-secondary:hover {
+    background-color: var(--secondary-glow-color);
+    color: var(--card-bg-color);
+    box-shadow: 0 0 15px var(--secondary-glow-color);
+}
+
+
+/* --- 响应式设计：适配手机等小屏幕 --- */
+@media (max-width: 768px) {
+    #articles-container {
+        /* 在手机上，让网格变为单列 */
+        grid-template-columns: 1fr;
+    }
+
+    .stellar-log-strip {
+        flex-direction: column; /* 卡片变为垂直布局 */
+        min-height: auto;
+    }
+
+    .strip-image-wrapper {
+        flex-basis: 200px; /* 图片区域固定高度 */
+        width: 100%;
+        /* 调整切角适应垂直布局 */
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);
+    }
+
+    .strip-content {
+        padding: 1rem;
+    }
+
+    .strip-title {
+        font-size: 1.3rem;
+    }
+}
+
+
+
+
+/* --- 1. 遮罩层：增加更柔和的背景和过渡 --- */
+#md-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 15, 0.7);
+    backdrop-filter: blur(8px) saturate(150%);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s ease-out;
+}
+#md-preview-overlay:not(.hidden) {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* --- 2. 弹窗主体：调整尺寸和阴影 --- */
+#md-preview-modal {
+    position: relative; /* 用于定位关闭按钮和顶部遮罩 */
+    width: 90%;
+    height: 90%;
+    max-width: 900px; /* 稍微减小最大宽度，更适合阅读 */
+    background: #161B22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7); /* 更深的阴影 */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 关键：确保内部所有内容都在圆角内 */
+    transform: translateY(20px) scale(0.98);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#md-preview-overlay:not(.hidden) #md-preview-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* --- 3. 关闭按钮：保持不变，样式已经很好了 --- */
+#md-preview-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 28px;
+    text-align: center;
+    background-color: #30363d;
+    color: #c9d1d9;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2001;
+    transition: all 0.2s ease;
+}
+#md-preview-close-btn:hover {
+    background-color: #c93c3c;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* --- 4. 内容容器：这是美化的核心区域 --- */
+#md-preview-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* --- 5. Markdown 内容本身的美化 (`.markdown-body` 是 editormd 的样式类) --- */
+#md-preview-content .markdown-body {
+    max-width: 720px;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #c9d1d9;
+}
+
+#md-preview-content .markdown-body > *:first-child {
+    margin-top: 0 !important;
+}
+
+/* 标题样式 */
+#md-preview-content .markdown-body h1,
+#md-preview-content .markdown-body h2,
+#md-preview-content .markdown-body h3 {
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 0.4em;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    color: #fff;
+}
+#md-preview-content .markdown-body h1 { font-size: 2em; }
+#md-preview-content .markdown-body h2 { font-size: 1.6em; }
+#md-preview-content .markdown-body h3 { font-size: 1.3em; }
+
+
+/* 链接样式 */
+#md-preview-content .markdown-body a {
+    color: #58a6ff;
+    text-decoration: none;
+    transition: text-decoration 0.2s;
+}
+#md-preview-content .markdown-body a:hover {
+    text-decoration: underline;
+}
+
+/* 引用块样式 */
+#md-preview-content .markdown-body blockquote {
+    border-left: 0.25em solid #58a6ff;
+    color: #8b949e;
+    background-color: transparent; /* 背景透明，更融入主题 */
+    padding: 0 1em;
+    margin-left: 0;
+}
+
+/* 图片样式 */
+#md-preview-content .markdown-body img {
+    max-width: 100%; /* 确保图片不会超出内容宽度 */
+    border-radius: 8px; /* 给图片加上圆角 */
+    display: block;
+    margin: 20px auto; /* 图片居中显示 */
+}
+
+/* 代码块样式 */
+/* 行内代码 */
+#md-preview-content .markdown-body code {
+    background-color: rgba(110, 118, 129, 0.4);
+    border-radius: 6px;
+    padding: 0.2em 0.4em;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 0.9em;
+}
+/* 代码块容器 */
+#md-preview-content .markdown-body pre {
+    background-color: #0d1117; /* 更深的背景，突出代码块 */
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid #30363d;
+}
+/* 代码块内部的 code 标签，移除独立样式 */
+#md-preview-content .markdown-body pre > code {
+    background-color: transparent;
+    padding: 0;
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+/* --- 6. 美化滚动条 --- */
+#md-preview-content::-webkit-scrollbar {
+    width: 10px;
+}
+#md-preview-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+#md-preview-content::-webkit-scrollbar-thumb {
+    background-color: #30363d;
+    border-radius: 10px;
+    border: 2px solid #161B22;
+}
+#md-preview-content::-webkit-scrollbar-thumb:hover {
+    background-color: #58a6ff;
+}
+/* For Firefox */
+#md-preview-content {
+    scrollbar-width: thin;
+    scrollbar-color: #30363d #161B22;
+}
+
+
+/* --- 7. (可选) 顶部渐变遮罩，提示可滚动 --- */
+#md-preview-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, #161B22, transparent);
+    pointer-events: none; /* 让鼠标可以穿透这个遮罩 */
+    z-index: 10;
+}
+
+
+/* --- Loading Spinner (保持不变) --- */
+#md-preview-loading {
+    /* ... 之前的样式 ... */
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(22, 27, 34, 0.9); display: flex; flex-direction: column;
+    justify-content: center; align-items: center; z-index: 2002;
+    opacity: 0; visibility: hidden; transition: all 0.3s;
+}
+#md-preview-loading.visible { opacity: 1; visibility: visible; }
+.spinner { width: 40px; height: 40px; border: 4px solid #30363d; border-top-color: #58a6ff;
+    border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+#md-preview-loading span { color: #c9d1d9; }
+@keyframes spin { to { transform: rotate(360deg); } }
