@@ -1,0 +1,169 @@
+/* src/bytemd-override.css */
+
+/* =========================================
+   1. 核心容器 (Core Container)
+   ========================================= */
+.bytemd {
+  height: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+  
+  background-color: transparent !important;
+  color: var(--text-main) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* =========================================
+   2. 工具栏 (Toolbar)
+   ========================================= */
+.bytemd-toolbar {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 8px 12px !important;
+  border-radius: 0 !important;
+}
+
+/* 工具栏图标按钮 */
+.bytemd-toolbar-icon {
+  color: var(--text-dim) !important;
+  border-radius: 0 !important; /* 工业风去圆角 */
+  padding: 6px !important;
+  transition: all 0.2s ease;
+}
+
+.bytemd-toolbar-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--accent-color) !important; /* 悬浮变橙色 (Hot) */
+}
+
+.bytemd-toolbar-icon.bytemd-toolbar-icon-active {
+  color: var(--data-color) !important; /* 激活变蓝色 (Active Data) */
+  background-color: rgba(56, 189, 248, 0.1) !important;
+}
+
+/* =========================================
+   3. 布局结构与滚动 (Layout & Scroll)
+   ========================================= */
+.bytemd-body {
+  /* 减去工具栏高度(~41px)，确保刚好填满 */
+  height: calc(100% - 41px) !important; 
+  overflow: hidden !important; 
+}
+
+/* =========================================
+   4. 编辑区 (CodeMirror / Editor)
+   ========================================= */
+.CodeMirror {
+  height: 100% !important;
+  background: transparent !important;
+  font-family: 'JetBrains Mono', monospace !important; /* 强制代码字体 */
+  font-size: 14px !important;
+  color: #e2e2e2 !important;
+}
+
+.CodeMirror-scroll {
+  padding-bottom: 30px !important;
+  min-height: 100% !important;
+}
+
+/* 光标颜色 (橙色激光风格) */
+.CodeMirror-cursor {
+  border-left: 2px solid var(--accent-color) !important;
+}
+
+/* 选中文本背景 (淡蓝色数据流风格) */
+.CodeMirror-selected {
+  background: rgba(56, 189, 248, 0.2) !important;
+}
+
+/* =========================================
+   5. 预览区 (Markdown Preview)
+   ========================================= */
+.markdown-body {
+  height: 100% !important;
+  background-color: transparent !important;
+  color: var(--text-main) !important;
+  font-family: var(--font-sans) !important;
+  padding: 20px 30px !important;
+  border-left: 1px solid var(--border-color) !important; 
+}
+
+/* --- Markdown 内部元素样式定制 --- */
+.markdown-body h1, 
+.markdown-body h2 { 
+  border-bottom-color: var(--border-color) !important; 
+}
+
+.markdown-body code { 
+  background-color: rgba(255,255,255,0.1) !important; 
+  color: var(--accent-color) !important; 
+  font-family: 'JetBrains Mono', monospace !important;
+  border-radius: 0 !important;
+}
+
+.markdown-body pre { 
+  background-color: #000 !important; 
+  border: 1px solid var(--border-color); 
+  border-radius: 0 !important; 
+}
+
+.markdown-body blockquote { 
+  border-left-color: var(--accent-color) !important; 
+  color: var(--text-dim) !important; 
+  background: transparent !important; 
+}
+
+.markdown-body a {
+  color: var(--data-color) !important;
+}
+
+/* =========================================
+   6. 状态栏 (Status Bar)
+   ========================================= */
+.bytemd-status {
+  border-top: 1px solid var(--border-color) !important;
+  background-color: rgba(11, 13, 23, 0.95) !important;
+  color: var(--text-dim) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+  padding: 5px 10px !important;
+}
+
+/* =========================================
+   7. 全屏模式 (Fullscreen Mode)
+   ========================================= */
+.bytemd-fullscreen {
+  /* 关键：层级必须高于 Navbar (通常 Navbar z-index 是 100) */
+  z-index: 1000 !important;
+  
+  /* 强制固定定位占满屏幕 */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 100vh !important;
+  
+  border: none !important;
+  /* 背景设为不透明深黑，防止透出下方内容 */
+  background-color: #0b0d17 !important; 
+}
+
+/* 全屏时，让工具栏更贴顶 */
+.bytemd-fullscreen .bytemd-toolbar {
+  padding: 10px 20px !important;
+  background-color: rgba(11, 13, 23, 0.98) !important;
+}
+
+/* 全屏时，重新计算 body 高度 */
+.bytemd-fullscreen .bytemd-body {
+  height: calc(100vh - 50px) !important;
+}
+
+/* 全屏专注模式：限制内容最大宽度并居中 */
+.bytemd-fullscreen .CodeMirror,
+.bytemd-fullscreen .markdown-body {
+  max-width: 1000px; 
+  margin: 0 auto;    
+  border-left: none !important; 
+}
