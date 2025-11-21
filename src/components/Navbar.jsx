@@ -1,128 +1,92 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { PenTool, LayoutGrid, Home } from 'lucide-react';
+import { User, PenTool, LayoutGrid, Home } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom'; // 1. 引入路由钩子
 import UserAuthSystem from './UserAuthSystem';
 
-// 子组件：导航按钮
+// 删除 props 接收，因为不再需要父组件传 state 进来
+const Navbar = () => {
+  const navigate = useNavigate(); // 用来跳转
+  const location = useLocation(); // 用来获取当前路径
+
+  // 判断当前由哪个 Tab 激活
+  const isActive = (path) => location.pathname === path;
+
+  return (
+    <motion.nav
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.5 }}
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, height: '64px',
+        background: 'rgba(11, 13, 23, 0.8)', backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid var(--border-color)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 20px', zIndex: 100, fontFamily: 'var(--font-mono)'
+      }}
+    >
+      {/* 左侧 Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div 
+          onClick={() => navigate('/')} // 点击 Logo 回首页
+          style={{
+            background: 'var(--solid-white)', color: 'var(--solid-black)',
+            padding: '4px 8px', fontWeight: 'bold', fontSize: '14px',
+            letterSpacing: '1px', cursor: 'pointer'
+          }}
+        >
+          GALAXY.LOG
+        </div>
+      </div>
+
+      {/* 中间：路由切换 */}
+      <div style={{ display: 'flex', gap: '5px' }}>
+        <NavItem 
+          icon={<Home size={14} />} 
+          label="HOME" 
+          active={isActive('/')} 
+          onClick={() => navigate('/')}
+        />
+        <NavItem 
+          icon={<LayoutGrid size={14} />} 
+          label="BLOG" 
+          active={isActive('/blog')} 
+          onClick={() => navigate('/blog')}
+        />
+        <NavItem 
+          icon={<PenTool size={14} />} 
+          label="WRITE" 
+          active={isActive('/write')} 
+          onClick={() => navigate('/write')}
+        />
+      </div>
+
+      {/* 右侧：用户模块 */}
+      <UserAuthSystem />
+    </motion.nav>
+  );
+};
+
+
 const NavItem = ({ icon, label, active, onClick }) => (
   <motion.button
     onClick={onClick}
-    whileHover={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
-    whileTap={{ scale: 0.98 }}
+    whileHover={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+    whileTap={{ scale: 0.95 }}
     style={{
-      background: active ? 'rgba(242, 95, 92, 0.15)' : 'transparent',
+      background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
       border: 'none',
-      boxShadow: active
-        ? '0 2px 8px rgba(242, 95, 92, 0.3), inset 0 0 5px rgba(242, 95, 92, 0.2)'
-        : 'none',
-      color: active ? 'var(--accent-color)' : 'var(--text-dim)',
-      padding: '0 18px',
-      height: '36px',
-      borderRadius: '4px',
-      display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
-      fontFamily: 'var(--font-mono)', fontSize: '13px',
-      fontWeight: active ? 'bold' : 'normal',
-      transition: 'background 0.3s, color 0.3s, box-shadow 0.3s'
+      borderBottom: active ? '2px solid var(--accent-color)' : '2px solid transparent',
+      color: active ? 'var(--solid-white)' : 'var(--text-dim)',
+      padding: '0 16px', height: '40px',
+      display: 'flex', alignItems: 'center', gap: '8px',
+      cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '12px',
+      transition: 'color 0.3s'
     }}
   >
     {icon}
     <span>{label}</span>
   </motion.button>
 );
-
-const Navbar = ({ currentTab, onTabChange }) => {
-
-  // --- 滚动状态逻辑 ---
-  const [isHidden, setIsHidden] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const NAVBAR_HEIGHT = 64;
-  const SCROLL_THRESHOLD = 50;
-
-  const handleScroll = useCallback(() => {
-    const currentScrollY = window.scrollY;
-    if (currentScrollY <= NAVBAR_HEIGHT) {
-      setIsHidden(false);
-    } else if (currentScrollY > lastScrollY && currentScrollY > NAVBAR_HEIGHT + SCROLL_THRESHOLD) {
-      setIsHidden(true);
-    } else if (currentScrollY < lastScrollY) {
-      setIsHidden(false);
-    }
-    setLastScrollY(currentScrollY);
-  }, [lastScrollY]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
-
-  return (
-    <motion.nav
-      initial={{ y: -NAVBAR_HEIGHT, opacity: 0 }}
-      animate={{
-        y: isHidden ? -NAVBAR_HEIGHT : 0,
-        opacity: isHidden ? 0 : 1 // 隐藏时建议 opacity 0，不然会阻挡点击
-      }}
-      transition={{
-        y: { type: 'spring', stiffness: 200, damping: 25 },
-        opacity: { duration: 0.3 }
-      }}
-      style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        height: `${NAVBAR_HEIGHT}px`,
-        background: 'rgba(11, 13, 23, 0.85)', 
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--border-color)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 40px',
-        zIndex: 100,
-        willChange: 'transform, opacity'
-      }}
-    >
-      {/* --- 左侧：系统铭牌 --- */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-        <div style={{
-          background: 'var(--solid-white)', 
-          color: 'var(--solid-black)',
-          padding: '6px 12px', fontWeight: '900', fontSize: '16px', letterSpacing: '2px',
-          cursor: 'pointer', borderRadius: '2px',
-          fontFamily: 'var(--font-mono)',
-        }}>
-          GALAXY.LOG
-        </div>
-        {/* 简单的版本号显示 */}
-        <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
-          V.5.4
-        </span>
-      </div>
-
-      {/* --- 中间：Nav Items --- */}
-       <div style={{ display: 'flex', gap: '5px' }}>
-        <NavItem
-          icon={<Home size={14} />}
-          label="HOME"
-          active={currentTab === 'HOME'}
-          onClick={() => onTabChange('HOME')}
-        />
-        <NavItem
-          icon={<LayoutGrid size={14} />}
-          label="BLOG"
-          active={currentTab === 'BLOG'}
-          onClick={() => onTabChange('BLOG')}
-        />
-        <NavItem
-          icon={<PenTool size={14} />}
-          label="WRITE"
-          active={currentTab === 'WRITE'}
-          onClick={() => onTabChange('WRITE')}
-        />
-      </div>
-
-      {/* 右侧认证 */}
-      <UserAuthSystem />
-
-    </motion.nav>
-  );
-};
 
 export default Navbar;

@@ -1,50 +1,56 @@
 import React, { useState } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom'; // 1. 引入路由组件
 import { AnimatePresence, motion } from 'framer-motion';
 import StarBackground from './components/StarBackground';
 import Loading from './components/Loading';
 import Navbar from './components/Navbar';
-import Home from './components/Home_use/Home'; // 确认你的路径是否正确
-import Blog from './components/blog_use/Blog'; // 确认你的路径是否正确
+import Home from './components/Home_use/Home';
+import Blog from './components/blog_use/Blog';
 import Write from './components/Write';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentTab, setCurrentTab] = useState('HOME');
+  const location = useLocation(); // 获取当前路径，用于触发动画
 
   return (
     <>
       <StarBackground />
 
+      {/* Loading 逻辑保持不变：加载完才显示路由 */}
       <AnimatePresence mode="wait">
         {isLoading ? (
           <Loading key="loader" onComplete={() => setIsLoading(false)} />
         ) : (
           <>
-            <Navbar
-              key="navbar"
-              currentTab={currentTab}
-              onTabChange={setCurrentTab}
-            />
+            <Navbar key="navbar" /> {/* Navbar 现在自己管理高亮，不需要传 props */}
 
             <div style={{ paddingTop: '0px' }}>
+              {/* 
+                  key={location.pathname} 是关键！
+                  它告诉 Framer Motion：路径变了，这已经是新页面了，请执行动画。
+              */}
               <AnimatePresence mode="wait">
-                {currentTab === 'HOME' && (
-                  <PageWrapper key="home">
-                    <Home />
-                  </PageWrapper>
-                )}
+                <Routes location={location} key={location.pathname}>
+                  
+                  <Route path="/" element={
+                    <PageWrapper>
+                      <Home />
+                    </PageWrapper>
+                  } />
 
-                {currentTab === 'BLOG' && (
-                  <PageWrapper key="blog">
-                    <Blog />
-                  </PageWrapper>
-                )}
+                  <Route path="/blog" element={
+                    <PageWrapper>
+                      <Blog />
+                    </PageWrapper>
+                  } />
 
-                {currentTab === 'WRITE' && (
-                   <PageWrapper key="write">
-                     <Write /> 
-                   </PageWrapper>
-                )}
+                  <Route path="/write" element={
+                    <PageWrapper>
+                      <Write />
+                    </PageWrapper>
+                  } />
+
+                </Routes>
               </AnimatePresence>
             </div>
           </>
@@ -54,14 +60,14 @@ function App() {
   );
 }
 
-// 这里的 PageWrapper 也需要确保宽度是 100%
+// PageWrapper 保持不变，负责进场动画
 const PageWrapper = ({ children }) => (
   <motion.div
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: 20 }}
     transition={{ duration: 0.3 }}
-    style={{ width: '100%' }} // 确保 Wrapper 本身也是全宽
+    style={{ width: '100%' }}
   >
     {children}
   </motion.div>
