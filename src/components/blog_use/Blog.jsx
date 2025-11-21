@@ -185,8 +185,6 @@ const TerminalBoot = ({ onComplete }) => {
     "Mounting virtual filesystem...",
     "[OK] Started User Manager Service.",
     "[OK] Started Galaxy Log Daemon.",
-    "Checking disk space... 98% available.",
-    "Establishing uplink to sector 7...",
     "Connection established.",
     "Starting graphical interface..."
   ];
@@ -195,11 +193,11 @@ const TerminalBoot = ({ onComplete }) => {
     let delay = 0;
     bootLogs.forEach((log, index) => {
       // 随机延迟，模拟真实加载
-      delay += Math.random() * 100 + 100;
+      delay += Math.random() * 100 + 10;
       setTimeout(() => {
         setLines(prev => [...prev, log]);
         if (index === bootLogs.length - 1) {
-          setTimeout(onComplete, 200);
+          setTimeout(onComplete, 150);
         }
       }, delay);
     });
@@ -273,7 +271,7 @@ const ZebraRow = ({ post, isEven }) => {
       />
 
       {/* --- 2. 内容层 (文字变色需要极快，配合背景) --- */}
-    
+
       <TextElement color={defaultText} hoverColor={hoverText}>
         <span style={{fontWeight:'bold'}}>{post.uid.split('-')[1]}</span>
       </TextElement>

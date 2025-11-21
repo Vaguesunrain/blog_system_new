@@ -17,34 +17,34 @@ const Loading = ({ onComplete }) => {
       setIndex((prev) => {
         if (prev >= steps.length - 1) {
           clearInterval(timer);
-          setTimeout(onComplete, 800);
+          setTimeout(onComplete, 200);
           return prev;
         }
         return prev + 1;
       });
-    }, 400);
+    }, 200);
     return () => clearInterval(timer);
   }, [onComplete]);
 
   return (
-    <motion.div 
+    <motion.div
       exit={{ opacity: 0, filter: 'blur(10px)' }}
       transition={{ duration: 0.5 }}
-      style={{ 
-        height: '100vh', display: 'flex', flexDirection: 'column', 
-        justifyContent: 'center', alignItems: 'center', 
+      style={{
+        height: '100vh', display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', alignItems: 'center',
         fontFamily: 'var(--font-mono)'
       }}
     >
       <div style={{ width: '320px' }}>
-        <div style={{ 
-          background: 'var(--solid-white)', color: 'var(--solid-black)', 
-          padding: '4px 8px', display: 'inline-block', fontWeight: 'bold', marginBottom: '20px' 
+        <div style={{
+          background: 'var(--solid-white)', color: 'var(--solid-black)',
+          padding: '4px 8px', display: 'inline-block', fontWeight: 'bold', marginBottom: '20px'
         }}>
           BOOT_SEQUENCE
         </div>
         {steps.map((step, i) => (
-          <div key={i} style={{ 
+          <div key={i} style={{
             fontSize: '13px', marginBottom: '6px',
             color: i === index ? 'var(--solid-white)' : 'var(--text-dim)',
             opacity: i > index ? 0 : 1
