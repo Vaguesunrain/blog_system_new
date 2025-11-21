@@ -4,10 +4,12 @@
    1. 核心容器 (Core Container)
    ========================================= */
 .bytemd {
-  height: 100% !important;
-  border: none !important;
   border-radius: 0 !important;
-  
+  height: auto !important;
+  min-height: 100% !important;
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--text-main) !important;
   background-color: transparent !important;
   color: var(--text-main) !important;
   font-family: var(--font-sans) !important;
@@ -45,9 +47,10 @@
    3. 布局结构与滚动 (Layout & Scroll)
    ========================================= */
 .bytemd-body {
-  /* 减去工具栏高度(~41px)，确保刚好填满 */
-  height: calc(100% - 41px) !important; 
-  overflow: hidden !important; 
+  /* height: auto !important;  */
+  min-height: 550px !important; /* 稍微比外层容器小一点，留给Toolbar空间 */
+  height: calc(100% - 41px) !important;
+
 }
 
 /* =========================================
@@ -63,7 +66,10 @@
 
 .CodeMirror-scroll {
   padding-bottom: 30px !important;
-  min-height: 100% !important;
+   height: 100% !important;
+  overflow: hidden !important; /* 隐藏所有溢出内容，包括滚动条 */
+  /* 可选：为了保险，显式重置 min-height */
+  min-height: 0 !important;
 }
 
 /* 光标颜色 (橙色激光风格) */
@@ -85,32 +91,33 @@
   color: var(--text-main) !important;
   font-family: var(--font-sans) !important;
   padding: 20px 30px !important;
-  border-left: 1px solid var(--border-color) !important; 
+  /* border-left: 1px solid var(--online-color) !important;  */
+
 }
 
 /* --- Markdown 内部元素样式定制 --- */
-.markdown-body h1, 
-.markdown-body h2 { 
-  border-bottom-color: var(--border-color) !important; 
+.markdown-body h1,
+.markdown-body h2 {
+  border-bottom-color: var(--border-color) !important;
 }
 
-.markdown-body code { 
-  background-color: rgba(255,255,255,0.1) !important; 
-  color: var(--accent-color) !important; 
+.markdown-body code {
+  background-color: rgba(255,255,255,0.1) !important;
+  color: var(--accent-color) !important;
   font-family: 'JetBrains Mono', monospace !important;
   border-radius: 0 !important;
 }
 
-.markdown-body pre { 
-  background-color: #000 !important; 
-  border: 1px solid var(--border-color); 
-  border-radius: 0 !important; 
+.markdown-body pre {
+  background-color: #000 !important;
+  border: 1px solid var(--border-color);
+  border-radius: 0 !important;
 }
 
-.markdown-body blockquote { 
-  border-left-color: var(--accent-color) !important; 
-  color: var(--text-dim) !important; 
-  background: transparent !important; 
+.markdown-body blockquote {
+  border-left-color: var(--accent-color) !important;
+  color: var(--text-dim) !important;
+  background: transparent !important;
 }
 
 .markdown-body a {
@@ -129,31 +136,30 @@
   padding: 5px 10px !important;
 }
 
-/* =========================================
-   7. 全屏模式 (Fullscreen Mode)
-   ========================================= */
 .bytemd-fullscreen {
-  /* 关键：层级必须高于 Navbar (通常 Navbar z-index 是 100) */
   z-index: 1000 !important;
-  
-  /* 强制固定定位占满屏幕 */
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
   height: 100vh !important;
-  
   border: none !important;
-  /* 背景设为不透明深黑，防止透出下方内容 */
-  background-color: #0b0d17 !important; 
+
+  /* 这里改为使用 CSS 变量，如果变量未定义，回退到原来的深黑色 */
+  background-color: var(--editor-bg, #0b0d17) !important;
+
+  /* 确保背景色变化时有平滑过渡 */
+  transition: background-color 0.3s ease;
 }
 
-/* 全屏时，让工具栏更贴顶 */
+/* 全屏时，工具栏背景也要稍微跟随变化，或者保持半透明 */
 .bytemd-fullscreen .bytemd-toolbar {
   padding: 10px 20px !important;
-  background-color: rgba(11, 13, 23, 0.98) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(10px);
 }
+
 
 /* 全屏时，重新计算 body 高度 */
 .bytemd-fullscreen .bytemd-body {
@@ -163,7 +169,22 @@
 /* 全屏专注模式：限制内容最大宽度并居中 */
 .bytemd-fullscreen .CodeMirror,
 .bytemd-fullscreen .markdown-body {
-  max-width: 1000px; 
-  margin: 0 auto;    
-  border-left: none !important; 
+  max-width: 1000px;
+  margin: 0 auto;
+  border-left: none !important;
 }
+
+
+/* =========================================
+   8. 隐藏 CodeMirror 滚动条
+   ========================================= */
+.CodeMirror-vscrollbar,
+.CodeMirror-hscrollbar {
+  display: none !important;  /* 最彻底的隐藏：直接消失 */
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+
