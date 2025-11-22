@@ -11,7 +11,15 @@ node_modules
 dist
 dist-ssr
 *.local
-server_test
+*.pyc
+__pycache__/
+Server/blueprints/__pycache__/
+Server/db_config.json
+.venv
+venv
+env
+User_file/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
