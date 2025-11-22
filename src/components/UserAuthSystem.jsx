@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, LogIn, UserPlus, Power, LayoutDashboard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoginTerminal from './LoginTerminal';
-
-
-const API_BASE = 'http://vagueame.top:5000';
+import { API_BASE } from '../data/config.js';
 
 const UserAuthSystem = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,15 +31,35 @@ const UserAuthSystem = () => {
     checkSession();
   }, []);
 
-  // 2. 处理注销
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setAvatarUrl(null); // 清空头像
-    setIsMenuOpen(false);
-    navigate('/');
-    // 记得通知后端 logout...
-  };
+  // // 2. 处理注销
+  // const handleLogout = () => {
+  //   setCurrentUser(null);
+  //   setAvatarUrl(null); // 清空头像
+  //   setIsMenuOpen(false);
+  //   navigate('/');
+  //   // 记得通知后端 logout...
+  // };
+// 2. 处理注销
+  const handleLogout = async () => {
+    try {
+      // 发送请求给后端清除 session/cookie
+      await fetch(`${API_BASE}/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (e) {
+      console.error("Logout request failed", e);
+      // 即使后端报错，前端也应该强制登出
+    }
 
+    // 清理前端状态
+    setCurrentUser(null);
+    setAvatarUrl(null);
+    setIsMenuOpen(false);
+
+    // 跳转回首页
+    navigate('/');
+  };
   // 3. 登录成功后的回调
   const handleLoginSuccess = async (username) => {
     setCurrentUser(username);
@@ -148,10 +166,10 @@ const UserAuthSystem = () => {
                   />
                 </>
               ) : (
-                // 已登录状态：显示 HOME / OUT
+                // 已登录状态：显示 Prof. / OUT
                 <>
-                  <PlanetNode x={65} y={85} label="HOME" icon={<LayoutDashboard size={15} />} color={currentColor} delay={0.1}
-                    onClick={() => { setIsMenuOpen(false); navigate('/'); }}
+                  <PlanetNode x={65} y={85} label="PROF." icon={<LayoutDashboard size={15} />} color={currentColor} delay={0.1}
+                    onClick={() => { setIsMenuOpen(false); navigate('/profile'); }}
                   />
                   <PlanetNode x={155} y={175} label="OUT" icon={<Power size={15} />} color={currentColor} delay={0.2}
                     onClick={handleLogout}

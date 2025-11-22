@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal } from 'lucide-react';
-
-const API_BASE = 'http://vagueame.top:5000';
+import { API_BASE } from '../data/config.js';
 
 const LoginTerminal = ({ initialMode = 'login', onClose, onSuccess }) => {
   const [mode, setMode] = useState(initialMode);
