@@ -7,7 +7,7 @@ import Navbar from './components/Navbar';
 import Home from './components/Home_use/Home';
 import Blog from './components/blog_use/Blog';
 import Write from './components/Write';
-
+import Profile from './components/Profile';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation(); // 获取当前路径，用于触发动画
@@ -25,13 +25,13 @@ function App() {
             <Navbar key="navbar" /> {/* Navbar 现在自己管理高亮，不需要传 props */}
 
             <div style={{ paddingTop: '0px' }}>
-              {/* 
+              {/*
                   key={location.pathname} 是关键！
                   它告诉 Framer Motion：路径变了，这已经是新页面了，请执行动画。
               */}
               <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
-                  
+
                   <Route path="/" element={
                     <PageWrapper>
                       <Home />
@@ -49,7 +49,11 @@ function App() {
                       <Write />
                     </PageWrapper>
                   } />
-
+                  <Route path="/profile" element={
+                    <PageWrapper>
+                      <Profile />
+                    </PageWrapper>
+                  } />
                 </Routes>
               </AnimatePresence>
             </div>
