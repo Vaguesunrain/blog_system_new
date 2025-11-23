@@ -188,3 +188,48 @@
 }
 
 
+
+
+/* used for read.jsx */
+
+/* 强制覆盖 ByteMD Viewer 的颜色 */
+.dark-mode-viewer .markdown-body {
+    background-color: transparent !important;
+    color: #e0e0e0 !important;
+    font-family: 'Inter', sans-serif; /* 使用你的字体 */
+}
+
+/* 标题 */
+.dark-mode-viewer .markdown-body h1,
+.dark-mode-viewer .markdown-body h2,
+.dark-mode-viewer .markdown-body h3 {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+/* 链接 */
+.dark-mode-viewer .markdown-body a {
+    color: #ff4d00;
+}
+
+/* 代码块背景 */
+.dark-mode-viewer .markdown-body pre,
+.dark-mode-viewer .markdown-body code {
+    background-color: #1a1a1a !important;
+    color: #ccc;
+    border-radius: 4px;
+}
+
+/* 引用块 */
+.dark-mode-viewer .markdown-body blockquote {
+    border-left: 4px solid #ff4d00;
+    background-color: rgba(255, 77, 0, 0.05);
+    color: #999;
+}
+
+/* 图片最大宽度 */
+.dark-mode-viewer .markdown-body img {
+    max-width: 100%;
+    border-radius: 4px;
+    border: 1px solid #333;
+}

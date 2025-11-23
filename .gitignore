@@ -19,7 +19,8 @@ Server/db_config.json
 venv
 env
 User_file/
-
+Server/instance/
+Server/uploads/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

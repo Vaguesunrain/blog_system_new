@@ -6,7 +6,7 @@ export const BLOG_DATA = [
     excerpt: 'Implementing a glassmorphic command deck...',
     author: 'Cmdr. Shephard',
     date: '2024.11.25',
-    views: 12040 // High views
+    views: 1 // High views
   },
   {
     uid: 'LOG-084',
@@ -15,7 +15,7 @@ export const BLOG_DATA = [
     excerpt: 'Transitioning from legacy HTML/CSS...',
     author: 'Cmdr. Shephard',
     date: '2024.11.20',
-    views: 8500
+    views: 1
   },
   {
     uid: 'LOG-083',
@@ -24,7 +24,7 @@ export const BLOG_DATA = [
     excerpt: 'A deep dive into the 1975 NASA Manual...',
     author: 'Dr. Cooper',
     date: '2024.10.15',
-    views: 45000 // Very High
+    views: 4 // Very High
   },
   {
     uid: 'LOG-082',
@@ -33,7 +33,7 @@ export const BLOG_DATA = [
     excerpt: 'Reducing Time to Interactive (TTI) by 40%...',
     author: 'Eng. Ripley',
     date: '2024.09.28',
-    views: 3200
+    views: 1
   },
   {
     uid: 'LOG-081',
@@ -42,7 +42,7 @@ export const BLOG_DATA = [
     excerpt: 'Why "Pure Black" is bad for displays...',
     author: 'Dr. Cooper',
     date: '2024.09.10',
-    views: 9800
+    views: 2
   },
   {
     uid: 'LOG-080',
@@ -51,6 +51,6 @@ export const BLOG_DATA = [
     excerpt: 'Strategies for creating atomic design components...',
     author: 'Eng. Ripley',
     date: '2024.08.22',
-    views: 1500
+    views: 1
   }
 ];

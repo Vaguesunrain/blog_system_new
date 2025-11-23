@@ -1,102 +1,96 @@
 import os
-from flask import request, jsonify, send_from_directory, make_response, Blueprint
-from werkzeug.utils import secure_filename
+import uuid
 from datetime import datetime
-from . import dabopration
+from flask import Blueprint, request, jsonify, send_from_directory, make_response
+from werkzeug.utils import secure_filename
 
+# 定义蓝图
 mdpic_bp = Blueprint('mdpicture', __name__)
 
-UPLOAD_FOLDER = dabopration.project_root.parent / 'uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-EDITORMD_FILE_INPUT_NAME = 'editormd-image-file'
-MAX_FILE_SIZE_KB = 2048
-MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_KB * 1024
-UPLOAD_URL_BASE = '/uploads'
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+BACKEND_DOMAIN = "http://vagueame.top:5000"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'}
+
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-    print(f"创建基础上传目录: {UPLOAD_FOLDER}")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def create_json_response(success, message, url=None):
-    data = {"success": 1 if success else 0, "message": message}
-    if success and url:
-        data["url"] = url
-    response = jsonify(data)
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    return response
 
-# --- 上传接口 (核心修改) ---
 @mdpic_bp.route('/uploads/image', methods=['POST', 'OPTIONS'])
 def upload_image():
+    # 1. 处理跨域预检 (CORS OPTIONS)
     if request.method == 'OPTIONS':
         resp = make_response()
-        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
         resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
         resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
         return resp
 
-    if EDITORMD_FILE_INPUT_NAME not in request.files:
-        msg = f"请求中未找到文件输入字段 '{EDITORMD_FILE_INPUT_NAME}'"
-        return create_json_response(False, msg), 400
-    file = request.files[EDITORMD_FILE_INPUT_NAME]
-    if file.filename == '':
-        msg = "未选择任何文件"
-        return create_json_response(False, msg), 400
+    # 2. 获取文件对象 (兼容 ByteMD 和 EditorMD)
+    if 'file' in request.files:
+        f = request.files['file']
+    elif 'editormd-image-file' in request.files:
+        f = request.files['editormd-image-file']
+    else:
+        return jsonify({'error': '未找到文件字段，请检查前端 FormData'}), 400
 
-    if file and allowed_file(file.filename):
+    if f.filename == '':
+        return jsonify({'error': '文件名为空'}), 400
+
+    if f and allowed_file(f.filename):
         try:
-            current_pos = file.tell()
-            file.seek(0, os.SEEK_END)
-            file_size = file.tell()
-            file.seek(current_pos)
-            if file_size > MAX_FILE_SIZE_BYTES:
-                msg = f"文件大小 ({file_size // 1024} KB) 超过限制 ({MAX_FILE_SIZE_KB} KB)"
-                return create_json_response(False, msg), 400
-
-            # 1. 分别获取年、月、日
+            # 3. 生成日期路径 (YYYY/MM/DD)
             now = datetime.now()
             year = now.strftime('%Y')
             month = now.strftime('%m')
             day = now.strftime('%d')
 
-            # 2. 使用 os.path.join 创建三层嵌套的物理目录路径
-            target_dir = os.path.join(UPLOAD_FOLDER, year, month, day)
+            # 物理存储路径: .../uploads/2023/10/27
+            file_dir = os.path.join(UPLOAD_FOLDER, year, month, day)
+            if not os.path.exists(file_dir):
+                os.makedirs(file_dir, exist_ok=True)
 
-            # 3. 安全地创建嵌套目录
-            os.makedirs(target_dir, exist_ok=True)
+            # 4. 生成安全且唯一的文件名
+            # 格式: HHMMSS_随机码.jpg (防止文件名冲突)
+            ext = f.filename.rsplit('.', 1)[1].lower()
+            original_safe = secure_filename(f.filename.rsplit('.', 1)[0])
+            unique_id = uuid.uuid4().hex[:6]
+            timestamp = now.strftime('%H%M%S')
 
-            # 4. 生成安全且唯一的文件名 (保持不变)
-            original_filename_safe = secure_filename(file.filename)
-            timestamp_unique = now.strftime('%H%M%S%f')
-            new_filename = f"{timestamp_unique}_{original_filename_safe}"
+            new_filename = f"{timestamp}_{unique_id}.{ext}"
 
-            # 5. 确定最终的保存路径 (指向三层目录内)
-            save_path = os.path.join(target_dir, new_filename)
+            # 5. 保存文件
+            save_path = os.path.join(file_dir, new_filename)
+            f.save(save_path)
 
-            print(f"准备保存文件到: {save_path}")
-            file.save(save_path)
+            file_url = f"{BACKEND_DOMAIN}/uploads/{year}/{month}/{day}/{new_filename}"
+            print(f"[UPLOAD SUCCESS] Saved to: {save_path}")
 
-            # 6. 构建包含三层目录的访问 URL
-
-            uploaded_file_url = os.path.join(UPLOAD_URL_BASE, year, month, day, new_filename).replace('\\', '/')
-            return create_json_response(True, "上传成功", uploaded_file_url)
+            return jsonify({
+                "url": file_url,
+                "alt": new_filename,
+                "title": new_filename
+            })
 
         except Exception as e:
-            msg = f"服务器内部错误: {e}"
-            return create_json_response(False, msg), 500
+            print(f"[UPLOAD ERROR] {e}")
+            return jsonify({'error': '服务器内部保存失败'}), 500
     else:
-        msg = f"无效的文件类型。允许的类型: {', '.join(ALLOWED_EXTENSIONS)}"
-        return create_json_response(False, msg), 400
+        return jsonify({'error': '不支持的文件格式'}), 400
 
+
+# --- 图片访问接口 ---
+#TODO: 后期不使用这个，转到apache2挂载图片
 
 @mdpic_bp.route('/uploads/<year>/<month>/<day>/<filename>')
-def uploaded_file(year, month, day, filename):
-    try:
-        directory = os.path.join(UPLOAD_FOLDER, year, month, day)
-        return send_from_directory(directory, filename)
-    except FileNotFoundError:
-        return "文件未找到", 404
+def serve_uploaded_file(year, month, day, filename):
+    # 拼接完整的物理目录路径
+    directory = os.path.join(UPLOAD_FOLDER, year, month, day)
+    return send_from_directory(directory, filename)
+
+

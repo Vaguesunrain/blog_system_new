@@ -8,6 +8,7 @@ import Home from './components/Home_use/Home';
 import Blog from './components/blog_use/Blog';
 import Write from './components/Write';
 import Profile from './components/Profile';
+import Read from './components/blog_use/Read';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation(); // 获取当前路径，用于触发动画
@@ -54,6 +55,7 @@ function App() {
                       <Profile />
                     </PageWrapper>
                   } />
+                  <Route path="/read/:id" element={<Read />} />
                 </Routes>
               </AnimatePresence>
             </div>

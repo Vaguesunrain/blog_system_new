@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import 'bytemd/dist/index.css';
 import 'highlight.js/styles/vs2015.css';
 import '../../bytemd-override.css';
-
+import { API_BASE } from '../../data/config.js';
 const plugins = [
   gfm(),
   gemoji(),
@@ -59,7 +59,7 @@ const NasaEditor = ({ value, onChange }) => {
 
         try {
           // 发送到你的 Flask 服务器
-          const response = await fetch('http://vagueame.top:7777/upload', {
+          const response = await fetch(`${API_BASE}/uploads/image`, {
             method: 'POST',
             body: formData,
           });
