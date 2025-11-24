@@ -5,6 +5,8 @@ from blueprint.getInfo import inf_bp
 from blueprint.md_picture import mdpic_bp
 from blueprint.md_file import mdfile_bp
 from blueprint.admin import admin_bp
+from blueprint.manage_bp import manage_bp
+
 from models import db
 
 app = Flask(__name__)
@@ -12,7 +14,7 @@ allowed_origins = ["http://vagueame.top",
         "http://vagueame.top:5174"]
 CORS(app, supports_credentials=True, origins=allowed_origins)  # 允许跨域请求
 app.secret_key = 'your-secret-key'  # 用于会话加密
-
+app.register_blueprint(manage_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(inf_bp)
 app.register_blueprint(mdpic_bp)

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, ArrowLeft, Image as ImageIcon, Mail, Fingerprint, Quote, Edit3, Palette, Save, X, User, Camera, AlertTriangle, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE } from '../data/config.js';
-
+import { API_BASE } from '../../data/config.js';
+import ArchiveSection from './ArchiveSection';
 const Profile = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
@@ -263,7 +263,7 @@ useEffect(() => {
                     background: '#ff4d4d', opacity: 0.5,
                     animation: 'scan 2s linear infinite'
                 }}/>
-                <style jsx>{`
+                <style >{`
                     @keyframes scan { 0% {top: 0} 100% {top: 100%} }
                     @keyframes pulse-red { 0% {opacity: 0.6} 50% {opacity: 1} 100% {opacity: 0.6} }
                 `}</style>
@@ -456,7 +456,7 @@ useEffect(() => {
             </div>
 
             {/* CSS for Avatar Hover Effect */}
-            <style jsx>{`
+            <style >{`
                 .avatar-container:hover .avatar-overlay { opacity: 1; }
                 .avatar-overlay {
                     position: absolute; inset: 0; background: rgba(0,0,0,0.5);
@@ -545,7 +545,19 @@ useEffect(() => {
         </Section>
 
         {/* PAGE 2: ARCHIVES */}
-        <Section><h2 style={{ opacity: 0.5 }}>ARCHIVES</h2></Section>
+        {/* Profile.jsx 的第二页部分 */}
+<Section>
+    <div style={{ 
+        width: '100%', 
+        height: '100%', 
+        display: 'flex', 
+        alignItems: 'center', // 垂直居中
+        justifyContent: 'center',
+        padding: '20px' // 防止贴边
+    }}>
+        <ArchiveSection />
+    </div>
+</Section>
 
         {/* PAGE 3: UNEXPLORED */}
         <Section><h2 style={{ opacity: 0.5 }}>UNEXPLORED</h2></Section>
@@ -576,7 +588,7 @@ const NavButton = ({ icon, onClick, tooltip, color }) => (
     >
       {icon}
     </motion.button>
-    <style jsx>{`
+    <style >{`
         .nav-btn-wrapper:hover::after {
             content: "${tooltip}"; position: absolute; top: 115%; left: 50%; transform: translateX(-50%);
             font-size: 10px; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none;
