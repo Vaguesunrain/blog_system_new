@@ -23,7 +23,7 @@ def save_article():
     markdown = data.get('markdown')
     tags_list = data.get('tags', [])
     status = data.get('status', 'draft') # published 或 draft
-
+    excerpt = data.get('excerpt', '') 
     if not title:
         return jsonify({'status': 'error', 'message': '标题不能为空'}), 400
 
@@ -41,7 +41,7 @@ def save_article():
         article.title = title
         article.content_md = markdown
         article.status = status
-
+        article.summary = excerpt 
         # --- 3. 处理标签 (核心逻辑：自动去重、自动创建) ---
         # 先清空当前文章的标签关联
         article.tags = []

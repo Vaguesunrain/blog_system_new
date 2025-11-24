@@ -29,6 +29,7 @@ class Article(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     views = db.Column(db.Integer, default=0)
+    summary = db.Column(db.String(500), nullable=True) 
 
     # 关系
     tags = db.relationship('Tag', secondary=article_tags, backref=db.backref('articles', lazy='dynamic'))
@@ -48,18 +49,34 @@ class Article(db.Model):
             'tags': [tag.name for tag in self.tags]
         }
     def to_summary_dict(self):
+        preview_text = self.summary if self.summary else (self.content_md[:150] + '...' if self.content_md else '')
         display_name = self.author_info.nickname if self.author_info and self.author_info.nickname else self.user_id
         return {
             'id': self.id,
             'title': self.title,
             # 'content': self.content_md, <--- 列表中去掉这一行！大幅瘦身
-            'preview': self.content_md[:100] + '...' if self.content_md else '', # 可选：只截取前100字做预览
+            'preview': preview_text,
             'status': self.status,
             'date': self.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             'views': self.views,
             'author': self.user_id,
             'author_nickname': display_name, 
             'author_username': self.user_id, # 原始用户名，用于拼头像链接
+            'tags': [tag.name for tag in self.tags]
+        }
+    def to_dict(self):
+        display_name = self.author_info.nickname if self.author_info and self.author_info.nickname else self.user_id
+        return {
+            'id': self.id,
+            'title': self.title,
+            'content': self.content_md,
+            'excerpt': self.summary, 
+            'status': self.status,
+            'date': self.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'views': self.views,
+            'author': self.user_id,
+            'author_username': self.user_id,
+            'author_nickname': display_name,
             'tags': [tag.name for tag in self.tags]
         }
 class Tag(db.Model):
