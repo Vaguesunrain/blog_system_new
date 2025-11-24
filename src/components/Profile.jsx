@@ -527,9 +527,16 @@ useEffect(() => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '16px', width: '350px' }}>
                   <span style={{ width: '20px', color: 'var(--accent-color)' }}><Mail size={14} /></span>
                   <span style={{ color: 'var(--text-dim)', fontSize: '12px', width: '80px', textAlign: 'right' }}>EMAIL:</span>
-                  <span style={{ opacity: 0.7, borderBottom: '1px dashed rgba(255,255,255,0.2)', flex: 1, padding: '2px 0' }}>
-                    {userData.email}
-                  </span>
+                  {editMode === 'info' ? (
+                    <input
+                      type="text"
+                      value={userData.email}
+                      readOnly 
+                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderBottom: '1px solid var(--accent-color)', color: '#fff', padding: '2px 5px', flex: 1, opacity: 0.7 }}
+                    />
+                  ) : (
+                    <span style={{ fontWeight: 'bold' }}>{userData.email}</span>
+                  )}
                 </div>
 
               </div>
