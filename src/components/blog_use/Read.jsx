@@ -5,7 +5,7 @@ import { Viewer } from '@bytemd/react';
 import gfm from '@bytemd/plugin-gfm';
 import gemoji from '@bytemd/plugin-gemoji';
 import highlight from '@bytemd/plugin-highlight';
-import { ChevronLeft, Eye, Clock, Hash, AlertTriangle, FileText, Share2 } from 'lucide-react';
+import { ChevronLeft, Eye, Clock, Hash, AlertTriangle, FileText, Share2, User } from 'lucide-react'; 
 import Footer from '../Footer';
 import {API_BASE} from '../../data/config';
 import 'bytemd/dist/index.css';
@@ -19,7 +19,7 @@ const plugins = [gfm(), gemoji(), highlight()];
 const Read = () => {
   const { id } = useParams(); // 获取 URL 中的 /read/:id
   const navigate = useNavigate();
-
+  const [imgError, setImgError] = useState(false);
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,7 +108,37 @@ const Read = () => {
           }}>
              <div style={{ display: 'flex', gap: '20px' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={14} /> {article.date}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FileText size={14} /> AUTHOR: {article.author}</span>
+               
+<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+  <FileText size={14} /> 
+  <span style={{ marginRight: '4px' }}>AUTHOR:</span>
+  
+  {/* {圖像部分，可以選擇要不要} */}
+  {/* <div style={{ 
+      width: '20px', height: '20px', borderRadius: '50%', 
+      background: '#333', overflow: 'hidden', 
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      border: '1px solid #444'
+  }}>
+    {!imgError ? (
+      <img 
+       
+        src={`${API_BASE}/get-author-avatar/${article.author_username || article.author}`} 
+        alt="avatar"
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        onError={() => setImgError(true)}
+      />
+    ) : (
+      <User size={12} color="#999" />
+    )}
+  </div> */}
+
+  
+      <span style={{ fontWeight: 'bold', color: '#fff', borderBottom: '1px dashed #666' }}>
+        {article.author_nickname || article.author}
+      </span>
+            </div>
+
              </div>
 
              <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>

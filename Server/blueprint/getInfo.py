@@ -1,7 +1,8 @@
+import code
 import os
 from flask import Blueprint, jsonify, make_response, request, session, send_file
 from blueprint import dabopration
-
+from models import db, BlogUser 
 inf_bp = Blueprint('information', __name__)
 
 
@@ -51,6 +52,28 @@ def get_photo():
     except Exception as e:
         print(f"Error getting photo: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
+
+@inf_bp.route('/get-author-avatar/<username>', methods=['GET'])
+def get_author_avatar(username):
+    try:
+        # username = secure_filename(username)
+        user_folder = dabopration.USER_file / str(username) / 'img'
+        user_image = user_folder / "person.jpg"
+        default_image = dabopration.DB_CONFIG_PATH.parent / 'person_img' / 'none.jpg'
+
+        if user_image.exists():
+            return send_file(user_image, mimetype='image/jpeg')
+        else:
+            if os.path.exists(default_image):
+                return send_file(default_image, mimetype='image/jpeg')
+            else:
+                return "Default image not found", 404
+
+    except Exception as e:
+        print(f"Get avatar error: {e}")
+        return jsonify({'error': 'Image Error'}), 500
+
+
 
 @inf_bp.route('/push-photo', methods=['POST'])
 def upload_photo():
@@ -186,6 +209,21 @@ def user_info_handler():
 
         updated_fields = []
         if 'nickname' in req_data:
+            try:
+                # 查找是否已有该用户记录
+                blog_user = BlogUser.query.filter_by(username=username).first()
+                if not blog_user:
+                    # 如果没有，新建一个
+                    blog_user = BlogUser(username=username)
+                    db.session.add(blog_user)
+                
+                # 更新昵称
+                blog_user.nickname = req_data['nickname']
+                db.session.commit()
+                print(f"Synced nickname to SQLite for {username}")
+            except Exception as e:
+                db.session.rollback()
+                print(f"Failed to sync SQLite: {e}")
             current_data['nickname'] = req_data['nickname']
             updated_fields.append('nickname')
         if 'motto' in req_data:
