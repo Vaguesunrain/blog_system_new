@@ -1,121 +1,147 @@
-import React, { useState, useEffect } from 'react'; // 1. 引入 hooks
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
-import { User, PenTool, LayoutGrid, Home } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PenTool, LayoutGrid, Home } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import UserAuthSystem from './UserAuthSystem';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // --- 滚动监听 ---
   const [hidden, setHidden] = useState(false);
 
+  // --- 滚动监听 (保持原逻辑) ---
   useEffect(() => {
     let lastScrollY = window.scrollY;
-
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
-      // 逻辑：如果向下滑动 且 滚动距离超过 100px -> 隐藏
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setHidden(true);
       } else {
-        // 否则（向上滑动或在顶部） -> 显示
         setHidden(false);
       }
-
       lastScrollY = currentScrollY;
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  // --- 新增功能结束 ---
 
   const isActive = (path) => location.pathname === path;
 
   return (
     <motion.nav
-      // 2. 修改动画逻辑：根据 hidden 状态改变 Y 轴位置
-      initial={{ y: 0, opacity: 1 }}
-      animate={{
-        y: hidden ? -80 : 0,  // hidden为真时向上移出屏幕(-80px)，否则归位(0)
-        opacity: 1
-      }}
-      transition={{ duration: 0.3, ease: "easeInOut" }} // 动画时长
-
+      initial={{ y: 0 }}
+      animate={{ y: hidden ? -100 : 0 }} // 隐藏时完全移出
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} // 更优雅的缓动
       style={{
-        position: 'fixed', top: 0, left: 0, right: 0, height: '64px',
-        background: 'rgba(11, 13, 23, 0.8)', backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid var(--border-color)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 20px', zIndex: 100, fontFamily: 'var(--font-mono)'
+        position: 'fixed',
+        top: 0, left: 0, right: 0,
+        height: '80px', //稍微加高一点，让布局更舒展
+        background: 'transparent', // 完全透明
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 50px', // 加大左右间距
+        zIndex: 100,
+        pointerEvents: hidden ? 'none' : 'auto' // 隐藏时禁止点击
       }}
     >
-      {/* 左侧 Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div
-          onClick={() => navigate('/')}
-          style={{
-            background: 'var(--solid-white)', color: 'var(--solid-black)',
-            padding: '4px 8px', fontWeight: 'bold', fontSize: '14px',
-            letterSpacing: '1px', cursor: 'pointer'
-          }}
-        >
-          GALAXY.LOG
-        </div>
+      {/* 左侧 Logo: 艺术字体 */}
+      <div
+        onClick={() => navigate('/')}
+        style={{
+          fontFamily: '"Georgia", serif',
+          fontStyle: 'italic',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          color: '#17202A', // 深黑色
+          cursor: 'pointer',
+          textShadow: '0 2px 10px rgba(255,255,255,0.5)' // 防止背景太深看不清
+        }}
+      >
+        Melancholy.
       </div>
 
-      {/* 中间：路由切换 */}
-      <div style={{ display: 'flex', gap: '5px' }}>
-        <NavItem
-          icon={<Home size={14} />}
-          label="HOME"
+      {/* 右侧：纯图标导航 */}
+      <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+        <IconItem
+          icon={<Home size={22} />}
+          label="Home"
           active={isActive('/')}
           onClick={() => navigate('/')}
         />
-        <NavItem
-          icon={<LayoutGrid size={14} />}
-          label="BLOG"
+        <IconItem
+          icon={<LayoutGrid size={22} />}
+          label="Archive"
           active={isActive('/blog')}
           onClick={() => navigate('/blog')}
         />
-        <NavItem
-          icon={<PenTool size={14} />}
-          label="WRITE"
+        <IconItem
+          icon={<PenTool size={22} />}
+          label="Write"
           active={isActive('/write')}
           onClick={() => navigate('/write')}
         />
       </div>
 
-      {/* 右侧：用户模块 */}
-      <UserAuthSystem />
     </motion.nav>
   );
 };
 
+// 子组件：带 Tooltip 的图标按钮
+const IconItem = ({ icon, label, active, onClick }) => {
+  const [hover, setHover] = useState(false);
 
-const NavItem = ({ icon, label, active, onClick }) => (
-  <motion.button
-    onClick={onClick}
-    whileHover={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
-    whileTap={{ scale: 0.95 }}
-    style={{
-      backgroundColor: active ? 'rgba(255,255,255,0.1)' : 'transparent',
-      outline: 'none',
-      border: 'none',
-      borderBottom: active ? '2px solid var(--accent-color)' : '2px solid transparent',
-      color: active ? 'var(--solid-white)' : 'var(--text-dim)',
-      padding: '0 16px', height: '40px',
-      display: 'flex', alignItems: 'center', gap: '8px',
-      cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '12px',
-      transition: 'all 0.3s'
-    }}
-  >
-    {icon}
-    <span>{label}</span>
-  </motion.button>
-);
+  return (
+    <div
+      style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <motion.button
+        onClick={onClick}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '10px',
+          // 选中为纯黑，未选中为灰色
+          color: active || hover ? '#17202A' : '#95A5A6',
+          transition: 'color 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        {icon}
+      </motion.button>
+
+      {/* 悬浮提示文字 (Tooltip) */}
+      <AnimatePresence>
+        {hover && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: 'absolute',
+              top: '100%', // 在图标下方
+              fontFamily: '"Courier New", monospace',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              color: '#17202A',
+              letterSpacing: '1px',
+              pointerEvents: 'none', // 不阻挡鼠标
+              marginTop: '5px'
+            }}
+          >
+            {label.toUpperCase()}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export default Navbar;

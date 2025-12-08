@@ -1,98 +1,36 @@
-/* src/index.css */
 :root {
-  /* --- 基础底色 --- */
-  --bg-color: #0c0707;
-  --panel-bg: rgba(255, 255, 255, 0.03);
-  --border-color: rgba(255, 255, 255, 0.15);
+  /* 背景：雾霾蓝灰，模拟阴天 */
+  --bg-color: #EBF0F3;
 
+  /* 纸张颜色：暖白，不刺眼 */
+  --paper-color: #FDFBF7;
 
-  --accent-color: #ff4d00;
-  --online-color: #2bff00;
+  /* 文字：墨水蓝黑 */
+  --text-main: #2C3E50;
+  --text-sub: #7F8C8D;
 
-  --data-color: #38bdf8;
+  /* 强调色：Her Blue (克莱因蓝) - 用于链接或高亮 */
+  --accent-blue: #2962FF;
 
-  /* --- 纯色锚点 --- */
-  --solid-white: #ffffff;
-  --solid-black: #000000;
-  --half-black: #0A0A0A;
-  --half-white: #E6E8EB;
-  /* --- 文字 --- */
-  --text-main: #e2e2e2;
-  --text-dim: #bccbd6;
-  --text-gray: #888888;
-  /* --- 字体 --- */
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  /* 辅助色：邮戳红 - 用于 tag 或日期 */
+  --accent-red: #C0392B;
 
+  /* 字体系统 */
+  /* 标题和正文用衬线体，营造文学感 */
+  --font-serif: "Georgia", "Times New Roman", "Songti SC", "SimSun", serif;
+  /* 界面UI用无衬线体，保持清晰 */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* 代码和元数据用等宽字体 */
+  --font-mono: "Courier New", Courier, monospace;
 }
+
 body {
-  /* 强制应用更大的基准字号 */
-  font-size: var(--text-base);
-  line-height: 1.6; /* 增加行高，阅读更舒服 */
-}
-::selection {
-  background: var(--accent-color);
-  color: white;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 0;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
-}
-
-/* 确保根节点撑满 */
-#root {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-
-
-/* 强制图片带有扫描线效果 */
-.satellite-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: grayscale(40%) contrast(1.2) brightness(0.8); /* 工业冷调 */
-  border-left: 1px solid var(--border-color);
-}
-
-.layout-grid {
-  display: grid;
-  grid-template-columns: 1fr 450px; /* 右侧稍微宽一点好看 */
-  width: 100%;
-}
-
-.page-container {
-  min-height: 100vh;
-}
-
-
-.desktop-only {
-  height: 100%;
-  min-height: 800px;
-}
-
-.satellite-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: grayscale(20%) contrast(1.1);
-  display: block;
-}
-
-/* 手机端隐藏右侧 */
-@media (max-width: 900px) {
-  .layout-grid {
-    grid-template-columns: 1fr;
-  }
-  .desktop-only {
-    display: none;
-  }
-}
+/* 隐藏滚动条但保留功能 */
+::-webkit-scrollbar { width: 0px; }

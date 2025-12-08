@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, LogIn, UserPlus, Power, LayoutDashboard } from 'lucide-react';
+import { User, LogIn, UserPlus, Power, LayoutDashboard, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoginTerminal from './LoginTerminal';
 import { API_BASE } from '../data/config.js';
 
 const UserAuthSystem = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [terminalMode, setTerminalMode] = useState(null); // 控制全屏登录页的显示 ('login' | 'register' | null)
-  const [currentUser, setCurrentUser] = useState(null); // 存储用户名
-  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // 菜单展开状态
+  const [isDocked, setIsDocked] = useState(false);     // 停靠（缩进）状态
+  const [isHovering, setIsHovering] = useState(false); // 鼠标是否悬停
+
+  const [terminalMode, setTerminalMode] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
 
+  const navigate = useNavigate();
+  const dockTimerRef = useRef(null);
+
+  // --- 1. 初始化检查登录状态 ---
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -19,8 +25,6 @@ const UserAuthSystem = () => {
         const data = await res.json();
         if (data.loggedIn) {
           setCurrentUser(data.username);
-
-          // --- 如果已登录，立即加载头像 ---
           const url = await fetchUserAvatar();
           if (url) setAvatarUrl(url);
         }
@@ -31,158 +35,169 @@ const UserAuthSystem = () => {
     checkSession();
   }, []);
 
-  // // 2. 处理注销
-  // const handleLogout = () => {
-  //   setCurrentUser(null);
-  //   setAvatarUrl(null); // 清空头像
-  //   setIsMenuOpen(false);
-  //   navigate('/');
-  //   // 记得通知后端 logout...
-  // };
-// 2. 处理注销
-  const handleLogout = async () => {
-    try {
-      // 发送请求给后端清除 session/cookie
-      await fetch(`${API_BASE}/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-    } catch (e) {
-      console.error("Logout request failed", e);
-      // 即使后端报错，前端也应该强制登出
+  // --- 2. 自动停靠逻辑 ---
+  useEffect(() => {
+    // 如果菜单打开了，或者是正在悬停，就不要停靠
+    if (isMenuOpen || isHovering) {
+      setIsDocked(false);
+      if (dockTimerRef.current) clearTimeout(dockTimerRef.current);
+      return;
     }
 
-    // 清理前端状态
+    // 否则，2秒后自动停靠
+    dockTimerRef.current = setTimeout(() => {
+      setIsDocked(true);
+    }, 2000);
+
+    return () => clearTimeout(dockTimerRef.current);
+  }, [isMenuOpen, isHovering]);
+
+  // --- 3. 动作处理 ---
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' });
+    } catch (e) { console.error(e); }
     setCurrentUser(null);
     setAvatarUrl(null);
     setIsMenuOpen(false);
-
-    // 跳转回首页
     navigate('/');
   };
-  // 3. 登录成功后的回调
+
   const handleLoginSuccess = async (username) => {
     setCurrentUser(username);
     setTerminalMode(null);
-
-    // --- 登录成功瞬间，加载头像 ---
     const url = await fetchUserAvatar();
     if (url) setAvatarUrl(url);
   };
 
-
-  const COLOR_STANDBY = '#ffaa00';
-  const COLOR_ACTIVE = '#00e0ff';
-  const COLOR_ONLINE = '#00ff41';
-
-  let currentColor = COLOR_STANDBY;
-  if (currentUser) currentColor = COLOR_ONLINE;
-  else if (isMenuOpen) currentColor = COLOR_ACTIVE;
-
   return (
-    <div style={{ position: 'relative', fontFamily: 'var(--font-mono)' }}>
-
-      {/* --- 触发器按钮 (Navbar Item) --- */}
-      <motion.div
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        whileHover={{ borderColor: currentColor, boxShadow: `0 0 10px ${currentColor}40` }}
-        whileTap={{ scale: 0.98 }}
+    <>
+      {/* --- 浮动容器 --- */}
+           <motion.div
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        // 【修改点 1】: 改成 100px (或者更大)，强制移出屏幕，只留一点点在边缘
+        animate={{ x: isDocked ? '70px' : '0px' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         style={{
-          display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 12px',
-          border: `1px solid ${isMenuOpen ? currentColor : 'rgba(255,255,255,0.2)'}`,
-          background: isMenuOpen ? `${currentColor}1a` : 'transparent',
-          cursor: 'pointer', borderRadius: '4px', zIndex: 200, position: 'relative',
-          transition: 'all 0.3s ease'
+          position: 'fixed',
+          bottom: '120px',
+          right: '40px', // 这里保留 40px，所以我们需要移动 > 40px 才能碰到边缘
+          zIndex: 900,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center', // 改为靠右对齐，这样缩进时更自然
+          gap: '15px'
         }}
       >
-        <div style={{ textAlign: 'right', lineHeight: 1 }}>
-          <div style={{ fontSize: '10px', color: isMenuOpen || currentUser ? currentColor : '#888', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', fontWeight: 'bold' }}>
-            <motion.div animate={{ backgroundColor: currentColor }} style={{ width: '6px', height: '6px', borderRadius: '50%', boxShadow: currentUser ? `0 0 5px ${currentColor}` : 'none' }} />
-            {currentUser ? 'USER ONLINE' : (isMenuOpen ? 'LINK_ACTIVE' : 'STANDBY')}
-          </div>
-          <motion.div animate={{ color: currentColor }} style={{ fontSize: '13px', fontWeight: '900', marginTop: '2px' }}>
-            {currentUser ? currentUser.toUpperCase() : 'USER.ACCESS'}
-          </motion.div>
-        </div>
 
-        {/* --- 头像渲染区域 --- */}
-        <motion.div
-            animate={{
-                rotate: isMenuOpen ? 180 : 0,
-                backgroundColor: isMenuOpen ? currentColor : 'transparent',
-                borderColor: currentColor
-            }}
-            style={{
-                width: '32px', height: '32px',
-                border: '1px solid',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderRadius: '50%',
-                overflow: 'hidden', // 确保图片不溢出圆角
-                position: 'relative'
-            }}
-        >
-          {/* 如果有头像 URL，显示图片；否则显示默认 User 图标 */}
-          {avatarUrl ? (
-            <motion.img
-              key="avatar" // 加上 key 触发切换动画
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, rotate: isMenuOpen ? -180 : 0 }} // 反向旋转图片，防止图片跟着外框倒过来，或者干脆不处理
-              src={avatarUrl}
-              alt="User"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : (
-            <User size={18} color={isMenuOpen ? '#000' : currentColor} />
-          )}
-        </motion.div>
-      </motion.div>
-
-      {/* --- 轨道菜单 (右上角圆弧) --- */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <>
-            <div style={{ position: 'fixed', inset: 0, zIndex: 190 }} onClick={() => setIsMenuOpen(false)} />
+        {/* --- 展开的菜单列表 (向上展开) --- */}
+        <AnimatePresence>
+          {isMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
               style={{
-                position: 'absolute', top: '35px', right: '20px',
-                width: '240px', height: '240px', pointerEvents: 'none', zIndex: 195,
-                transformOrigin: 'top right',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                marginBottom: '5px', // 与主按钮的间距
+                alignItems: 'flex-end' // 文字靠右
               }}
             >
-              <svg style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'visible' }}>
-                <motion.path d="M 30 10 A 210 210 0 0 0 230 210" fill="none" stroke={currentColor} strokeWidth="1" strokeDasharray="4 4" initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 0.3 }} transition={{ duration: 0.5 }} />
-              </svg>
-
               {!currentUser ? (
-                // 未登录状态：显示 LOGIN / REG -> 点击打开 Terminal
                 <>
-                  <PlanetNode x={65} y={85} label="LOGIN" icon={<LogIn size={15} />} color={currentColor} delay={0.1}
+                  <MenuItem
+                    label="LOGIN"
+                    icon={<LogIn size={18} />}
                     onClick={() => { setIsMenuOpen(false); setTerminalMode('login'); }}
                   />
-                  <PlanetNode x={155} y={175} label="REG" icon={<UserPlus size={15} />} color={currentColor} delay={0.2}
+                  <MenuItem
+                    label="REGISTER"
+                    icon={<UserPlus size={18} />}
                     onClick={() => { setIsMenuOpen(false); setTerminalMode('register'); }}
                   />
                 </>
               ) : (
-                // 已登录状态：显示 Prof. / OUT
                 <>
-                  <PlanetNode x={65} y={85} label="PROF." icon={<LayoutDashboard size={15} />} color={currentColor} delay={0.1}
+                  <MenuItem
+                    label="PROFILE"
+                    icon={<LayoutDashboard size={18} />}
                     onClick={() => { setIsMenuOpen(false); navigate('/profile'); }}
                   />
-                  <PlanetNode x={155} y={175} label="OUT" icon={<Power size={15} />} color={currentColor} delay={0.2}
+                  <MenuItem
+                    label="LOGOUT"
+                    icon={<Power size={18} />}
                     onClick={handleLogout}
+                    isDanger
                   />
                 </>
               )}
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      {/* --- 独立的全屏登录终端 --- */}
-      {/* 当 terminalMode 有值时，渲染全屏覆盖层 */}
+        {/* --- 主按钮 (Avatar / Icon) --- */}
+         <motion.button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            background: '#2C3E50',
+            border: '2px solid #EBF0F3',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+            cursor: 'pointer',
+            padding: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center', // 确保内容居中
+            position: 'relative',
+            zIndex: 901
+          }}
+        >
+          {/* 停靠时的箭头 (尾巴) */}
+          {/* 【修改点 2】: 调整位置，让它刚好在左边缘 */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isDocked ? 1 : 0 }} // 只有停靠时显示
+            transition={{ duration: 0.2 }}
+            style={{
+               position: 'absolute',
+               left: '12px', // 靠左一点
+               zIndex: 10
+            }}
+          >
+             <ChevronLeft size={24} color="#fff" strokeWidth={3} />
+          </motion.div>
+
+          {/* 头像或图标 */}
+          {/* 【修改点 3】: 停靠时完全透明 (opacity: 0)，避免和箭头重叠 */}
+          <motion.div
+             animate={{ opacity: isDocked ? 0 : 1 }}
+             transition={{ duration: 0.2 }}
+             style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            {avatarUrl ? (
+                <img
+                src={avatarUrl}
+                alt="User"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+            ) : (
+                <User size={24} color="#EBF0F3" />
+            )}
+          </motion.div>
+        </motion.button>
+
+      </motion.div>
+
+      {/* --- 全屏登录终端 --- */}
       <AnimatePresence>
         {terminalMode && (
           <LoginTerminal
@@ -192,44 +207,46 @@ const UserAuthSystem = () => {
           />
         )}
       </AnimatePresence>
-
-    </div>
+    </>
   );
 };
 
-// 行星按钮组件
-const PlanetNode = ({ x, y, label, icon, onClick, delay, color }) => (
+// 子组件：菜单项
+const MenuItem = ({ label, icon, onClick, isDanger }) => (
   <motion.button
-    initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-    transition={{ delay, type: 'spring', stiffness: 300 }}
     onClick={onClick}
-    whileHover={{ scale: 1.15, backgroundColor: color, color: '#000', boxShadow: `0 0 20px ${color}` }}
+    whileHover={{ x: -5, backgroundColor: isDanger ? '#C0392B' : '#34495E' }}
     style={{
-      position: 'absolute', left: x, top: y, pointerEvents: 'auto',
-      background: 'rgba(11, 13, 23, 0.9)', border: `1px solid ${color}`, color: color,
-      width: '44px', height: '44px', borderRadius: '50%',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      cursor: 'pointer', boxShadow: `0 0 10px ${color}30`, padding: 0, zIndex: 200
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '10px 16px',
+      background: '#2C3E50',
+      color: '#EBF0F3',
+      border: 'none',
+      borderRadius: '30px', // 胶囊形状
+      cursor: 'pointer',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      fontFamily: '"Courier New", monospace',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      whiteSpace: 'nowrap'
     }}
   >
+    <span>{label}</span>
     {icon}
-    <span style={{ fontSize: '9px', fontWeight: 'bold', marginTop: '2px', lineHeight: 1 }}>{label}</span>
   </motion.button>
 );
 
+// 辅助函数 (保持不变)
 const fetchUserAvatar = async () => {
   try {
-    // 加上时间戳防止浏览器强缓存导致头像更新后不刷新 (可选)
-    const res = await fetch(`${API_BASE}/get-photo?t=${new Date().getTime()}`, {
-      credentials: 'include'
-    });
+    const res = await fetch(`${API_BASE}/get-photo?t=${new Date().getTime()}`, { credentials: 'include' });
     if (res.ok) {
       const blob = await res.blob();
-      return URL.createObjectURL(blob); // 生成内存链接
+      return URL.createObjectURL(blob);
     }
-  } catch (e) {
-    console.error("Avatar fetch failed", e);
-  }
+  } catch (e) { console.error("Avatar fetch failed", e); }
   return null;
 };
 

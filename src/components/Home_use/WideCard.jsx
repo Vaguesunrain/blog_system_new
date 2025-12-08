@@ -1,90 +1,102 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, User } from 'lucide-react';
 
 const WideCard = ({ id, category, title, excerpt, author, date, avatar, onClick }) => {
-  // 图片加载状态管理：如果图片加载失败，显示默认图标
   const [imgError, setImgError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
       onClick={onClick}
-      whileHover={{ backgroundColor: 'var(--panel-bg)', paddingLeft: '30px' }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      // 动画：Hover时文字稍微变暗，而不是改变背景色
+      whileHover={{ opacity: 1 }}
+      initial={{ opacity: 0.8 }}
       style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '40px',
-        padding: '40px 0',
-        borderTop: '1px solid var(--border-color)',
+        padding: '50px 0',
+        // 【关键修改】线条颜色加深，匹配蓝灰背景
+        borderTop: '1px solid #CFD8DC',
         cursor: 'pointer',
-        transition: 'all 0.3s ease'
+        display: 'grid',
+        gridTemplateColumns: '100px 1fr',
+        gap: '40px',
+        alignItems: 'start',
+        position: 'relative'
       }}
     >
-      {/* 左侧 ID */}
+      {/* 左侧：打字机时间戳 */}
       <div style={{
-        fontFamily: 'var(--font-mono)',
-        color: 'var(--data-color)',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        writingMode: 'vertical-rl',
-        transform: 'rotate(180deg)',
-        height: '10%',
-        opacity: 0.8,
-        marginTop: '5px'
+        fontFamily: '"Courier New", monospace',
+        fontSize: '13px',
+        // Hover时颜色加深
+        color: isHovered ? '#2C3E50' : '#808B96',
+        textAlign: 'right',
+        paddingTop: '6px',
+        transition: 'color 0.4s ease'
       }}>
-        {id}
+        <div>{date}</div>
+        <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '4px' }}>{id}</div>
       </div>
 
-      {/* 右侧主体 */}
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--accent-color)', marginBottom: '10px', letterSpacing: '1px' }}>
-          // {category}
+      {/* 右侧：主体 */}
+      <div>
+        <div style={{
+          fontSize: '11px',
+          letterSpacing: '2px',
+          color: '#566573',
+          marginBottom: '12px',
+          textTransform: 'uppercase',
+          fontFamily: '"Helvetica Neue", sans-serif',
+          opacity: 0.8
+        }}>
+          {category}
         </div>
-        <h3 style={{ fontSize: '25px', fontWeight: '600', color: 'var(--text-main)', margin: '0 0 15px 0', lineHeight: '1.0', letterSpacing: '-0.5px' }}>
+
+        <h3 style={{
+          fontSize: '30px',
+          fontFamily: '"Georgia", "Times New Roman", serif',
+          fontWeight: 'normal',
+          fontStyle: isHovered ? 'italic' : 'normal',
+          color: '#212F3C', // 接近黑色的深蓝
+          margin: '0 0 18px 0',
+          lineHeight: '1.3',
+          transition: 'all 0.4s ease' // 慢一点的过渡，更优雅
+        }}>
           {title}
         </h3>
-        <p style={{ fontSize: '13px', color: 'var(--text-dim)', lineHeight: '1.6', margin: '0 0 25px 0', maxWidth: '90%', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+
+        <p style={{
+          fontSize: '16px',
+          fontFamily: '"Helvetica Neue", sans-serif',
+          fontWeight: '300',
+          color: '#566573', // 灰蓝色文字
+          lineHeight: '1.8',
+          margin: '0 0 25px 0',
+          maxWidth: '580px',
+          // Hover时摘要颜色稍微加深
+          opacity: isHovered ? 1 : 0.9,
+          transition: 'opacity 0.4s ease'
+        }}>
           {excerpt}
         </p>
 
-        {/* 底部信息栏 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '10px', marginTop: 'auto' }}>
-          
-          {/* 作者信息区域 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {/* 头像圆圈 */}
-            <div style={{
-              width: '24px', height: '24px',
-              borderRadius: '50%',
-              background: 'var(--text-dim)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              overflow: 'hidden',
-              border: '1px solid var(--border-color)'
-            }}>
-              {/* 逻辑：如果有头像地址且没报错，显示图片；否则显示图标 */}
+        {/* 底部信息 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+           <div style={{
+             width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden',
+             filter: 'grayscale(100%)', opacity: 0.7,
+             border: '1px solid #BDC3C7' // 给头像加个淡淡的边框
+           }}>
               {avatar && !imgError ? (
-                <img 
-                  src={avatar} 
-                  alt={author} 
-                  onError={() => setImgError(true)} // 加载失败时触发
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                />
+                <img src={avatar} alt={author} onError={() => setImgError(true)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <User size={16} color="#000" />
+                <div style={{ background: '#BDC3C7', width: '100%', height: '100%' }} />
               )}
-            </div>
-
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--text-main)', fontWeight: 'bold' }}>
-              {author}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-             <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-dim)', fontSize: '12px' }}>POSTED: {date}</span>
-             <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ArrowUpRight size={18} color="var(--accent-color)" />
-             </div>
-          </div>
+           </div>
+           <span style={{ fontSize: '11px', fontFamily: '"Courier New", monospace', color: '#808B96', letterSpacing: '1px' }}>
+             {author.toUpperCase()}
+           </span>
         </div>
       </div>
     </motion.div>

@@ -10,13 +10,14 @@ import Write from './components/Write';
 import Profile from './components/profile_use/Profile';
 import Read from './components/blog_use/Read';
 import BlogManage from './components/BlogManage';
+import UserAuthSystem from './components/UserAuthSystem';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation(); // 获取当前路径，用于触发动画
 
+  const isReadPage = location.pathname.startsWith('/read/');
   return (
     <>
-      <StarBackground />
 
       {/* Loading 逻辑保持不变：加载完才显示路由 */}
       <AnimatePresence mode="wait">
@@ -24,8 +25,7 @@ function App() {
           <Loading key="loader" onComplete={() => setIsLoading(false)} />
         ) : (
           <>
-            <Navbar key="navbar" /> {/* Navbar 现在自己管理高亮，不需要传 props */}
-
+            {!isReadPage && <Navbar key="navbar" />}
             <div style={{ paddingTop: '0px' }}>
               {/*
                   key={location.pathname} 是关键！
@@ -59,6 +59,7 @@ function App() {
                   <Route path="/read/:id" element={<Read />} />
                   <Route path="/blog-manage" element={<BlogManage />} />
                 </Routes>
+                 <UserAuthSystem />
               </AnimatePresence>
             </div>
           </>
