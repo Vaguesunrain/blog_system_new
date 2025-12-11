@@ -1,33 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, Tag, X, Save, ChevronLeft, Activity, Clock, AlignLeft, Wifi, FileText } from 'lucide-react';
+import { UploadCloud, Tag, X, Save, ChevronLeft, Clock, AlignLeft, BookOpen, PenTool, Film, Image as ImageIcon } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import NasaEditor from './editor/NasaEditor';
 import { API_BASE } from '../data/config.js';
+import write_bg from '../assets/natural-3273491.jpg';
+
+// ... (COLORS, BOOKMARK_IMGS, getArticle, save, etc. 保持不变) ...
+const COLORS = {
+  bg: '#EBF0F3',
+  deepBlue: '#2C3E50',
+  warmEarth: '#8D7B68',
+  textMain: '#2C3E50',
+  textSub: '#7F8C8D',
+  paper: '#FDFBF7',
+  line: 'rgba(44, 62, 80, 0.1)'
+};
+const BOOKMARK_IMGS = [
+    "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?q=80&w=600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=600&auto=format&fit=crop"
+];
 
 const Write = () => {
+  // ... (Hooks, States, Handlers 全部保持不变) ...
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const articleId = searchParams.get('id');
-
   const [title, setTitle] = useState('');
-
-  const [excerpt, setExcerpt] = useState(''); 
+  const [excerpt, setExcerpt] = useState('');
   const [markdown, setMarkdown] = useState('');
   const [categoryInput, setCategoryInput] = useState('');
   const [tags, setTags] = useState([]);
-  const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  // ... (时间、字数统计逻辑不变) ...
-  const wordCount = markdown ? markdown.split(/\s+/).filter(w => w.length > 0).length : 0;
-  const readTime = Math.ceil(wordCount / 200);
-  const [time, setTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }));
+  const [isHovered, setIsHovered] = useState(false);
+  const [bookmarkBg, setBookmarkBg] = useState('');
+  const [time, setTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit' }));
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date().toLocaleTimeString('en-US', { hour12: false })), 1000);
+    setBookmarkBg(BOOKMARK_IMGS[Math.floor(Math.random() * BOOKMARK_IMGS.length)]);
+    const timer = setInterval(() => setTime(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit' })), 60000);
     return () => clearInterval(timer);
   }, []);
 
@@ -41,34 +57,20 @@ const Write = () => {
             setTitle(data.article.title);
             setMarkdown(data.article.content || '');
             setTags(data.article.tags || []);
-            setExcerpt(data.article.excerpt || ''); 
-          } else {
-            alert('文章加载失败: ' + data.message);
+            setExcerpt(data.article.excerpt || '');
           }
         })
         .catch(err => console.error(err))
         .finally(() => setIsLoading(false));
     } else {
-        setMarkdown('# LOG ENTRY: NEW\n\nStart typing...');
+        setMarkdown('> "The memory begins with..."\n\n');
     }
   }, [articleId]);
 
   const handleSave = async (status) => {
-    if (!title.trim()) {
-      alert('请输入标题 / ERROR: TITLE_REQUIRED');
-      return;
-    }
-
+    if (!title.trim()) { alert('Title is missing.'); return; }
     setIsSaving(true);
-    const payload = {
-      id: articleId,
-      title,
-      markdown,
-      tags,
-      excerpt, 
-      status
-    };
-
+    const payload = { id: articleId, title, markdown, tags, excerpt, status };
     try {
       const response = await fetch(`${API_BASE}/save`, {
         method: 'POST',
@@ -76,159 +78,211 @@ const Write = () => {
         credentials: 'include',
         body: JSON.stringify(payload)
       });
-      // ... (后续处理不变) ...
       const result = await response.json();
       if (response.ok && result.status === 'success') {
-         alert(`SUCCESS: ${status.toUpperCase()} SAVED`);
+         alert(`Memory ${status === 'published' ? 'published' : 'saved'} successfully.`);
          if (!articleId && result.id) navigate(`?id=${result.id}`, { replace: true });
       } else {
-         alert(`ERROR: ${result.message}`);
+         alert(`Error: ${result.message}`);
       }
     } catch (error) {
-      console.error('Save failed', error);
-      alert('SYSTEM_FAILURE: NET_ERROR');
+      console.error(error);
+      alert('Network error.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  // ... (标签处理函数 handleTagInput, removeTag 不变) ...
   const handleTagInput = (e) => {
     if (e.key === 'Enter' && categoryInput.trim()) {
       e.preventDefault();
-      if (!tags.includes(categoryInput.trim())) {
-        setTags([...tags, categoryInput.trim()]);
-      }
+      if (!tags.includes(categoryInput.trim())) setTags([...tags, categoryInput.trim()]);
       setCategoryInput('');
     }
   };
   const removeTag = (tag => setTags(tags.filter(t => t !== tag)));
+  const wordCount = markdown ? markdown.split(/\s+/).filter(w => w.length > 0).length : 0;
+  const readTime = Math.ceil(wordCount / 200);
 
-  const C_ORANGE = '#ff4d00';
-  const C_BLUE = '#38bdf8';
-  const C_GREEN = '#2bff00';
-
-  if (isLoading) return <div style={{height: '100vh', display:'flex', justifyContent:'center', alignItems:'center', background:'#000', color:'#fff', fontFamily:'var(--font-mono)'}}>LOADING DATA STREAM...</div>;
+  if (isLoading) return <LoadingScreen />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
-      <motion.div
-        initial={{ x: 'calc(100% - 60px)' }}
-        whileHover={{ x: 0 }}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
-        transition={{ type: 'spring', stiffness: 250, damping: 25 }}
-        style={{ position: 'fixed', right: 0, top: '20%', zIndex: 999, display: 'flex', alignItems: 'stretch', height: '380px', filter: 'drop-shadow(-10px 10px 20px rgba(0,0,0,0.5))' }}
-      >
-          {/* ... Sidebar 内容 ... */}
-          <AnimatePresence>{!isHovered && (<motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} style={{ position: 'absolute', left: '-160px', top: '45px', display: 'flex', alignItems: 'center', gap: '10px', pointerEvents: 'none' }}><div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 'bold', color: '#000', background: '#fff', padding: '4px 8px', clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0% 100%)' }}>::: OPEN_OPS :::</div><motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}><ChevronLeft size={24} color="#fff" /></motion.div></motion.div>)}</AnimatePresence>
-          <motion.div animate={{ backgroundColor: isHovered ? '#000000' : '#ffffff', color: isHovered ? '#ffffff' : '#000000', borderLeftColor: isHovered ? '#333' : '#fff' }} style={{ width: '60px', borderLeft: '1px solid', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 88%)', paddingBottom: '40px' }}><div style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: '900', letterSpacing: '4px', gap: '20px', display: 'flex', alignItems: 'center' }}><span style={{ fontSize: '10px', opacity: 0.6 }}>SYSTEM</span><span>MENU</span></div><div style={{ marginTop: '20px' }}><Activity size={16} /></div></motion.div>
-          <div style={{ width: '300px', backgroundColor: '#ffffff', color: '#000000', padding: '40px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', clipPath: 'polygon(0 0, 100% 0, 100% 95%, 0 100%)' }}><div><div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#666', letterSpacing: '1px', marginBottom: '10px' }}>// READY_TO_PUBLISH?</div><div style={{ fontSize: '28px', fontFamily: 'var(--font-sans)', fontWeight: '900', lineHeight: '1', marginBottom: '5px' }}>{isSaving ? 'SAVING...' : 'AWAITING\nINPUT'}</div><div style={{ width: '100%', height: '4px', background: '#eee', marginTop: '20px' }}><motion.div animate={{ width: isSaving ? '100%' : '40%' }} style={{ height: '100%', background: '#000' }} /></div></div><div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}><button onClick={() => handleSave('draft')} disabled={isSaving} style={{ background: 'transparent', border: '1px solid #000', color: '#000', padding: '12px', cursor: isSaving ? 'wait' : 'pointer', fontFamily: 'var(--font-mono)', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: isSaving ? 0.5 : 1 }}><span>SAVE_DRAFT</span> <Save size={14} /></button><button onClick={() => handleSave('published')} disabled={isSaving} style={{ background: '#000', border: 'none', color: '#fff', padding: '14px', cursor: isSaving ? 'wait' : 'pointer', fontFamily: 'var(--font-mono)', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 5px 15px rgba(0,0,0,0.2)', opacity: isSaving ? 0.5 : 1 }}><span>PUBLISH_NOW</span> <UploadCloud size={16} /></button></div><div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: '#999', borderTop: '1px solid #eee', paddingTop: '10px' }}>SECURE CHANNEL: #88-X2</div></div>
-      </motion.div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: COLORS.bg, position: 'relative', overflowX: 'hidden' }}>
 
+      {/*
+         Layer 0: 背景图片层 (Sky - Sea - Land)
+         zIndex: 0 (最底层)
+      */}
+      <div style={{
+          position: 'absolute',
+          top: 0, left: 0, width: '100%', height: '75vh',
+          zIndex: 0,
+          overflow: 'hidden',
+          pointerEvents: 'none' // 防止遮挡点击
+      }}>
+          <img
+             src={write_bg}
+            alt="atmosphere"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(60%) contrast(85%) brightness(105%) sepia(10%)' }}
+          />
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `linear-gradient(to bottom, transparent 0%, rgba(235, 240, 243, 0.4) 60%, ${COLORS.bg} 100%)` }} />
+      </div>
 
-      <div style={{ flex: 1, width: '100%', paddingTop: '100px', paddingBottom: '60px', position: 'relative' }}>
-        <div style={{ position: 'absolute', left: '40px', top: '150px', bottom: '100px', width: '2px', background: 'rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-           {/* ... */}
-           <div style={{ width: '6px', height: '6px', background: C_BLUE, borderRadius: '50%', marginBottom: '10px' }}></div>
-           <div style={{ width: '10px', height: '1px', background: '#fff', margin: '20px 0', opacity: 0.5 }}></div>
-        </div>
+      {/*
+         Layer 1: 左侧胶卷 (Film Strip)
+         zIndex: 10 (在背景图之上，但在内容之下，不影响正文阅读)
+      */}
+      <div style={{
+          position: 'fixed', left: '20px', top: '0', bottom: '0', width: '40px',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          zIndex: 10,
+          opacity: 0.4,
+          pointerEvents: 'none'
+      }}>
+          <div style={{ width: '1px', height: '100%', background: COLORS.line }}></div>
+          <div style={{ position: 'absolute', top: '10%', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+              {[...Array(8)].map((_, i) => (
+                  <div key={i} style={{ width: '12px', height: '18px', border: `1px solid ${COLORS.deepBlue}`, borderRadius: '2px', opacity: 0.5 }} />
+              ))}
+          </div>
+          <div style={{ position: 'absolute', bottom: '50px' }}>
+              <Film size={20} color={COLORS.deepBlue} style={{ opacity: 0.5 }} />
+          </div>
+      </div>
 
-        <div className="page-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 80px' }}>
-          
-          {/* HUD Header */}
-          <div style={{ background: '#fff', color: '#000', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: '12px', marginBottom: '40px', clipPath: 'polygon(0 0, 100% 0, 100% 80%, 98% 100%, 0 100%)' }}>
-            <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
-              <span style={{ fontWeight: '900', letterSpacing: '1px' }}>EDITOR_PROTOCOL_V2</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#555' }}><Clock size={12} /> {time} UTC</span>
-            </div>
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-              <motion.div animate={{ opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ background: C_ORANGE, color: '#fff', padding: '2px 8px', fontWeight: 'bold', fontSize: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '6px', height: '6px', background: '#fff', borderRadius: '50%' }}></div> REC
-              </motion.div>
-              <span style={{ fontWeight: 'bold' }}>USER: ADMIN</span>
-            </div>
+      {/*
+         Layer 2: 主内容区 (Main Editor)
+         zIndex: 20 (确保文字在背景图和装饰之上，可点击)
+      */}
+      <div style={{
+          flex: 1, width: '100%', paddingTop: '100px', paddingBottom: '100px',
+          position: 'relative',
+          zIndex: 20
+      }}>
+        <div className="page-container" style={{ maxWidth: '900px', margin: '0 auto', padding: '0 40px', position: 'relative' }}>
+
+          {/* 装饰：红色邮戳 (Postmark) - 绝对定位相对于 page-container */}
+          <div style={{
+              position: 'absolute', top: '-20px', right: '40px',
+              width: '100px', height: '100px',
+              border: '2px solid #C0392B', borderRadius: '50%',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              color: '#C0392B', fontFamily: '"Courier New", monospace', fontSize: '10px', fontWeight: 'bold',
+              transform: 'rotate(-15deg)', opacity: 0.6, pointerEvents: 'none',
+              maskImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")'
+          }}>
+              <div style={{ borderBottom: '1px solid #C0392B', paddingBottom: '2px', marginBottom: '2px' }}>ARCHIVE</div>
+              <div style={{ fontSize: '14px' }}>{new Date().getDate()} . {new Date().getMonth() + 1}</div>
+              <div style={{ letterSpacing: '2px', marginTop: '2px' }}>2025</div>
+              <div style={{ position: 'absolute', bottom: '15px', width: '60%', height: '2px', background: 'repeating-linear-gradient(90deg, #C0392B 0, #C0392B 2px, transparent 2px, transparent 4px)' }}></div>
           </div>
 
-
-          {/* 标题输入区 */}
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '20px' }}>
-              <input type="text" placeholder="ENTER_SUBJECT_TITLE..." value={title} onChange={(e) => setTitle(e.target.value)} style={{ flex: 1, background: 'transparent', border: 'none', fontSize: 'clamp(32px, 4vw, 56px)', fontFamily: 'var(--font-sans)', fontWeight: '900', color: 'var(--solid-white)', outline: 'none', textTransform: 'uppercase', lineHeight: 1 }} />
-            </div>
-
-            {/* Tags */}
-            <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-                <div style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '5px' }}><Tag size={16} /> TAGS:</div>
-                {tags.map(tag => (<div key={tag} style={{ background: '#fff', color: '#000', padding: '2px 8px', fontSize: '12px', fontFamily: 'var(--font-mono)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>{tag} <X size={10} style={{ cursor: 'pointer' }} onClick={() => removeTag(tag)} /></div>))}
-                <input type="text" placeholder="ADD +" value={categoryInput} onChange={(e) => setCategoryInput(e.target.value)} onKeyDown={handleTagInput} style={{ background: 'transparent', borderBottom: `1px solid ${C_BLUE}`, color: C_BLUE, padding: '2px 8px', fontFamily: 'var(--font-mono)', fontSize: '12px', outline: 'none', width: '100px' }} />
-            </div>
-          </div>
-
-          {/* ----------------------------------------------------------- */}
-          {/* 摘要输入区域 (Manual Excerpt) */}
-          {/* ----------------------------------------------------------- */}
-          <div style={{ marginBottom: '30px', position: 'relative' }}>
-             <div style={{ 
-                 display: 'flex', alignItems: 'center', gap: '6px', 
-                 color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: '12px', marginBottom: '8px' 
-             }}>
-                 <FileText size={14} /> MANUAL_EXCERPT // <span style={{ opacity: 0.5 }}>Optional for SEO & Preview</span>
+          {/* A. Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px', borderBottom: `1px solid ${COLORS.line}`, paddingBottom: '15px' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: '"Courier New", monospace', fontSize: '12px', color: COLORS.textSub }}>
+                <Clock size={14} />
+                <span>{new Date().toLocaleDateString()} . {time}</span>
              </div>
-             
-             <div style={{ position: 'relative' }}>
-                 {/* 左侧装饰条 */}
-                 <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '2px', background: C_ORANGE, opacity: 0.7 }}></div>
-                 
-                 <textarea 
-                    value={excerpt}
-                    onChange={(e) => setExcerpt(e.target.value)}
-                    placeholder="> Input a brief summary of the log entry..."
-                    style={{
-                        width: '100%',
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderLeft: 'none', // 左侧用装饰条代替
-                        color: '#ddd',
-                        padding: '15px 20px',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '14px',
-                        lineHeight: '1.6',
-                        minHeight: '80px',
-                        outline: 'none',
-                        resize: 'vertical',
-                        transition: 'all 0.3s'
-                    }}
-                    onFocus={(e) => e.target.style.background = 'rgba(255,255,255,0.08)'}
-                    onBlur={(e) => e.target.style.background = 'rgba(255,255,255,0.03)'}
-                 />
-                 
-                 {/* 右下角字数统计 */}
-                 <div style={{ position: 'absolute', bottom: '8px', right: '10px', fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.3)' }}>
-                     {excerpt.length} CHARS
-                 </div>
+             <div style={{ fontFamily: '"Courier New", monospace', fontSize: '12px', color: COLORS.deepBlue, fontWeight: 'bold' }}>
+                ADMIN_MODE
              </div>
           </div>
-          {/* ----------------------------------------------------------- */}
 
+          {/* B. Title Input */}
+          <div style={{ marginBottom: '40px' }}>
+            <input
+              type="text" placeholder="Untitled Memory..." value={title} onChange={(e) => setTitle(e.target.value)}
+              style={{
+                width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid transparent`,
+                fontSize: 'clamp(36px, 4vw, 56px)', fontFamily: '"Georgia", serif', fontWeight: 'normal', color: COLORS.deepBlue, outline: 'none', lineHeight: 1.2, transition: 'border-color 0.3s'
+              }}
+              onFocus={(e) => e.target.style.borderBottom = `1px solid ${COLORS.line}`}
+              onBlur={(e) => e.target.style.borderBottom = `1px solid transparent`}
+            />
+            <div style={{ marginTop: '25px', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+                <Tag size={16} color={COLORS.textSub} />
+                {tags.map(tag => (
+                  <span key={tag} style={{ background: COLORS.paper, border: `1px solid ${COLORS.line}`, color: COLORS.textMain, padding: '4px 10px', fontSize: '11px', fontFamily: '"Courier New", monospace', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '2px' }}>
+                    {tag} <X size={10} style={{ cursor: 'pointer', opacity: 0.5 }} onClick={() => removeTag(tag)} />
+                  </span>
+                ))}
+                <input type="text" placeholder="+ Tag" value={categoryInput} onChange={(e) => setCategoryInput(e.target.value)} onKeyDown={handleTagInput} style={{ background: 'transparent', border: 'none', borderBottom: `1px solid ${COLORS.line}`, color: COLORS.textSub, padding: '2px 5px', fontFamily: '"Courier New", monospace', fontSize: '12px', outline: 'none', width: '80px' }} />
+            </div>
+          </div>
 
-          {/* 编辑器区域 */}
-          <div style={{ minHeight: '500px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '20px', maxWidth: '100%' }}>
+          {/* C. Excerpt Area */}
+          <div style={{ marginBottom: '40px', padding: '20px', background: COLORS.paper, borderLeft: `3px solid ${COLORS.warmEarth}`, borderRadius: '0 4px 4px 0' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '11px', fontFamily: '"Inter", sans-serif', color: COLORS.textSub, fontWeight: 'bold', textTransform: 'uppercase' }}>
+                <PenTool size={12} /> Abstract / Summary
+             </div>
+             <textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Write a brief summary for the archive index..." style={{ width: '100%', background: 'transparent', border: 'none', color: COLORS.textMain, fontFamily: '"Georgia", serif', fontSize: '14px', lineHeight: '1.6', fontStyle: 'italic', minHeight: '60px', outline: 'none', resize: 'vertical' }} />
+          </div>
+
+          {/* D. Main Editor */}
+          <div style={{ minHeight: '60vh', marginBottom: '60px' }}>
             <NasaEditor value={markdown} onChange={(v) => setMarkdown(v)} />
           </div>
 
-          {/* 底部统计栏 */}
-          <div style={{ marginTop: '20px', background: '#fff', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', color: '#000', fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 'bold', clipPath: 'polygon(0 0, 100% 0, 100% 100%, 2% 100%, 0 70%)' }}>
-            {/* ... 保持不变 */}
-             <div style={{ display: 'flex', gap: '20px' }}><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><AlignLeft size={14} /> WORDS: {wordCount}</span><span style={{ opacity: 0.5 }}>|</span><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={14} /> READ: {readTime} MIN</span></div>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#666', fontSize: '10px' }}>AUTO-SYNC ENABLED</span><div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: C_GREEN, background: '#000', padding: '4px 8px', borderRadius: '2px' }}><Wifi size={10} /><span style={{ fontSize: '10px' }}>ONLINE</span></div></div>
+          {/* E. Footer Stats */}
+          <div style={{ borderTop: `1px solid ${COLORS.line}`, paddingTop: '20px', display: 'flex', justifyContent: 'space-between', color: COLORS.textSub, fontFamily: '"Courier New", monospace', fontSize: '11px' }}>
+             <div style={{ display: 'flex', gap: '20px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><AlignLeft size={14} /> {wordCount} Words</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><BookOpen size={14} /> {readTime} Min Read</span>
+             </div>
+             <div>AUTO-SAVING ENABLED</div>
           </div>
-
         </div>
       </div>
+
+      {/*
+         Layer 3: 右侧书签 (Sidebar)
+         zIndex: 999 (最高层级，确保无论如何都能点到)
+      */}
+      <motion.div
+        initial={{ x: 'calc(100% - 40px)' }}
+        animate={{ x: isHovered ? 0 : 'calc(100% - 40px)' }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+        style={{ position: 'fixed', right: 0, top: '15%', zIndex: 999, display: 'flex', height: '500px', filter: 'drop-shadow(-5px 5px 15px rgba(0,0,0,0.15))', cursor: 'pointer' }}
+      >
+          {/* 左侧：拉手 */}
+          <div style={{ width: '40px', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderLeft: `1px solid ${COLORS.line}` }}>
+             <ChevronLeft size={20} color={COLORS.deepBlue} />
+             <div style={{ writingMode: 'vertical-rl', marginTop: '20px', fontFamily: '"Courier New", monospace', fontSize: '10px', letterSpacing: '2px', color: COLORS.textSub }}>ACTIONS</div>
+          </div>
+          {/* 右侧：书签主体 */}
+          <div style={{ width: '280px', position: 'relative', overflow: 'hidden', backgroundColor: COLORS.deepBlue }}>
+            <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+               <img src={bookmarkBg} alt="bookmark" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, filter: 'grayscale(30%)' }} />
+               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(44,62,80,0.8), rgba(44,62,80,0.9))' }} />
+            </div>
+            <div style={{ position: 'relative', zIndex: 1, padding: '40px 30px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: '#fff' }}>
+                <div>
+                   <div style={{ fontFamily: '"Courier New", monospace', fontSize: '10px', opacity: 0.7, letterSpacing: '2px', marginBottom: '10px' }}>STATUS: {isSaving ? 'SAVING...' : 'WRITING'}</div>
+                   <h2 style={{ fontFamily: '"Georgia", serif', fontSize: '28px', fontStyle: 'italic', margin: 0 }}>Control Panel</h2>
+                   <div style={{ width: '40px', height: '2px', background: COLORS.warmEarth, marginTop: '15px' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                   <button onClick={() => handleSave('draft')} disabled={isSaving} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '15px', color: '#fff', fontFamily: '"Inter", sans-serif', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', backdropFilter: 'blur(5px)' }}><span>Save as Draft</span><Save size={16} /></button>
+                   <button onClick={() => handleSave('published')} disabled={isSaving} style={{ background: '#fff', border: 'none', padding: '15px', color: COLORS.deepBlue, fontFamily: '"Inter", sans-serif', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}><span>Publish Now</span><UploadCloud size={16} /></button>
+                </div>
+                <div style={{ fontSize: '10px', fontFamily: '"Courier New", monospace', opacity: 0.5, textAlign: 'center' }}>System Ready.</div>
+            </div>
+          </div>
+      </motion.div>
+
       <Footer />
     </div>
   );
 };
+
+// ... LoadingScreen ...
+const LoadingScreen = () => (
+  <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: COLORS.bg, flexDirection: 'column' }}>
+     <div style={{ fontFamily: '"Georgia", serif', fontStyle: 'italic', color: COLORS.textSub, marginBottom: '20px' }}>Retrieving manuscript...</div>
+     <motion.div animate={{ width: ['0px', '100px'] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ height: '2px', background: COLORS.deepBlue }} />
+  </div>
+);
 
 export default Write;

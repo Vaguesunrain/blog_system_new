@@ -1,227 +1,224 @@
 /* =========================================
-   1. 核心容器 (Core Container)
+   Letter Editor UI (编辑模式 - 信纸风格)
    ========================================= */
+
+/* 1. 容器：去除边框，背景透明 (让父级的信纸底色透出来) */
 .bytemd {
-  border-radius: 0 !important;
-  height: auto !important;
-  min-height: 100% !important;
+  background-color: transparent !important;
   border: none !important;
-
-  /* 关键：背景透明，让 React 组件里的电影背景透出来 */
-  background-color: transparent !important;
-
-  /* 文字：纯黑，像墨水 */
-  color: #1a1a1a !important;
-  font-family: var(--font-serif) !important; /* 使用衬线体 (Georgia) */
+  height: 100% !important;
+  min-height: 600px;
+    background-color: #FDFBF7 !important; /* 暖白信纸色，不刺眼 */
 }
 
-/* =========================================
-   2. 工具栏 (Toolbar)
-   ========================================= */
+/* 2. 编辑区域核心 (CodeMirror) */
+.CodeMirror {
+  /* 字体：与阅读页保持一致 */
+  font-family: "Georgia", "Times New Roman", serif !important;
+  font-size: 20px !important;
+
+  /* 【关键】行高必须固定，与背景线条严格对齐 */
+  line-height: 32px !important;
+
+  color: #2C3E50 !important;
+  background: transparent !important;
+  height: auto !important;
+  min-height: 100%;
+}
+
+/* 3. 【核心魔法】画横线 */
+/* 我们把横线画在 CodeMirror 的滚动区域背景上 */
+.CodeMirror-scroll {
+  /* 线性渐变画线：透明31px，灰色1px */
+  background-image: linear-gradient(to bottom, transparent 31px, rgba(0, 0, 0, 0.08) 31px) !important;
+  background-size: 100% 32px !important; /* 必须和 line-height 一致 */
+  background-attachment: local !important; /* 让背景随文字滚动 */
+  background-repeat: repeat !important;
+
+  padding-bottom: 100px !important; /* 底部留白 */
+  min-height: 600px !important;
+}
+
+/* 4. 微调文字位置，确保文字“坐”在线上 */
+.CodeMirror-lines {
+  padding-top: 4px !important; /* 根据字体情况微调，让字底对齐线条 */
+}
+
+/* 5. 选中状态：不要覆盖掉横线，用半透明色 */
+.CodeMirror-selected {
+  background: rgba(141, 123, 104, 0.2) !important; /* 暖褐色半透明 */
+}
+
+/* 6. 光标：改为暖褐色竖线 */
+.CodeMirror-cursor {
+  border-left: 2px solid #8D7B68 !important;
+  height: 24px !important; /* 控制光标高度，不要太长戳破线条 */
+}
+
+/* 7. 工具栏：极简处理，像信纸顶部的抬头 */
 .bytemd-toolbar {
-  /* 极简风格：透明，只有一条极细的灰线 */
   background-color: transparent !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
-  padding: 8px 12px !important;
-  border-radius: 0 !important;
+  border-bottom: 2px solid #2C3E50 !important; /* 像信纸顶部的粗线 */
+  margin-bottom: 20px !important;
+  padding: 10px 0 !important;
 }
 
-/* 工具栏图标按钮 */
 .bytemd-toolbar-icon {
-  color: #7F8C8D !important; /* 默认灰色 */
-  border-radius: 2px !important;
-  padding: 6px !important;
-  transition: all 0.3s ease;
+  color: #7F8C8D !important;
 }
-
 .bytemd-toolbar-icon:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-  color: #000000 !important; /* 悬浮变纯黑 */
+  background-color: rgba(0,0,0,0.05) !important;
+  color: #2C3E50 !important;
 }
-
-.bytemd-toolbar-icon.bytemd-toolbar-icon-active {
-  color: #000000 !important;
-  background-color: rgba(0, 0, 0, 0.1) !important;
+.bytemd-toolbar-icon-active {
+  color: #8D7B68 !important;
+  background: transparent !important;
   font-weight: bold;
 }
 
-/* =========================================
-   3. 布局结构 (Layout)
-   ========================================= */
-.bytemd-body {
-  min-height: 550px !important;
-  height: calc(100% - 41px) !important;
-}
-
-/* =========================================
-   4. 编辑区 (CodeMirror / Editor)
-   ========================================= */
-.CodeMirror {
-  height: 100% !important;
-  background: transparent !important;
-  /* 编辑字体：打字机风格，而不是代码风格 */
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 15px !important;
-  line-height: 1.8 !important;
-  color: #111 !important; /* 深黑色文字 */
-}
-
-.CodeMirror-scroll {
-  padding-bottom: 30px !important;
-  height: 100% !important;
-  overflow: hidden !important;
-  min-height: 0 !important;
-}
-
-/* 光标：简单的黑色竖线 */
-.CodeMirror-cursor {
-  border-left: 1px solid #000 !important;
-}
-
-/* 选中文本背景：淡雅的雾霾蓝 */
-.CodeMirror-selected {
-  background: rgba(44, 62, 80, 0.1) !important;
-}
-
-/* =========================================
-   5. 预览区 (Markdown Preview)
-   ========================================= */
-.markdown-body {
-  height: 100% !important;
-  background-color: transparent !important;
-  color: #1a1a1a !important; /* 墨色 */
-  font-family: var(--font-serif) !important; /* 乔治亚衬线体 */
-  padding: 20px 40px !important;
-  font-size: 16px !important;
-  line-height: 2 !important; /* 增加行高，阅读感更强 */
-}
-
-/* --- Markdown 内部排版：信件风格 --- */
-
-/* 标题：优雅、衬线、斜体 */
-.markdown-body h1,
-.markdown-body h2,
-.markdown-body h3 {
-  border-bottom: none !important; /* 去掉原本粗硬的下划线 */
-  font-weight: normal !important;
-  font-style: italic;
-  margin-top: 1.5em !important;
-  margin-bottom: 0.8em !important;
-  color: #000 !important;
-}
-
-.markdown-body h1 {
-  font-size: 2.5em !important;
-  letter-spacing: -1px;
-}
-
-/* 列表 */
-.markdown-body ul, .markdown-body ol {
-  padding-left: 20px !important;
-  color: #34495E !important;
-}
-
-/* 链接：不再是蓝色，而是加粗的黑色带下划线 */
-.markdown-body a {
-  color: #000 !important;
-  text-decoration: underline !important;
-  text-decoration-color: #999 !important;
-  text-underline-offset: 4px;
-}
-
-/* 引用块：像旁白或低语 */
-.markdown-body blockquote {
-  border-left: 3px solid #BDC3C7 !important; /* 浅灰条 */
-  color: #7F8C8D !important; /* 浅灰字 */
-  background: transparent !important;
-  font-family: 'Courier New', monospace !important;
-  font-style: italic;
-  padding-left: 20px !important;
-}
-
-/* 行内代码：打字机样式 */
-.markdown-body code {
-  background-color: rgba(0,0,0,0.05) !important;
-  color: #455A64 !important; /* 深岩灰 */
-  font-family: 'Courier New', monospace !important;
-  border-radius: 2px !important;
-  padding: 2px 6px !important;
-  font-size: 0.9em !important;
-}
-
-/* 代码块：旧纸张风格 */
-.markdown-body pre {
-  background-color: #F5F5F0 !important; /* 暖白纸色 */
-  border: 1px dashed #BDC3C7; /* 虚线边框 */
-  border-radius: 2px !important;
-  padding: 20px !important;
-}
-
-/* =========================================
-   6. 状态栏 (Status Bar)
-   ========================================= */
+/* 8. 隐藏状态栏 */
 .bytemd-status {
-  border-top: 1px solid rgba(0,0,0,0.05) !important;
-  background-color: rgba(255,255,255,0.8) !important;
-  color: #95A5A6 !important;
-  font-family: 'Courier New', monospace !important;
-  font-size: 11px !important;
-}
-
-/* =========================================
-   7. 全屏模式 (Fullscreen) - 营造你描述的意境
-   ========================================= */
-.bytemd-fullscreen {
-  z-index: 1000 !important;
-  position: fixed !important;
-  top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-  height: 100vh !important;
-  border: none !important;
-
-  /*
-     背景模拟：从阴天的天空(灰蓝) -> 海面(深蓝灰) -> 地面(黑灰)
-     这只是 CSS 渐变模拟，实际上 React 组件里的图片会更好看，
-     但这里作为兜底或全屏时的沉浸背景。
-  */
-  background: linear-gradient(
-    to bottom,
-    #EBF0F3 0%,   /* Sky: 阴天雾霾蓝 */
-    #90A4AE 40%,  /* Horizon: 灰度增加 */
-    #546E7A 60%,  /* Sea: 深海蓝灰 */
-    #263238 90%,  /* Ground: 暗处 */
-    #ECEFF1 100%  /* Mask: 底部白色掩膜 */
-  ) !important;
-
-  color: #1a1a1a !important;
-  transition: all 0.3s ease;
-}
-
-.bytemd-fullscreen .bytemd-toolbar {
-  background-color: rgba(235, 240, 243, 0.8) !important;
-  backdrop-filter: blur(5px);
-}
-
-/* 全屏时内容区居中，像一张信纸 */
-.bytemd-fullscreen .CodeMirror,
-.bytemd-fullscreen .markdown-body {
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.4); /* 微微的白纸感 */
-  box-shadow: 0 0 50px rgba(0,0,0,0.1);
-  padding: 40px !important;
-  min-height: 100vh;
-}
-
-/* =========================================
-   8. 滚动条隐藏
-   ========================================= */
-.CodeMirror-vscrollbar,
-.CodeMirror-hscrollbar {
   display: none !important;
-  width: 0 !important;
-  height: 0 !important;
 }
 
+/* 9. 预览区域 (Split View) 的样式 */
+/* 如果你开了分屏预览，让预览区也像信纸 */
+.bytemd-preview {
+  background-color: rgba(255, 255, 255, 0.3) !important; /* 稍微深一点区分 */
+  border-left: 1px solid rgba(0,0,0,0.1) !important;
+}
+/* =========================================
+   7. 全屏模式 (Fullscreen) - 彻底信纸模式
+   ========================================= */
+
+/* 核心容器 */
+.bytemd-fullscreen {
+  /* 解决穿透问题：极高层级 */
+  z-index: 99999 !important;
+
+  /* 强制固定定位，铺满全屏 */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+
+  /* 解决背景和穿透：使用实色背景 */
+  background-color: #FDFBF7 !important; /* 暖白信纸色，不刺眼 */
+
+  /* 布局调整 */
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+/* 全屏下的工具栏：吸顶 */
+.bytemd-fullscreen .bytemd-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #FDFBF7 !important; /* 同背景色 */
+  border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+  padding: 15px 40px !important; /* 加宽边距，更舒展 */
+  max-width: 1000px; /* 限制宽度，防止在大屏上太散 */
+  margin: 0 auto !important;
+  width: 100%;
+}
+
+/* 全屏下的编辑区主体 */
+.bytemd-fullscreen .bytemd-body {
+
+  margin: 0 auto;
+  height: calc(100vh - 60px) !important; /* 减去工具栏高度 */
+  background-color: transparent !important;
+}
+
+/* 全屏下的 CodeMirror (编辑区) */
+.bytemd-fullscreen .CodeMirror {
+  padding-top: 40px !important; /* 顶部留白 */
+  padding-bottom: 100px !important; /* 底部留白 */
+}
+
+/* 确保横线在全屏下依然对齐 */
+.bytemd-fullscreen .CodeMirror-scroll {
+  /* 保持与非全屏一致的横线逻辑 */
+  background-image: linear-gradient(to bottom, transparent 31px, rgba(0, 0, 0, 0.05) 31px) !important;
+  background-size: 100% 32px !important;
+  background-attachment: local !important;
+
+  /* 隐藏原生滚动条，使用浏览器默认的 */
+  overflow-y: auto !important;
+}
+
+/* 修复 CodeMirror 遮挡问题 */
+.bytemd-fullscreen .CodeMirror-sizer {
+  margin-left: 0 !important;
+  border-right: none !important;
+}
+
+/* =========================================
+   Editor Preview - 代码块风格统一 (Sync with Read Page)
+   ========================================= */
+
+/* 1. 外层容器：浅灰信纸底色 */
+.markdown-body pre {
+    background-color: #F3F4F6 !important; /* 代码块整体底色 */
+    border: 1px solid #E5E7EB !important;
+    border-radius: 2px !important;
+    padding: 20px !important;
+    margin: 32px 0 !important;
+
+    /* 字体设置 */
+    font-family: "Courier New", Courier, monospace !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #374151 !important; /* 默认文字颜色 */
+
+    overflow-x: auto !important;
+}
+
+/* 2. 内部代码元素：强制透明，去除高亮插件的背景 */
+.markdown-body pre code,
+.markdown-body pre code span,
+.markdown-body pre .hljs {
+    background-color: transparent !important; /* 关键：去底色 */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+
+    /* 3. 强制继承文字颜色，防止高亮插件把文字变白 */
+    color: inherit !important;
+    text-shadow: none !important;
+    font-family: inherit !important;
+}
+
+/* 4. (可选) 如果你想要一点点语法高亮，但不想太花哨
+      可以单独定义几个关键 token 的颜色，覆盖 highlight.js 的默认样式
+      这会让代码看起来像打印出来的，而不是霓虹灯
+*/
+.markdown-body .hljs-keyword,
+.markdown-body .hljs-selector-tag {
+    color: #333 !important;
+    font-weight: bold !important;
+}
+
+.markdown-body .hljs-string,
+.markdown-body .hljs-attr {
+    color: #555 !important;
+    font-style: italic !important;
+}
+
+.markdown-body .hljs-comment {
+    color: #999 !important;
+    font-style: italic !important;
+}
+
+.markdown-body .hljs-number,
+.markdown-body .hljs-literal {
+    color: #444 !important;
+}
 /* =========================================
    9. [READ.JSX 专用] 阅读页样式重写 (覆盖原来的 Dark Mode)
    虽然类名可能还叫 .dark-mode-viewer，但我们要把它改成 "Letter Mode"

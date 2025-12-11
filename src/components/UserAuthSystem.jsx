@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, LogIn, UserPlus, Power, LayoutDashboard, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import LoginTerminal from './LoginTerminal';
+import LoginTerminal from './LoginPostcard.jsx';
 import { API_BASE } from '../data/config.js';
 
 const UserAuthSystem = () => {
