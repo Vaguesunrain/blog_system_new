@@ -2,7 +2,7 @@ import code
 import os
 from flask import Blueprint, jsonify, make_response, request, session, send_file
 from blueprint import dabopration
-from models import db, BlogUser 
+from models import db, BlogUser
 inf_bp = Blueprint('information', __name__)
 
 
@@ -181,7 +181,6 @@ def user_info_handler():
         conn = dabopration.get_db_connection()
         cursor = conn.cursor()
         try:
-
             cursor.execute("SELECT email FROM users WHERE name = %s", (username,))
             result = cursor.fetchone()
             if result:
@@ -191,41 +190,37 @@ def user_info_handler():
         finally:
             cursor.close()
             conn.close()
+
+        #  设置默认的主题配置 (雾霾白渐变风格)
+        default_theme = {
+            'color': '#EBF0F3',   # 默认雾霾白
+            'opacity': 60,       # 底部不透明度
+            'gradientStop': 50    # 渐变在 60% 处完成
+        }
+
+        saved_theme = data.get('themeConfig', default_theme)
+
         return jsonify({
             'success': True,
             'data': {
                 'nickname': data.get('nickname', username),
                 'motto': data.get('MOTTO', '这个人很懒，什么都没有写'),
                 'role': data.get('Role', 'User'),
-                'backgroundColor': data.get('backgroundColor', 'rgba(0, 0, 0, 0.5)'),
+                'themeConfig': saved_theme,
                 'email': email_from_db
             }
         })
 
-    # --- POST: 更新信息 (支持更新单个或多个) ---
+
     if request.method == 'POST':
         req_data = request.json
         current_data = dabopration.read_json_safe(json_path, default_content={})
 
         updated_fields = []
         if 'nickname' in req_data:
-            try:
-                # 查找是否已有该用户记录
-                blog_user = BlogUser.query.filter_by(username=username).first()
-                if not blog_user:
-                    # 如果没有，新建一个
-                    blog_user = BlogUser(username=username)
-                    db.session.add(blog_user)
-                
-                # 更新昵称
-                blog_user.nickname = req_data['nickname']
-                db.session.commit()
-                print(f"Synced nickname to SQLite for {username}")
-            except Exception as e:
-                db.session.rollback()
-                print(f"Failed to sync SQLite: {e}")
-            current_data['nickname'] = req_data['nickname']
-            updated_fields.append('nickname')
+             current_data['nickname'] = req_data['nickname']
+             updated_fields.append('nickname')
+
         if 'motto' in req_data:
             current_data['MOTTO'] = req_data['motto']
             updated_fields.append('MOTTO')
@@ -234,9 +229,10 @@ def user_info_handler():
             current_data['Role'] = req_data['role']
             updated_fields.append('Role')
 
-        if 'backgroundColor' in req_data:
-            current_data['backgroundColor'] = req_data['backgroundColor']
-            updated_fields.append('backgroundColor')
+        #  处理 themeConfig 对象
+        if 'themeConfig' in req_data:
+            current_data['themeConfig'] = req_data['themeConfig']
+            updated_fields.append('themeConfig')
 
         if not updated_fields:
             return jsonify({'success': False, 'message': '未收到有效更新字段'}), 400
@@ -248,7 +244,7 @@ def user_info_handler():
                 'data': {
                     'motto': current_data.get('MOTTO'),
                     'role': current_data.get('Role'),
-                    'backgroundColor': current_data.get('backgroundColor')
+                    'themeConfig': current_data.get('themeConfig')
                 }
             })
         else:

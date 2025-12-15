@@ -28,11 +28,16 @@ const Profile = () => {
     email: 'Loading...'
   });
 
-  const [maskColor, setMaskColor] = useState('rgba(0,0,0,0.5)');
   const [editMode, setEditMode] = useState('none');
 
-  const [tempColor, setTempColor] = useState('#000000');
-  const [tempOpacity, setTempOpacity] = useState(50);
+const [themeConfig, setThemeConfig] = useState({
+  color: '#EBF0F3',   // 默认雾霾白
+  opacity: 90,        // 底部透明度 (0-100)
+  gradientStop: 60    // 渐变停止点 (0-100%)
+});
+
+// 编辑模式下的临时状态 (用于实时预览)
+const [tempTheme, setTempTheme] = useState({ ...themeConfig });
 
   // --- 2. 初始化数据 ---
 useEffect(() => {
@@ -77,11 +82,12 @@ useEffect(() => {
             role: infoData.data.role,
             email: infoData.data.email
           });
+  if (infoData.data.themeConfig) {
+    const backendTheme = infoData.data.themeConfig;
+    setThemeConfig(backendTheme);
+    setTempTheme(backendTheme); // 同步临时状态
+  }
 
-          if (infoData.data.backgroundColor) {
-            setMaskColor(infoData.data.backgroundColor);
-            parseColorToState(infoData.data.backgroundColor);
-          }
         }
       } catch (e) {
         console.error("Load Error", e);
@@ -125,38 +131,35 @@ useEffect(() => {
   };
 
   // --- 3. 保存逻辑 (文字/背景色) ---
-  const handleSave = async () => {
-    let finalColor = maskColor;
-    if (editMode === 'bg') {
-      const alphaHex = Math.round((tempOpacity / 100) * 255).toString(16).padStart(2, '0');
-      finalColor = `${tempColor}${alphaHex}`;
-    }
+const handleSave = async () => {
+  // 决定使用哪个配置：如果是编辑背景模式，保存临时修改；否则保存当前生效的
+  const finalTheme = editMode === 'bg' ? tempTheme : themeConfig;
 
-    const payload = {
-      nickname: userData.name,
-      motto: userData.motto,
-      role: userData.role,
-      backgroundColor: finalColor
-    };
-
-    try {
-      const res = await fetch(`${API_BASE}/user-info`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include'
-      });
-      const resData = await res.json();
-
-      if (resData.success) {
-        if (editMode === 'bg') setMaskColor(finalColor);
-        setEditMode('none');
-        alert("UPDATED // SUCCESS");
-      } else {
-        alert("FAILED: " + resData.message);
-      }
-    } catch (e) { alert("NETWORK ERROR"); }
+  const payload = {
+    nickname: userData.name,
+    motto: userData.motto,
+    role: userData.role,
+    themeConfig: finalTheme // [修改] 发送对象
   };
+
+  try {
+    const res = await fetch(`${API_BASE}/user-info`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      credentials: 'include'
+    });
+    const resData = await res.json();
+
+    if (resData.success) {
+      if (editMode === 'bg') setThemeConfig(finalTheme); // 确认修改
+      setEditMode('none');
+      alert("UPDATED // SUCCESS");
+    } else {
+      alert("FAILED: " + resData.message);
+    }
+  } catch (e) { alert("NETWORK ERROR"); }
+};
 
   // --- 4. 上传逻辑 ---
 
@@ -316,22 +319,46 @@ useEffect(() => {
         )}
       </AnimatePresence>
       {/* LAYER 1: 背景与掩膜 */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: -1 }}>
-        {bgUrl && (
-          <img src={bgUrl} alt="bg" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        )}
-        <div
-          className="mask-layer"
-          style={{
-            position: 'absolute', inset: 0,
-            backgroundColor: editMode === 'bg'
-              ? `${tempColor}${Math.round((tempOpacity / 100) * 255).toString(16).padStart(2, '0')}`
-              : maskColor,
-            transition: 'background-color 0.3s ease'
-          }}
-        />
-        <div className="grid-bg" style={{ opacity: 0.15, pointerEvents: 'none' }} />
-      </div>
+{/* LAYER 1: 背景与掩膜 */}
+<div style={{ position: 'absolute', inset: 0, zIndex: -1 }}>
+  {bgUrl && (
+    <img src={bgUrl} alt="bg" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  )}
+
+  <div
+    className="mask-layer"
+    style={{
+      position: 'absolute', inset: 0,
+      // [修改] 核心渲染逻辑：线性渐变
+      // 从透明(0%) -> 到指定颜色(stop%)
+      background: (() => {
+        const t = editMode === 'bg' ? tempTheme : themeConfig;
+
+        // 把 16进制颜色 + 透明度 转换为 rgba 字符串
+        const hex = t.color;
+        const alpha = t.opacity / 100;
+
+        // 简单的 Hex 转 RGB 逻辑
+        let r = 0, g = 0, b = 0;
+        if (hex.length === 4) {
+          r = parseInt(hex[1] + hex[1], 16);
+          g = parseInt(hex[2] + hex[2], 16);
+          b = parseInt(hex[3] + hex[3], 16);
+        } else if (hex.length === 7) {
+          r = parseInt(hex.substring(1, 3), 16);
+          g = parseInt(hex.substring(3, 5), 16);
+          b = parseInt(hex.substring(5, 7), 16);
+        }
+        const rgbaColor = `rgba(${r},${g},${b},${alpha})`;
+
+        // 生成渐变：上部透明 -> 下部纯色
+        return `linear-gradient(to bottom, transparent 0%, ${rgbaColor} ${t.gradientStop}%, ${t.color} 100%)`;
+      })(),
+      transition: 'background 0.3s ease'
+    }}
+  />
+  <div className="grid-bg" style={{ opacity: 0.15, pointerEvents: 'none' }} />
+</div>
 
       {/* LAYER 2: 导航栏 */}
       <nav style={{
@@ -363,47 +390,73 @@ useEffect(() => {
         </div>
       </nav>
 
-      {/* LAYER 3: 调色板 (bg模式) */}
-      <AnimatePresence>
-        {editMode === 'bg' && (
-          <motion.div
-            initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
-            style={{
-              position: 'absolute', top: '90px', right: '40px', zIndex: 110,
-              background: 'rgba(10, 10, 20, 0.85)', padding: '20px', borderRadius: '12px',
-              border: '1px solid var(--accent-color)', backdropFilter: 'blur(12px)',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.5)', minWidth: '220px'
-            }}
-          >
-            <div style={{ fontSize: '10px', letterSpacing: '1px', marginBottom: '15px', color: 'var(--text-dim)', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
-              MASK SETTINGS
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Palette size={14} />
-                <span style={{ fontSize: '12px' }}>COLOR</span>
-              </div>
-              <input
-                type="color" value={tempColor}
-                onChange={(e) => setTempColor(e.target.value)}
-                style={{ border: 'none', width: '30px', height: '30px', cursor: 'pointer', background: 'none' }}
-              />
-            </div>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px' }}>
-                <span>OPACITY</span>
-                <span>{tempOpacity}%</span>
-              </div>
-              <input
-                type="range" min="0" max="100"
-                value={tempOpacity}
-                onChange={(e) => setTempOpacity(e.target.value)}
-                style={{ width: '100%', accentColor: 'var(--accent-color)', cursor: 'pointer' }}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+   {/* LAYER 3: 调色板 (bg模式) */}
+<AnimatePresence>
+  {editMode === 'bg' && (
+    <motion.div
+      initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
+      style={{
+        position: 'absolute', top: '90px', right: '40px', zIndex: 110,
+        background: 'rgba(255, 255, 255, 0.9)', // 改成浅色面板适配浅色主题，或者保持深色看你喜好
+        padding: '20px', borderRadius: '12px',
+        border: '1px solid #ccc', backdropFilter: 'blur(12px)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.1)', minWidth: '240px',
+        color: '#333'
+      }}
+    >
+      <div style={{ fontSize: '10px', letterSpacing: '1px', marginBottom: '15px', color: '#666', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
+        MASK SETTINGS
+      </div>
+
+      {/* 1. 颜色选择 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Palette size={14} />
+          <span style={{ fontSize: '12px', fontWeight:'bold' }}>COLOR</span>
+        </div>
+        <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+            <input
+              type="color" value={tempTheme.color}
+              onChange={(e) => setTempTheme({ ...tempTheme, color: e.target.value })}
+              style={{ border: 'none', width: '24px', height: '24px', cursor: 'pointer', background: 'none', padding:0 }}
+            />
+            <span style={{fontSize:'10px', fontFamily:'monospace'}}>{tempTheme.color}</span>
+        </div>
+      </div>
+
+      {/* 2. 透明度 (Bottom Opacity) */}
+      <div style={{ marginBottom: '15px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px' }}>
+          <span>INTENSITY</span>
+          <span>{tempTheme.opacity}%</span>
+        </div>
+        <input
+          type="range" min="0" max="100"
+          value={tempTheme.opacity}
+          onChange={(e) => setTempTheme({ ...tempTheme, opacity: parseInt(e.target.value) })}
+          style={{ width: '100%', accentColor: '#2C3E50', cursor: 'pointer' }}
+        />
+      </div>
+
+      {/* 3. [新增] 渐变位置 (Gradient Stop) */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px' }}>
+          <span>FADE POSITION</span>
+          <span>{tempTheme.gradientStop}%</span>
+        </div>
+        <input
+          type="range" min="0" max="100"
+          value={tempTheme.gradientStop}
+          onChange={(e) => setTempTheme({ ...tempTheme, gradientStop: parseInt(e.target.value) })}
+          style={{ width: '100%', accentColor: '#2C3E50', cursor: 'pointer' }}
+        />
+        <div style={{ fontSize:'10px', color:'#999', marginTop:'5px' }}>
+            Lower value = More fog, Higher value = More image
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
       {/* LAYER 4: 主内容 */}
       <motion.div
@@ -531,7 +584,7 @@ useEffect(() => {
                     <input
                       type="text"
                       value={userData.email}
-                      readOnly 
+                      readOnly
                       style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderBottom: '1px solid var(--accent-color)', color: '#fff', padding: '2px 5px', flex: 1, opacity: 0.7 }}
                     />
                   ) : (
@@ -547,10 +600,10 @@ useEffect(() => {
         {/* PAGE 2: ARCHIVES */}
         {/* Profile.jsx 的第二页部分 */}
 <Section>
-    <div style={{ 
-        width: '100%', 
-        height: '100%', 
-        display: 'flex', 
+    <div style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
         alignItems: 'center', // 垂直居中
         justifyContent: 'center',
         padding: '20px' // 防止贴边

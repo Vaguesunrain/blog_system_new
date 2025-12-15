@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Terminal, Activity } from 'lucide-react';
+import { ArrowRight, BookOpen, Clock, FileText, Tag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import {API_BASE} from '../../data/config';
+import { API_BASE } from '../../data/config';
+
+// 🎨 档案馆配色
+const COLORS = {
+  bg: '#FDFBF7',         // 纸张底色 (Warm White)
+  ink: '#2C3E50',        // 墨水蓝
+  line: 'rgba(44, 62, 80, 0.1)', // 淡灰线条
+  accent: '#C0392B',     // 红色印泥
+  tag: '#8D7B68',        // 枯茶色标签
+  draft: '#E67E22',      // 草稿色 (琥珀色)
+  sub: '#7F8C8D'         // 辅助灰
+};
 
 const ArchiveSection = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  const MAX_SLOTS = 6; // 稍微增加一点数量，让列表长一点好看
+  const MAX_SLOTS = 5; // 档案盒容量
 
   useEffect(() => {
     fetch(`${API_BASE}/my-articles-list`, { credentials: 'include' })
@@ -22,126 +32,89 @@ const ArchiveSection = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const emptySlots = Math.max(0, MAX_SLOTS - articles.length);
   const displayList = articles.slice(0, MAX_SLOTS);
 
-  // 颜色定义
-  const C_GREEN = '#2bff00';
-  const C_ORANGE = '#ff4d00';
-  const C_DIM = 'rgba(255,255,255,0.4)';
-
   return (
-    <div style={{ 
+    <div style={{
       width: '100%',
-      maxWidth: '1000px', // 宽一点更像终端
+      maxWidth: '900px',
       margin: '0 auto',
-      // 去掉所有背景和边框，完全融入
-      background: 'transparent', 
-      border: 'none',
-      fontFamily: 'var(--font-mono)', // 全局等宽字体
-      color: '#eee',
-      padding: '20px'
+      backgroundColor: COLORS.bg,
+      boxShadow: '0 2px 20px rgba(0,0,0,0.05)', // 轻微纸张投影
+      borderRadius: '2px', // 几乎直角，像书本
+      padding: '40px',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      
-      {/* 1. 模拟终端命令输入行 (Command Line) */}
-      <div style={{ 
-        display: 'flex', alignItems: 'center', gap: '10px', 
-        marginBottom: '20px', paddingBottom: '10px',
-        borderBottom: '1px solid rgba(255,255,255,0.2)',
-        fontSize: '14px'
+
+      {/* 装饰：顶部装订线 */}
+      <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
+          background: `repeating-linear-gradient(90deg, ${COLORS.ink} 0, ${COLORS.ink} 10px, transparent 10px, transparent 12px)`
+      }} />
+
+      {/* 1. 档案室表头 (Archive Header) */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+        marginBottom: '40px', borderBottom: `2px solid ${COLORS.ink}`, paddingBottom: '15px'
       }}>
-        <div style={{ color: C_GREEN }}>root@galaxy</div>
-        <div style={{ color: '#fff' }}>:</div>
-        <div style={{ color: '#3b82f6' }}>~/archives</div>
-        <div style={{ color: '#fff' }}>$</div>
-        <div style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-             ls -lat --color=auto
-             {/* 闪烁的光标 */}
-             <motion.div 
-                animate={{ opacity: [0, 1, 0] }} 
-                transition={{ duration: 0.8, repeat: Infinity }}
-                style={{ width: '8px', height: '16px', background: '#fff' }}
-             />
+        <div>
+           <div style={{ fontFamily: '"Courier New", monospace', fontSize: '12px', color: COLORS.sub, letterSpacing: '2px', marginBottom: '5px' }}>
+              PERSONAL COLLECTION
+           </div>
+           <h2 style={{ fontFamily: '"Georgia", serif', fontSize: '28px', color: COLORS.ink, margin: 0, fontStyle: 'italic' }}>
+              Manuscripts & Drafts
+           </h2>
+        </div>
+        <div style={{ fontFamily: '"Courier New", monospace', fontSize: '12px', color: COLORS.sub }}>
+           INDEX: {articles.length} ITEMS
         </div>
       </div>
 
-      {/* 2. 表头 (模拟 Linux ls 输出) */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '100px 80px 1fr 100px 40px', // 定义列宽
-        padding: '0 10px 10px 10px',
-        fontSize: '10px', 
-        color: C_DIM,
-        letterSpacing: '1px'
-      }}>
-         <div>PERMISSIONS</div>
-         <div>OWNER</div>
-         <div>FILENAME / TITLE</div>
-         <div>DATE</div>
-         <div></div>
-      </div>
+      {/* 2. 档案列表 (The File List) */}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
 
-      {/* 3. 列表内容 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-        
         {loading ? (
-           <div style={{ padding: '20px', color: C_ORANGE }}>Scanning filesystem...</div>
+           <div style={{ padding: '40px', textAlign: 'center', fontFamily: '"Georgia", serif', color: COLORS.sub, fontStyle: 'italic' }}>
+              Retrieving documents from the shelf...
+           </div>
         ) : (
           <>
-            {displayList.map((art, i) => (
-              <TerminalRow 
-                key={art.id} 
-                art={art} 
-                index={i} 
-                onClick={() => navigate(`/write?id=${art.id}`)}
-                accent={art.status === 'published' ? C_GREEN : C_ORANGE}
-              />
-            ))}
-
-            {/* 空槽位：显示为隐藏文件或空行 */}
-            {Array.from({ length: emptySlots }).map((_, i) => (
-                <div key={`empty-${i}`} style={{
-                    display: 'grid', 
-                    gridTemplateColumns: '100px 80px 1fr 100px',
-                    padding: '10px',
-                    fontSize: '12px',
-                    color: 'rgba(255,255,255,0.1)',
-                    borderBottom: '1px dashed rgba(255,255,255,0.05)'
-                }}>
-                    <div>----------</div>
-                    <div>root</div>
-                    <div>// empty_sector_0{i+1}</div>
-                    <div>--/--</div>
+            {/* 如果没有文章 */}
+            {articles.length === 0 && (
+                <div style={{ padding: '40px', textAlign: 'center', color: COLORS.sub, fontFamily: '"Georgia", serif', fontStyle: 'italic' }}>
+                    The archive is empty. Start writing your first chapter.
                 </div>
+            )}
+
+            {displayList.map((art, i) => (
+              <ArchiveRow
+                key={art.id}
+                art={art}
+                index={i}
+                onClick={() => navigate(`/write?id=${art.id}`)}
+              />
             ))}
           </>
         )}
       </div>
 
-      {/* 4. 底部提示 (Summary) */}
-      <div style={{ 
-         marginTop: '20px', paddingTop: '15px', 
-         borderTop: '1px solid rgba(255,255,255,0.2)',
-         display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+      {/* 3. 底部操作栏 (Footer Action) */}
+      <div style={{
+         marginTop: '30px', paddingTop: '20px',
+         borderTop: `1px dashed ${COLORS.line}`, // 虚线分割
+         display: 'flex', justifyContent: 'flex-end'
       }}>
-          <div style={{ fontSize: '11px', color: C_DIM }}>
-             total {articles.length} files found.
-          </div>
-
           <motion.button
-            whileHover={{ x: 5, color: C_GREEN }}
+            whileHover={{ x: 5 }}
             onClick={() => navigate('/blog-manage')}
             style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#fff',
-              fontSize: '12px',
-              fontFamily: 'var(--font-mono)',
-              cursor: 'pointer',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: COLORS.ink, fontFamily: '"Courier New", monospace', fontSize: '12px', fontWeight: 'bold',
               display: 'flex', alignItems: 'center', gap: '8px'
             }}
           >
-             {'>'} ./open_full_database.sh <ArrowRight size={14} />
+             VIEW FULL CATALOG <ArrowRight size={14} />
           </motion.button>
       </div>
 
@@ -149,50 +122,63 @@ const ArchiveSection = () => {
   );
 };
 
-// 子组件：单行终端显示
-const TerminalRow = ({ art, index, onClick, accent }) => {
-  // 模拟 Linux 权限字符串
-  // rwx = read, write, execute. d = directory (nope), - = file.
-  const permissions = art.status === 'published' ? '-rwxr-xr-x' : '-rw-------';
-  
+// 子组件：单行档案 (File Row)
+const ArchiveRow = ({ art, index, onClick }) => {
+  const isDraft = art.status === 'draft';
+  const statusColor = isDraft ? COLORS.draft : COLORS.tag;
+  const statusLabel = isDraft ? 'DRAFT COPY' : 'PUBLISHED';
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
-      whileHover={{ 
-         backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-         x: 5
-      }}
+      whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.02)', paddingLeft: '15px' }} // 悬浮时轻微右移
       style={{
         display: 'grid',
-        gridTemplateColumns: '100px 80px 1fr 100px 40px', // 与表头对齐
+        // 布局：状态标签 | 标题 | 日期 | 图标
+        gridTemplateColumns: '100px 1fr 100px 30px',
         alignItems: 'center',
-        padding: '12px 10px',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        padding: '20px 0',
+        borderBottom: `1px solid ${COLORS.line}`,
         cursor: 'pointer',
-        fontSize: '13px',
-        transition: 'background 0.2s'
+        transition: 'all 0.3s ease'
       }}
     >
-      {/* 权限列 */}
-      <div style={{ color: accent, opacity: 0.8 }}>{permissions}</div>
-      
-      {/* 用户列 */}
-      <div style={{ color: '#aaa' }}>admin</div>
-      
-      {/* 标题列 (文件名) */}
-      <div style={{ fontWeight: 'bold', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
-         {art.title}
-         {art.status === 'draft' && <span style={{ fontSize:'9px', background: '#ff4d00', color:'#000', padding:'0 4px', borderRadius:'2px'}}>DRAFT</span>}
+      {/* 1. 状态标签 (像贴在文件上的标签) */}
+      <div>
+         <span style={{
+             fontFamily: '"Courier New", monospace', fontSize: '10px', fontWeight: 'bold', color: '#fff',
+             backgroundColor: statusColor, padding: '3px 6px', borderRadius: '2px', letterSpacing: '0.5px'
+         }}>
+            {statusLabel}
+         </span>
       </div>
-      
-      {/* 日期列 */}
-      <div style={{ color: '#888', fontSize: '11px' }}>{art.date.split(' ')[0]}</div>
-      
-      {/* 图标列 */}
-      <div><Activity size={14} color="#555" /></div>
+
+      {/* 2. 标题 (手写体感觉) */}
+      <div style={{ paddingRight: '20px' }}>
+         <div style={{ fontFamily: '"Georgia", serif', fontSize: '18px', color: COLORS.ink }}>
+            {art.title || "Untitled Manuscript"}
+         </div>
+         {/* 摘要/标签 (小字) */}
+         <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: COLORS.sub, fontFamily: '"Inter", sans-serif' }}>
+               <Tag size={10} /> {art.tags && art.tags.length > 0 ? art.tags.join(', ') : 'Uncategorized'}
+            </span>
+         </div>
+      </div>
+
+      {/* 3. 日期 (旧打字机字体) */}
+      <div style={{ fontFamily: '"Courier New", monospace', fontSize: '12px', color: COLORS.sub }}>
+         {art.date.split(' ')[0]}
+      </div>
+
+      {/* 4. 操作图标 */}
+      <div style={{ opacity: 0.4 }}>
+         <BookOpen size={16} color={COLORS.ink} />
+      </div>
+
     </motion.div>
   );
 };
