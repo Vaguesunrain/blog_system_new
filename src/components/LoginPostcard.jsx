@@ -16,7 +16,7 @@ const COLORS = {
 const STAMP_IMG = "https://images.unsplash.com/photo-1468581264429-2548ef9eb732?q=80&w=300&auto=format&fit=crop";
 
 const LoginPostcard = ({ initialMode = 'login', onClose, onSuccess }) => {
-  const [mode, setMode] = useState(initialMode);
+  const [mode, setMode] = useState(initialMode === 'register' ? 'signup' : initialMode);
   const [status, setStatus] = useState('idle');
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [errorMsg, setErrorMsg] = useState('');

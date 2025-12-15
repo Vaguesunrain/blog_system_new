@@ -3,6 +3,8 @@ import { Editor } from '@bytemd/react';
 import gfm from '@bytemd/plugin-gfm';
 import gemoji from '@bytemd/plugin-gemoji';
 import highlight from '@bytemd/plugin-highlight';
+import math from '@bytemd/plugin-math';
+import 'katex/dist/katex.css'; // 必须引入 katex 的样式文件！
 import 'bytemd/dist/index.css';
 import 'highlight.js/styles/vs2015.css';
 // 引入你之前定义的覆盖样式
@@ -13,6 +15,7 @@ const plugins = [
   gfm(),
   gemoji(),
   highlight(),
+ math(),
 ];
 
 const NasaEditor = ({ value, onChange }) => {

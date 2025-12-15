@@ -5,6 +5,8 @@ import { Viewer } from '@bytemd/react';
 import gfm from '@bytemd/plugin-gfm';
 import gemoji from '@bytemd/plugin-gemoji';
 import highlight from '@bytemd/plugin-highlight';
+import math from '@bytemd/plugin-math';
+import 'katex/dist/katex.css'; // 必须引入 katex 的样式文件！
 import { ArrowLeft, AlignLeft, User } from 'lucide-react';
 import Footer from '../Footer';
 import { API_BASE } from '../../data/config';
@@ -13,7 +15,7 @@ import '../../bytemd-override.css';
 
 import bgImage from '../../assets/read-bg.jpg';
 
-const plugins = [gfm(), gemoji(), highlight()];
+const plugins = [math(),gfm(), gemoji(), highlight(), ];
 
 const Read = () => {
     const { id } = useParams();
@@ -249,7 +251,24 @@ const Read = () => {
 
                     {/* 文章正文 */}
                     <div className={VIEWER_CLASS}>
-                        <Viewer value={article.content} plugins={plugins} />
+
+                        <Viewer
+                        key={article ? article.id : 'loading'}
+                        value={article.content}
+                         plugins={plugins}
+
+                            sanitize={(schema) => {
+        const newSchema = { ...schema };
+        // 允许 span 标签带有 className 和 style 属性
+        newSchema.attributes = {
+            ...newSchema.attributes,
+            span: ['className', 'style', 'aria-hidden', 'role'],
+            // 如果公式包含 svg
+            svg: ['width', 'height', 'viewBox', 'preserveAspectRatio', 'style'],
+            path: ['d', 'fill', 'stroke']
+        };
+        return newSchema;
+    }}/>
                     </div>
  <div style={{
                     marginTop: '100px', textAlign: 'center',

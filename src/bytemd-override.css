@@ -359,8 +359,34 @@
 }
 
 /* 公式 (MathJax/Katex) 通常是 div 或 span，不被 p 选中，所以天然没有横线 */
-.katex-display {
+/* .katex-display {
     overflow-x: auto;
     overflow-y: hidden;
     margin: 32px 0;
+} */
+
+
+/* =========================================
+   LaTeX (Katex) 样式修复
+   ========================================= */
+
+/* 1. 确保 Katex 容器可见 */
+.katex {
+  font-size: 1.1em !important; /* 公式稍微大一点好读 */
+  line-height: 1.2 !important; /* 防止被父级的 32px 行高撑得太开 */
+  color: #000 !important;      /* 强制公式为黑色，防止被 inherit 搞成浅色 */
 }
+
+/* 2. 块级公式 (Display Mode) */
+.katex-display {
+  margin: 1em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 10px 0;
+}
+
+
+.katex * {
+  border-color: #000 !important;
+}
+
