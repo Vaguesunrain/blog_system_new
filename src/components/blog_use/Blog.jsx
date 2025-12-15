@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../Footer';
 import { BLOG_DATA as MOCK_DATA } from '../../data/mockData';
 import { API_BASE } from '../../data/config';
-
+import HEADER_BG from '../../assets/photo-1505118380757-91f5f5632de0.avif';
 // 🎨 配色系统
 const COLORS = {
   bg: '#EBF0F3',
@@ -18,7 +18,7 @@ const COLORS = {
   darkroomBg: '#151719' // 更深邃的暗房黑
 };
 
-const HEADER_BG = "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=2600&auto=format&fit=crop";
+// const HEADER_BG = "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=2600&auto=format&fit=crop";
 
 // 图片辅助函数
 const getCardImage = (id) => {
