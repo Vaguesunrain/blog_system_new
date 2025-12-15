@@ -11,61 +11,63 @@ import Profile from './components/profile_use/Profile';
 import Read from './components/blog_use/Read';
 import BlogManage from './components/BlogManage';
 import UserAuthSystem from './components/UserAuthSystem';
+import { UserProvider } from './context/UserContext';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation(); // 获取当前路径，用于触发动画
 
   const isReadPage = location.pathname.startsWith('/read/');
+   const isBlogManagePage = location.pathname == '/blog-manage';
   return (
-    <>
-
-      {/* Loading 逻辑保持不变：加载完才显示路由 */}
+    // 3. [关键位置] UserProvider 包裹一切
+    <UserProvider>
       <AnimatePresence mode="wait">
         {isLoading ? (
           <Loading key="loader" onComplete={() => setIsLoading(false)} />
         ) : (
           <>
-            {!isReadPage && <Navbar key="navbar" />}
+            {/*
+               4. Navbar 显示逻辑
+               只要路径变化，App 组件就会重绘，这里就会重新判断
+            */}
+            {!isReadPage && !isBlogManagePage && <Navbar key="navbar" />}
+
             <div style={{ paddingTop: '0px' }}>
-              {/*
-                  key={location.pathname} 是关键！
-                  它告诉 Framer Motion：路径变了，这已经是新页面了，请执行动画。
-              */}
               <AnimatePresence mode="wait">
+                {/* Routes key 保持 location.pathname 确保页面切换动画 */}
                 <Routes location={location} key={location.pathname}>
 
                   <Route path="/" element={
-                    <PageWrapper>
-                      <Home />
-                    </PageWrapper>
+                    <PageWrapper><Home /></PageWrapper>
                   } />
 
                   <Route path="/blog" element={
-                    <PageWrapper>
-                      <Blog />
-                    </PageWrapper>
+                    <PageWrapper><Blog /></PageWrapper>
                   } />
 
                   <Route path="/write" element={
-                    <PageWrapper>
-                      <Write />
-                    </PageWrapper>
+                    <PageWrapper><Write /></PageWrapper>
                   } />
+
                   <Route path="/profile" element={
-                    <PageWrapper>
-                      <Profile />
-                    </PageWrapper>
+                    <PageWrapper><Profile /></PageWrapper>
                   } />
+
                   <Route path="/read/:id" element={<Read />} />
+
+                  {/* 确保这里的 path 和上面定义的 isBlogManagePage 匹配 */}
                   <Route path="/blog-manage" element={<BlogManage />} />
+
                 </Routes>
-                 <UserAuthSystem />
+
+                {/* 登录弹窗系统也放在 Provider 内部，这样登录后可以直接更新 Context */}
+                <UserAuthSystem />
               </AnimatePresence>
             </div>
           </>
         )}
       </AnimatePresence>
-    </>
+    </UserProvider>
   );
 }
 

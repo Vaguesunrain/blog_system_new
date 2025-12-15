@@ -1,223 +1,144 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, ArrowLeft, Image as ImageIcon, Mail, Fingerprint, Quote, Edit3, Palette, Save, X, User, Camera, AlertTriangle, Lock } from 'lucide-react';
+import { Home, ArrowLeft, Image as ImageIcon, Mail, Fingerprint, Quote, Edit3, Palette, Save, X, User, Camera, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../data/config.js';
 import ArchiveSection from './ArchiveSection';
+import { useUser } from '../../context/UserContext'; // 引入全局状态
+
 const Profile = () => {
   const navigate = useNavigate();
+  const bgInputRef = useRef(null);
+  const avatarInputRef = useRef(null);
+
+  // --- 1. 从 Context 获取所有数据 ---
+  const {
+    userInfo,
+    themeConfig, // { color, opacity, gradientStop }
+    bgUrl,
+    avatarUrl,
+    loading,
+    error,
+    setUserInfo,
+    setThemeConfig,
+    setBgUrl,
+    setAvatarUrl
+  } = useUser();
+
+  // --- 2. 本地 UI 状态 ---
   const [currentPage, setCurrentPage] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [editMode, setEditMode] = useState('none'); // 'none' | 'info' | 'bg'
 
-  // --- 1. 状态管理 ---
-  const [bgUrl, setBgUrl] = useState(null);
-  const bgInputRef = useRef(null);
+  // 临时状态：用于编辑模式下的实时预览 (不直接修改 Context，防止取消后回不去)
+  const [tempInfo, setTempInfo] = useState({});
+  const [tempTheme, setTempTheme] = useState({});
 
-  //失败
-  const [authError, setAuthError] = useState(false);
+  // 鉴权失败倒计时
   const [redirectCount, setRedirectCount] = useState(3);
-  // 新增：头像状态
-  const [avatarUrl, setAvatarUrl] = useState(null);
-  const avatarInputRef = useRef(null); // 隐藏的文件输入框引用
 
-  // 用户数据
-  const [userData, setUserData] = useState({
-    name: 'Loading...',
-    role: 'User',
-    motto: 'Loading...',
-    email: 'Loading...'
-  });
-
-  const [editMode, setEditMode] = useState('none');
-
-const [themeConfig, setThemeConfig] = useState({
-  color: '#EBF0F3',   // 默认雾霾白
-  opacity: 90,        // 底部透明度 (0-100)
-  gradientStop: 60    // 渐变停止点 (0-100%)
-});
-
-// 编辑模式下的临时状态 (用于实时预览)
-const [tempTheme, setTempTheme] = useState({ ...themeConfig });
-
-  // --- 2. 初始化数据 ---
-useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 先单独请求用户信息，这是鉴权的核心
-        const infoRes = await fetch(`${API_BASE}/user-info`, { credentials: 'include' });
-
-        // [关键修改] 检测 401 未授权或 403 禁止访问
-        if (infoRes.status === 401 || infoRes.status === 403) {
-          setAuthError(true);
-          return; // 终止后续加载
-        }
-
-        const infoData = await infoRes.json();
-
-        // 如果后端返回 200 但 json 里包含 success: false (取决于你的后端逻辑)
-        if (!infoData.success && infoData.message === 'Unauthorized') {
-             setAuthError(true);
-             return;
-        }
-
-        // 只有认证通过才加载资源，节省流量
-        const [bgRes, avatarRes] = await Promise.all([
-          fetch(`${API_BASE}/get-background?t=${Date.now()}`, { credentials: 'include' }),
-          fetch(`${API_BASE}/get-photo?t=${Date.now()}`, { credentials: 'include' }),
-        ]);
-
-        if (bgRes.ok) {
-          const blob = await bgRes.blob();
-          setBgUrl(URL.createObjectURL(blob));
-        }
-        if (avatarRes.ok) {
-          const blob = await avatarRes.blob();
-          setAvatarUrl(URL.createObjectURL(blob));
-        }
-
-        if (infoData.success) {
-          setUserData({
-            name: infoData.data.nickname || 'Commander',
-            motto: infoData.data.motto,
-            role: infoData.data.role,
-            email: infoData.data.email
-          });
-  if (infoData.data.themeConfig) {
-    const backendTheme = infoData.data.themeConfig;
-    setThemeConfig(backendTheme);
-    setTempTheme(backendTheme); // 同步临时状态
-  }
-
-        }
-      } catch (e) {
-        console.error("Load Error", e);
-        // 如果是网络错误，也可以选择弹窗，这里暂不处理
-      }
-    };
-    fetchData();
-  }, []);
-
-  // --- 3. 自动跳转倒计时逻辑 ---
+  // --- 3. 初始化临时状态 ---
   useEffect(() => {
-    if (authError) {
+    if (userInfo) setTempInfo(userInfo);
+    if (themeConfig) setTempTheme(themeConfig);
+  }, [userInfo, themeConfig, editMode]);
+
+  // --- 4. 鉴权失败自动跳转 ---
+  useEffect(() => {
+    if (error === 'Unauthorized') {
       const timer = setInterval(() => {
-        setRedirectCount((prev) => {
+        setRedirectCount(prev => {
           if (prev <= 1) {
             clearInterval(timer);
-            navigate('/'); // 这里填写你的登录页路由
+            navigate('/'); // 回首页或登录页
             return 0;
           }
           return prev - 1;
         });
-      }, 2000);
+      }, 1000);
       return () => clearInterval(timer);
     }
-  }, [authError, navigate]);
+  }, [error, navigate]);
 
-  const parseColorToState = (colorStr) => {
-    if (!colorStr) return;
-    if (colorStr.startsWith('#')) {
-      setTempColor(colorStr.slice(0, 7));
-      if (colorStr.length === 9) {
-        const alpha = parseInt(colorStr.slice(7), 16);
-        setTempOpacity(Math.round((alpha / 255) * 100));
-      }
-    } else if (colorStr.startsWith('rgba')) {
-      const match = colorStr.match(/[\d.]+/g);
-      if (match && match.length >= 4) {
-        setTempOpacity(Math.round(parseFloat(match[3]) * 100));
-      }
+  // --- 5. 核心逻辑：保存修改 ---
+  const handleSave = async () => {
+    // 构造 payload: 只有在对应模式下才提交对应的数据
+    const payload = {};
+
+    if (editMode === 'info') {
+        payload.nickname = tempInfo.name;
+        payload.motto = tempInfo.motto;
+        payload.role = tempInfo.role;
     }
-  };
 
-  // --- 3. 保存逻辑 (文字/背景色) ---
-const handleSave = async () => {
-  // 决定使用哪个配置：如果是编辑背景模式，保存临时修改；否则保存当前生效的
-  const finalTheme = editMode === 'bg' ? tempTheme : themeConfig;
-
-  const payload = {
-    nickname: userData.name,
-    motto: userData.motto,
-    role: userData.role,
-    themeConfig: finalTheme // [修改] 发送对象
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}/user-info`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      credentials: 'include'
-    });
-    const resData = await res.json();
-
-    if (resData.success) {
-      if (editMode === 'bg') setThemeConfig(finalTheme); // 确认修改
-      setEditMode('none');
-      alert("UPDATED // SUCCESS");
-    } else {
-      alert("FAILED: " + resData.message);
+    if (editMode === 'bg') {
+        payload.themeConfig = tempTheme;
     }
-  } catch (e) { alert("NETWORK ERROR"); }
-};
-
-  // --- 4. 上传逻辑 ---
-
-  // 上传背景
-  const handleBgUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('background', file);
-    try {
-      const res = await fetch(`${API_BASE}/push-background`, {
-        method: 'POST', body: formData, credentials: 'include'
-      });
-      if (res.ok) {
-        setBgUrl(URL.createObjectURL(file));
-        alert("BG IMAGE UPLOADED");
-      }
-    } catch (err) { alert("ERROR"); }
-  };
-
-  // 新增: 上传头像
-  const handleAvatarUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    // 注意: 后端 information.py 里 upload_photo 接收的 key 是 'avatar'
-    formData.append('avatar', file);
 
     try {
-      const res = await fetch(`${API_BASE}/push-photo`, {
+      const res = await fetch(`${API_BASE}/user-info`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
         credentials: 'include'
       });
+      const resData = await res.json();
+
+      if (resData.success) {
+        // [关键] 更新全局 Context，这样切换页面数据依然保持
+        if (editMode === 'info') setUserInfo(prev => ({ ...prev, ...tempInfo }));
+        if (editMode === 'bg') setThemeConfig(tempTheme);
+
+        setEditMode('none');
+        alert("UPDATED // SUCCESS");
+      } else {
+        alert("FAILED: " + resData.message);
+      }
+    } catch (e) {
+        alert("NETWORK ERROR");
+    }
+  };
+
+  // --- 6. 上传逻辑 ---
+  const handleFileUpload = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    const fieldName = type === 'bg' ? 'background' : 'avatar';
+    const endpoint = type === 'bg' ? '/push-background' : '/push-photo';
+    formData.append(fieldName, file);
+
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: 'POST', body: formData, credentials: 'include'
+      });
 
       if (res.ok) {
-        // 立即更新前端显示，无需刷新
-        setAvatarUrl(URL.createObjectURL(file));
-        alert("AVATAR UPDATED");
+        const newUrl = URL.createObjectURL(file);
+        // [关键] 直接更新 Context，无需刷新页面
+        if (type === 'bg') setBgUrl(newUrl);
+        else setAvatarUrl(newUrl);
+
+        alert(`${type.toUpperCase()} UPLOADED`);
       } else {
         alert("UPLOAD FAILED");
       }
     } catch (err) {
-      alert("NETWORK ERROR");
+        alert("NETWORK ERROR");
     }
   };
 
-  // --- 滚动控制 ---
+  // --- 滚动逻辑 ---
   useEffect(() => {
     const handleWheel = (e) => {
-      if (isScrolling || editMode !== 'none' || authError) return;
+      if (isScrolling || editMode !== 'none' || error) return;
       if (e.deltaY > 50 && currentPage < 2) scrollPage(currentPage + 1);
       else if (e.deltaY < -50 && currentPage > 0) scrollPage(currentPage - 1);
     };
     window.addEventListener('wheel', handleWheel);
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [currentPage, isScrolling, editMode]);
+  }, [currentPage, isScrolling, editMode, error]);
 
   const scrollPage = (page) => {
     setIsScrolling(true);
@@ -225,140 +146,73 @@ const handleSave = async () => {
     setTimeout(() => setIsScrolling(false), 800);
   };
 
+  // --- 动态背景样式生成器 ---
+  const getMaskStyle = () => {
+    // 决定使用当前配置还是临时配置
+    const t = editMode === 'bg' ? tempTheme : (themeConfig || { color: '#000', opacity: 50, gradientStop: 50 });
+
+    // Hex to RGB 转换
+    let r=0, g=0, b=0;
+    if (t.color && t.color.startsWith('#')) {
+        const hex = t.color;
+        if(hex.length === 4) {
+            r = parseInt(hex[1]+hex[1], 16); g = parseInt(hex[2]+hex[2], 16); b = parseInt(hex[3]+hex[3], 16);
+        } else if (hex.length === 7) {
+            r = parseInt(hex.substring(1,3), 16); g = parseInt(hex.substring(3,5), 16); b = parseInt(hex.substring(5,7), 16);
+        }
+    }
+    const alpha = t.opacity / 100;
+    const rgbaColor = `rgba(${r},${g},${b},${alpha})`;
+
+    // 生成渐变：上部透明 -> 下部纯色
+    return {
+        background: `linear-gradient(to bottom, rgba(${r},${g},${b},0.1) 0%, ${rgbaColor} ${t.gradientStop}%, ${t.color} 100%)`,
+        transition: 'background 0.3s ease'
+    };
+  };
+
+  // --- Render ---
+
+  // 1. Loading 状态
+  if (loading) return (
+      <div style={{ height: '100vh', background: '#000', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace' }}>
+          LOADING_PROFILE_DATA...
+      </div>
+  );
+
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 2000,
       backgroundColor: '#0b0d17', color: '#fff', fontFamily: 'var(--font-mono)',
       overflow: 'hidden'
     }}>
+
+      {/* 鉴权失败弹窗 */}
       <AnimatePresence>
-        {authError && (
+        {error === 'Unauthorized' && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             style={{
-              position: 'fixed', inset: 0, zIndex: 9999,
-              background: 'rgba(0, 0, 0, 0.85)',
-              backdropFilter: 'blur(10px)',
-              display: 'flex', justifyContent: 'center', alignItems: 'center',
-              flexDirection: 'column'
+              position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.9)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
             }}
           >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', bounce: 0.5 }}
-              style={{
-                border: '1px solid #ff4d4d',
-                background: 'rgba(20, 0, 0, 0.9)',
-                padding: '40px 60px',
-                borderRadius: '8px',
-                textAlign: 'center',
-                boxShadow: '0 0 30px rgba(255, 77, 77, 0.2)',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-            >
-                {/* 装饰性扫描线 */}
-                <div style={{
-                    position: 'absolute', top: 0, left: 0, width: '100%', height: '2px',
-                    background: '#ff4d4d', opacity: 0.5,
-                    animation: 'scan 2s linear infinite'
-                }}/>
-                <style >{`
-                    @keyframes scan { 0% {top: 0} 100% {top: 100%} }
-                    @keyframes pulse-red { 0% {opacity: 0.6} 50% {opacity: 1} 100% {opacity: 0.6} }
-                `}</style>
-
-                <div style={{ marginBottom: '20px', color: '#ff4d4d', animation: 'pulse-red 1.5s infinite' }}>
-                    <Lock size={60} strokeWidth={1.5} />
-                </div>
-
-                <h2 style={{
-                    fontSize: '24px', letterSpacing: '2px', color: '#ff4d4d', marginBottom: '10px',
-                    fontFamily: 'monospace', fontWeight: 'bold'
-                }}>
-                    ACCESS DENIED
-                </h2>
-
-                <div style={{ width: '50px', height: '2px', background: '#ff4d4d', margin: '0 auto 20px' }} />
-
-                <p style={{ color: '#ccc', fontSize: '14px', marginBottom: '5px' }}>
-                    SECURITY PROTOCOL: <span style={{color:'#ff4d4d'}}>INVALID_TOKEN</span>
-                </p>
-                <p style={{ color: '#888', fontSize: '12px', marginBottom: '30px' }}>
-                   SESSION EXPIRED OR UNAUTHORIZED CONNECTION DETECTED.
-                </p>
-
-                <button
-                    onClick={() => navigate('/login')}
-                    style={{
-                        background: 'transparent', border: '1px solid #ff4d4d', color: '#ff4d4d',
-                        padding: '10px 30px', fontSize: '12px', letterSpacing: '1px',
-                        cursor: 'pointer', transition: 'all 0.3s',
-                        marginBottom: '20px'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.target.style.background = '#ff4d4d';
-                        e.target.style.color = '#000';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.target.style.background = 'transparent';
-                        e.target.style.color = '#ff4d4d';
-                    }}
-                >
-                    RE-AUTHENTICATE MANUALLY
-                </button>
-
-                <div style={{ fontSize: '10px', color: '#555', fontFamily: 'monospace' }}>
-                    AUTO-REDIRECTING IN {redirectCount}s...
-                </div>
-            </motion.div>
+             <Lock size={60} color="#ff4d4d" style={{ marginBottom: 20 }} />
+             <h2 style={{ color: '#ff4d4d', letterSpacing: 2 }}>ACCESS DENIED</h2>
+             <p style={{ color: '#888', marginTop: 10 }}>Session expired. Redirecting in {redirectCount}s...</p>
           </motion.div>
         )}
       </AnimatePresence>
+
       {/* LAYER 1: 背景与掩膜 */}
-{/* LAYER 1: 背景与掩膜 */}
-<div style={{ position: 'absolute', inset: 0, zIndex: -1 }}>
-  {bgUrl && (
-    <img src={bgUrl} alt="bg" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-  )}
-
-  <div
-    className="mask-layer"
-    style={{
-      position: 'absolute', inset: 0,
-      // [修改] 核心渲染逻辑：线性渐变
-      // 从透明(0%) -> 到指定颜色(stop%)
-      background: (() => {
-        const t = editMode === 'bg' ? tempTheme : themeConfig;
-
-        // 把 16进制颜色 + 透明度 转换为 rgba 字符串
-        const hex = t.color;
-        const alpha = t.opacity / 100;
-
-        // 简单的 Hex 转 RGB 逻辑
-        let r = 0, g = 0, b = 0;
-        if (hex.length === 4) {
-          r = parseInt(hex[1] + hex[1], 16);
-          g = parseInt(hex[2] + hex[2], 16);
-          b = parseInt(hex[3] + hex[3], 16);
-        } else if (hex.length === 7) {
-          r = parseInt(hex.substring(1, 3), 16);
-          g = parseInt(hex.substring(3, 5), 16);
-          b = parseInt(hex.substring(5, 7), 16);
-        }
-        const rgbaColor = `rgba(${r},${g},${b},${alpha})`;
-
-        // 生成渐变：上部透明 -> 下部纯色
-        return `linear-gradient(to bottom, transparent 0%, ${rgbaColor} ${t.gradientStop}%, ${t.color} 100%)`;
-      })(),
-      transition: 'background 0.3s ease'
-    }}
-  />
-  <div className="grid-bg" style={{ opacity: 0.15, pointerEvents: 'none' }} />
-</div>
+      <div style={{ position: 'absolute', inset: 0, zIndex: -1 }}>
+        {bgUrl && (
+          <img src={bgUrl} alt="bg" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        )}
+        {/* 动态渐变掩膜 */}
+        <div className="mask-layer" style={{ position: 'absolute', inset: 0, ...getMaskStyle() }} />
+        <div className="grid-bg" style={{ opacity: 0.15, pointerEvents: 'none' }} />
+      </div>
 
       {/* LAYER 2: 导航栏 */}
       <nav style={{
@@ -374,7 +228,7 @@ const handleSave = async () => {
         <div style={{ display: 'flex', gap: '20px' }}>
           {editMode !== 'none' ? (
             <>
-              <NavButton icon={<X size={20} />} onClick={() => setEditMode('none')} tooltip="CANCEL" color="#ff4d4d" />
+              <NavButton icon={<X size={20} />} onClick={() => { setEditMode('none'); setTempTheme(themeConfig); setTempInfo(userInfo); }} tooltip="CANCEL" color="#ff4d4d" />
               <NavButton icon={<Save size={20} />} onClick={handleSave} tooltip="SAVE" color="#4dff88" />
             </>
           ) : (
@@ -385,78 +239,55 @@ const handleSave = async () => {
           )}
 
           {/* 背景上传 */}
-          <input type="file" ref={bgInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleBgUpload} />
+          <input type="file" ref={bgInputRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'bg')} />
           <NavButton icon={<ImageIcon size={20} />} onClick={() => bgInputRef.current.click()} tooltip="UPLOAD BG" />
         </div>
       </nav>
 
-   {/* LAYER 3: 调色板 (bg模式) */}
-<AnimatePresence>
-  {editMode === 'bg' && (
-    <motion.div
-      initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
-      style={{
-        position: 'absolute', top: '90px', right: '40px', zIndex: 110,
-        background: 'rgba(255, 255, 255, 0.9)', // 改成浅色面板适配浅色主题，或者保持深色看你喜好
-        padding: '20px', borderRadius: '12px',
-        border: '1px solid #ccc', backdropFilter: 'blur(12px)',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.1)', minWidth: '240px',
-        color: '#333'
-      }}
-    >
-      <div style={{ fontSize: '10px', letterSpacing: '1px', marginBottom: '15px', color: '#666', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
-        MASK SETTINGS
-      </div>
+      {/* LAYER 3: 调色板 (bg模式) */}
+      <AnimatePresence>
+        {editMode === 'bg' && tempTheme && (
+          <motion.div
+            initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }}
+            style={{
+              position: 'absolute', top: '90px', right: '40px', zIndex: 110,
+              background: 'rgba(255, 255, 255, 0.95)', color: '#333',
+              padding: '20px', borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', minWidth: '240px'
+            }}
+          >
+            <div style={{ fontSize: '10px', fontWeight: 'bold', marginBottom: '15px', color: '#888', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+              THEME SETTINGS
+            </div>
 
-      {/* 1. 颜色选择 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Palette size={14} />
-          <span style={{ fontSize: '12px', fontWeight:'bold' }}>COLOR</span>
-        </div>
-        <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
-            <input
-              type="color" value={tempTheme.color}
-              onChange={(e) => setTempTheme({ ...tempTheme, color: e.target.value })}
-              style={{ border: 'none', width: '24px', height: '24px', cursor: 'pointer', background: 'none', padding:0 }}
-            />
-            <span style={{fontSize:'10px', fontFamily:'monospace'}}>{tempTheme.color}</span>
-        </div>
-      </div>
+            {/* Color Picker */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 'bold' }}>Base Color</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="color" value={tempTheme.color} onChange={e => setTempTheme({...tempTheme, color: e.target.value})} style={{ border: 'none', width: '24px', height: '24px', cursor: 'pointer', padding: 0, background: 'none' }} />
+                    <span style={{ fontSize: '10px', fontFamily: 'monospace' }}>{tempTheme.color}</span>
+                </div>
+            </div>
 
-      {/* 2. 透明度 (Bottom Opacity) */}
-      <div style={{ marginBottom: '15px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px' }}>
-          <span>INTENSITY</span>
-          <span>{tempTheme.opacity}%</span>
-        </div>
-        <input
-          type="range" min="0" max="100"
-          value={tempTheme.opacity}
-          onChange={(e) => setTempTheme({ ...tempTheme, opacity: parseInt(e.target.value) })}
-          style={{ width: '100%', accentColor: '#2C3E50', cursor: 'pointer' }}
-        />
-      </div>
+            {/* Opacity Slider */}
+            <div style={{ marginBottom: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '5px' }}>
+                    <span>Fog Intensity</span>
+                    <span>{tempTheme.opacity}%</span>
+                </div>
+                <input type="range" min="0" max="100" value={tempTheme.opacity} onChange={e => setTempTheme({...tempTheme, opacity: parseInt(e.target.value)})} style={{ width: '100%' }} />
+            </div>
 
-      {/* 3. [新增] 渐变位置 (Gradient Stop) */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px' }}>
-          <span>FADE POSITION</span>
-          <span>{tempTheme.gradientStop}%</span>
-        </div>
-        <input
-          type="range" min="0" max="100"
-          value={tempTheme.gradientStop}
-          onChange={(e) => setTempTheme({ ...tempTheme, gradientStop: parseInt(e.target.value) })}
-          style={{ width: '100%', accentColor: '#2C3E50', cursor: 'pointer' }}
-        />
-        <div style={{ fontSize:'10px', color:'#999', marginTop:'5px' }}>
-            Lower value = More fog, Higher value = More image
-        </div>
-      </div>
-    </motion.div>
-  )}
-</AnimatePresence>
+            {/* Gradient Stop Slider */}
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '5px' }}>
+                    <span>Gradient Stop</span>
+                    <span>{tempTheme.gradientStop}%</span>
+                </div>
+                <input type="range" min="0" max="100" value={tempTheme.gradientStop} onChange={e => setTempTheme({...tempTheme, gradientStop: parseInt(e.target.value)})} style={{ width: '100%' }} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* LAYER 4: 主内容 */}
       <motion.div
@@ -468,159 +299,96 @@ const handleSave = async () => {
         <Section>
           <div style={{ textAlign: 'center', maxWidth: '800px', width: '100%', padding: '20px' }}>
 
-            {/*
-                === 头像区域 (已修改) ===
-                1. 隐藏的 input 用于文件选择
-                2. 整个区域可点击
-                3. 悬浮时显示相机图标
-            */}
-            <input type="file" ref={avatarInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
-
+            {/* 头像区域 */}
+            <input type="file" ref={avatarInputRef} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'avatar')} />
             <div
               className="avatar-container"
               onClick={() => avatarInputRef.current.click()}
-              title="Click to change avatar"
+              title="Change Avatar"
               style={{
-                width: '160px', height: '160px', margin: '0 auto 40px', position: 'relative', cursor: 'pointer',
-                group: true // for hover detection logic
+                width: '160px', height: '160px', margin: '0 auto 40px', position: 'relative', cursor: 'pointer'
               }}
             >
-              {/* 扫描圈动画 */}
-              <div style={{ position: 'absolute', inset: -10, border: '1px dashed var(--accent-color)', borderRadius: '50%', animation: 'spin 10s linear infinite', pointerEvents: 'none' }} />
-
-              {/* 头像本体 */}
-              <div style={{
-                width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden',
-                border: '2px solid rgba(255,255,255,0.8)', background: '#000',
-                display: 'flex', justifyContent: 'center', alignItems: 'center',
-                position: 'relative'
-              }}>
+              <div style={{ position: 'absolute', inset: -10, border: '1px dashed rgba(255,255,255,0.3)', borderRadius: '50%', animation: 'spin 10s linear infinite' }} />
+              <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', border: '3px solid #fff', background: '#000' }}>
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <User size={60} strokeWidth={1} />
+                  <User size={60} style={{ margin: '40px auto' }} />
                 )}
-
-                {/* 悬浮遮罩层 (Prompt to upload) */}
-                <div className="avatar-overlay">
-                  <Camera size={30} color="#fff" />
+                {/* Hover Overlay */}
+                <div className="avatar-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.3s' }}>
+                    <Camera size={30} color="#fff" />
                 </div>
               </div>
+              <style>{`.avatar-container:hover .avatar-overlay { opacity: 1; }`}</style>
             </div>
 
-            {/* CSS for Avatar Hover Effect */}
-            <style >{`
-                .avatar-container:hover .avatar-overlay { opacity: 1; }
-                .avatar-overlay {
-                    position: absolute; inset: 0; background: rgba(0,0,0,0.5);
-                    display: flex; justify-content: center; align-items: center;
-                    opacity: 0; transition: opacity 0.3s;
-                }
-            `}</style>
+            <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)', margin: '30px 0' }} />
 
-            <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, #fff, transparent)', margin: '30px 0' }} />
+            {/* User Info Fields */}
+            {userInfo && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    {/* Motto */}
+                    <div style={{ marginBottom: '40px', minHeight: '60px', display: 'flex', justifyContent: 'center' }}>
+                        {editMode === 'info' ? (
+                        <textarea
+                            value={tempInfo.motto}
+                            onChange={(e) => setTempInfo({ ...tempInfo, motto: e.target.value })}
+                            style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid #fff', color: '#fff', width: '100%', maxWidth: '600px', textAlign: 'center', padding: '10px', fontSize: '18px', fontStyle: 'italic', borderRadius: '4px' }}
+                            rows={2}
+                        />
+                        ) : (
+                        <h2 style={{ fontSize: '24px', lineHeight: 1.4, fontStyle: 'italic', position: 'relative', maxWidth: '700px', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+                            <Quote size={14} style={{ display: 'inline', transform: 'translateY(-10px)', marginRight: '8px', opacity: 0.7 }} />
+                            {userInfo.motto}
+                        </h2>
+                        )}
+                    </div>
 
-              {/* Motto */}
-              <div style={{ marginBottom: '40px', minHeight: '60px', display: 'flex', justifyContent: 'center' }}>
-                {editMode === 'info' ? (
-                  <textarea
-                    value={userData.motto}
-                    onChange={(e) => setUserData({ ...userData, motto: e.target.value })}
-                    style={{
-                      background: 'rgba(0,0,0,0.3)', border: '1px solid var(--accent-color)', color: '#fff',
-                      width: '100%', maxWidth: '600px', textAlign: 'center', padding: '10px',
-                      fontSize: '18px', fontStyle: 'italic', borderRadius: '4px', outline: 'none'
-                    }}
-                    rows={2}
-                  />
-                ) : (
-                  <h2 style={{ fontSize: '24px', lineHeight: 1.4, fontStyle: 'italic', position: 'relative', maxWidth: '700px' }}>
-                    <Quote size={14} style={{ display: 'inline', transform: 'translateY(-10px)', marginRight: '8px', opacity: 0.7 }} />
-                    {userData.motto}
-                  </h2>
-                )}
-              </div>
-
-              {/* Info Grid */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
-
-                {/* Nickname */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '16px', width: '350px' }}>
-                  <span style={{ width: '20px', color: 'var(--accent-color)' }}>•</span>
-                  <span style={{ color: 'var(--text-dim)', fontSize: '12px', width: '80px', textAlign: 'right' }}>NAME:</span>
-                  {editMode === 'info' ? (
-                    <input
-                      type="text" value={userData.name}
-                      onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderBottom: '1px solid var(--accent-color)', color: '#fff', padding: '2px 5px', flex: 1 }}
-                    />
-                  ) : (
-                    <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{userData.name}</span>
-                  )}
-                </div>
-
-                {/* Role */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '16px', width: '350px' }}>
-                  <span style={{ width: '20px', color: 'var(--accent-color)' }}><Fingerprint size={14} /></span>
-                  <span style={{ color: 'var(--text-dim)', fontSize: '12px', width: '80px', textAlign: 'right' }}>ROLE:</span>
-                  {editMode === 'info' ? (
-                    <input
-                      type="text" value={userData.role}
-                      onChange={(e) => setUserData({ ...userData, role: e.target.value })}
-                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderBottom: '1px solid var(--accent-color)', color: '#fff', padding: '2px 5px', flex: 1 }}
-                    />
-                  ) : (
-                    <span style={{ fontWeight: 'bold' }}>{userData.role}</span>
-                  )}
-                </div>
-
-                {/* Email (Read Only) */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '16px', width: '350px' }}>
-                  <span style={{ width: '20px', color: 'var(--accent-color)' }}><Mail size={14} /></span>
-                  <span style={{ color: 'var(--text-dim)', fontSize: '12px', width: '80px', textAlign: 'right' }}>EMAIL:</span>
-                  {editMode === 'info' ? (
-                    <input
-                      type="text"
-                      value={userData.email}
-                      readOnly
-                      style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderBottom: '1px solid var(--accent-color)', color: '#fff', padding: '2px 5px', flex: 1, opacity: 0.7 }}
-                    />
-                  ) : (
-                    <span style={{ fontWeight: 'bold' }}>{userData.email}</span>
-                  )}
-                </div>
-
-              </div>
-            </motion.div>
+                    {/* Info Grid */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
+                        <InfoRow
+                            label="NAME" icon="•"
+                            value={editMode === 'info' ? tempInfo.name : userInfo.name}
+                            isEdit={editMode === 'info'}
+                            onChange={(val) => setTempInfo({...tempInfo, name: val})}
+                        />
+                        <InfoRow
+                            label="ROLE" icon={<Fingerprint size={14} />}
+                            value={editMode === 'info' ? tempInfo.role : userInfo.role}
+                            isEdit={editMode === 'info'}
+                            onChange={(val) => setTempInfo({...tempInfo, role: val})}
+                        />
+                        <InfoRow
+                            label="EMAIL" icon={<Mail size={14} />}
+                            value={userInfo.email}
+                            isEdit={false} // Email 通常不支持直接改
+                        />
+                    </div>
+                </motion.div>
+            )}
           </div>
         </Section>
 
         {/* PAGE 2: ARCHIVES */}
-        {/* Profile.jsx 的第二页部分 */}
-<Section>
-    <div style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center', // 垂直居中
-        justifyContent: 'center',
-        padding: '20px' // 防止贴边
-    }}>
-        <ArchiveSection />
-    </div>
-</Section>
+        <Section>
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                <ArchiveSection />
+            </div>
+        </Section>
 
         {/* PAGE 3: UNEXPLORED */}
-        <Section><h2 style={{ opacity: 0.5 }}>UNEXPLORED</h2></Section>
+        <Section><h2 style={{ opacity: 0.5, letterSpacing: 4 }}>UNEXPLORED TERRITORY</h2></Section>
 
       </motion.div>
     </div>
   );
 };
 
-// Helpers
+// --- Helper Components ---
+
 const Section = ({ children }) => (
   <div style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
     {children}
@@ -628,26 +396,35 @@ const Section = ({ children }) => (
 );
 
 const NavButton = ({ icon, onClick, tooltip, color }) => (
-  <div style={{ position: 'relative', group: true }} className="nav-btn-wrapper">
-    <motion.button
-      onClick={onClick}
-      whileHover={{ backgroundColor: 'rgba(255,255,255,0.1)', scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
-      style={{
-        background: 'rgba(0,0,0,0)', border: `1px solid ${color || 'rgba(255,255,255,0.3)'}`, color: color || '#fff',
+  <button
+    onClick={onClick}
+    title={tooltip}
+    style={{
+        background: 'rgba(255,255,255,0.1)', border: `1px solid ${color || 'rgba(255,255,255,0.2)'}`, color: color || '#fff',
         width: '40px', height: '40px', borderRadius: '50%',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'border-color 0.3s'
-      }}
-    >
-      {icon}
-    </motion.button>
-    <style >{`
-        .nav-btn-wrapper:hover::after {
-            content: "${tooltip}"; position: absolute; top: 115%; left: 50%; transform: translateX(-50%);
-            font-size: 10px; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none;
-        }
-    `}</style>
-  </div>
+        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s',
+        backdropFilter: 'blur(5px)'
+    }}
+    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
+  >
+    {icon}
+  </button>
+);
+
+const InfoRow = ({ label, icon, value, isEdit, onChange }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '16px', width: '350px' }}>
+        <span style={{ width: '20px', color: 'rgba(255,255,255,0.6)', display: 'flex', justifyContent: 'center' }}>{icon}</span>
+        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', width: '60px', textAlign: 'right' }}>{label}:</span>
+        {isEdit ? (
+            <input
+                type="text" value={value} onChange={(e) => onChange(e.target.value)}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderBottom: '1px solid #fff', color: '#fff', padding: '2px 5px', flex: 1, fontFamily: 'inherit' }}
+            />
+        ) : (
+            <span style={{ fontWeight: 'bold', fontSize: '16px', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{value}</span>
+        )}
+    </div>
 );
 
 export default Profile;
