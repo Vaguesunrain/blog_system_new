@@ -89,7 +89,7 @@ const ArchiveSection = () => {
           <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: `1px dashed ${COLORS.line}`, display: 'flex', justifyContent: 'flex-end' }}>
               <motion.button
                 whileHover={{ x: 5 }}
-                onClick={() => navigate('/blog-manage')}
+                  onClick={() => navigate('/blog-manage?tab=articles')}
                 style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: COLORS.ink, fontFamily: '"Courier New", monospace', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                  MANAGE RECORDS <ArrowRight size={14} />
@@ -132,7 +132,7 @@ const ArchiveSection = () => {
           <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: `1px dashed ${COLORS.line}`, display: 'flex', justifyContent: 'flex-end' }}>
               <motion.button
                 whileHover={{ x: 5 }}
-                onClick={() => navigate('/gallery')}
+                onClick={() => navigate('/blog-manage?tab=photos')}
                 style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: COLORS.ink, fontFamily: '"Courier New", monospace', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                  EXPLORE GALLERY <ArrowRight size={14} />

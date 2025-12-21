@@ -21,6 +21,7 @@ env
 User_file/
 Server/instance/
 Server/uploads/
+Server/static/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

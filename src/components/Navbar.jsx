@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenTool, LayoutGrid, Home } from 'lucide-react';
+import { PenTool, LayoutGrid, Home, Camera } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
@@ -79,6 +79,12 @@ const Navbar = () => {
           label="Write"
           active={isActive('/write')}
           onClick={() => navigate('/write')}
+        />
+        <IconItem
+          icon={<Camera size={22} />}
+          label="Share"
+          active={isActive('/share-photo')}
+          onClick={() => navigate('/share-photo')}
         />
       </div>
 

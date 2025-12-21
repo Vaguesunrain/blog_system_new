@@ -1,231 +1,216 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Code, BookOpen, Mail, ArrowUpRight, Aperture } from 'lucide-react';
+import { ArrowUpRight, Aperture, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE } from '../data/config';
+
+// 🎨 样式常量
+const COLORS = {
+  ink: '#2C3E50',
+  sub: '#7F8C8D',
+  bg: '#F5F5F5', // 占位背景色
+  darkBlock: '#1a1a1a', // 最后一个深色块的颜色
+};
 
 const TerrestrialGrid = () => {
   const navigate = useNavigate();
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 获取前 9 张图片，但我们只展示前 4 张
+  useEffect(() => {
+    fetch(`${API_BASE}/gallery-photos?page=1`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          setPhotos(data.photos.slice(0, 4)); // 只取前 4 张
+        }
+      })
+      .catch(err => console.error("Grid Load Error:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div style={{ height: '300px' }} />; // 占位
+
+  // 如果没有图片，显示一个空状态或隐藏整个组件
+  if (photos.length === 0) return null;
 
   return (
     <div style={{
       width: '100%',
-      maxWidth: '1280px', // 记得之前改过这里是 1280
+      maxWidth: '1280px',
       margin: '0 auto',
       padding: '0 40px',
-      boxSizing: 'border-box',
       marginBottom: '100px'
     }}>
 
-      {/* 区域标题 (保持不变) */}
+      {/* Header Line */}
       <div style={{
         fontFamily: '"Courier New", monospace',
         fontSize: '12px',
-        color: '#78909C',
-        marginBottom: '40px',
+        color: COLORS.sub,
+        marginBottom: '30px',
         letterSpacing: '2px',
         display: 'flex', alignItems: 'center', gap: '10px'
       }}>
-        <div style={{ width: '20px', height: '1px', background: '#78909C' }} />
-        TERRAIN_LAYERS // VISUAL_DATA
+        <Aperture size={14} />
+        VISUAL_FRAGMENTS // RECENT_UPLOADS
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-        {/* 第一行 (保持不变) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-           <LandBlock
-             title="The Studio" subtitle="Architecture" desc="Digital structures." icon={<Code size={20} />}
-             color="#8D6E63" hoverColor="#6D4C41" height="240px" onClick={() => navigate('/projects')}
-           />
-           <LandBlock
-             title="The Shelf" subtitle="Inputs" desc="Books & Frequencies." icon={<BookOpen size={20} />}
-             color="#F9A825" hoverColor="#F57F17" textColor="#3E2723" height="240px" onClick={() => navigate('/shelf')}
-           />
-        </div>
-
-        {/* --- 第二行：修复高度对齐问题 --- */}
-               <div style={{
+      {/*
+         Bento Grid Layout:
+         - 左侧：一张大图 (2行高)
+         - 中间：两张小图 (上下排列)
+         - 右侧：一张中图 + 最后的入口块 (上下排列)
+         这是经典的 "1 + 2 + 2" 布局，这里简化为 3列 x 2行
+      */}
+      <div style={{
           display: 'grid',
-          gridTemplateColumns: '3fr 1fr', // 左3右1
-          gap: '20px',
-          height: '320px'
-        }}>
+          gridTemplateColumns: '1.5fr 1fr 1fr', // 列宽比例
+          gridTemplateRows: '200px 200px',      // 行高
+          gap: '20px'
+      }}>
 
-          {/* 左侧：画廊 */}
-          <GalleryBlock onClick={() => navigate('/gallery')} />
+        {/* Slot 1: Big Photo (Left, Spans 2 rows) */}
+        {photos[0] && (
+            <PhotoCard
+                photo={photos[0]}
+                style={{ gridRow: 'span 2' }} // 跨两行
+                onClick={() => navigate('/gallery')}
+            />
+        )}
 
-          {/* 右侧：联系 (直接放 LandBlock，不需要额外的 div 包裹了) */}
-          <LandBlock
-            title="Terminal"
-            subtitle="Contact"
-            desc="Open freq."
-            icon={<Mail size={20} />}
-            color="#37474F"
-            hoverColor="#263238"
-            isDark={true}
-            height="100%" // 撑满 Grid 格子
-            onClick={() => window.location.href = 'mailto:hi@example.com'}
-          />
+        {/* Slot 2: Photo (Middle Top) */}
+        {photos[1] && (
+            <PhotoCard
+                photo={photos[1]}
+                onClick={() => navigate('/gallery')}
+            />
+        )}
 
-        </div>
+        {/* Slot 3: Photo (Right Top) */}
+        {photos[2] && (
+            <PhotoCard
+                photo={photos[2]}
+                onClick={() => navigate('/gallery')}
+            />
+        )}
+
+        {/* Slot 4: Photo (Middle Bottom) */}
+        {photos[3] && (
+            <PhotoCard
+                photo={photos[3]}
+                onClick={() => navigate('/gallery')}
+            />
+        )}
+
+        {/* Slot 5: The "View All" Block (Right Bottom) */}
+        {/* 这个块不论有没有第4张图，都应该存在 */}
+        <ViewAllBlock onClick={() => navigate('/gallery')} count={photos.length} />
 
       </div>
     </div>
   );
 };
-// ... (之前的 imports)
 
-const GalleryBlock = ({ onClick }) => {
-  const [hover, setHover] = useState(false);
-
-  const photos = [
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=600&auto=format&fit=crop"
-  ];
-
-  // 定义边框宽度，方便统一调整
-  const borderSize = '12px';
-
-  return (
-    <motion.div
-      onClick={onClick}
-      onHoverStart={() => setHover(true)}
-      onHoverEnd={() => setHover(false)}
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
-      style={{
-        flex: 3,
-        backgroundColor: '#558B2F', // 这里就是露出来的背景色（苔藓绿）
-        position: 'relative',
-        cursor: 'pointer',
-        overflow: 'hidden',
-        display: 'flex',
-        height: '100%',
-        boxSizing: 'border-box',
-
-        // 【修改点 1】增加内边距，让图片往里缩
-        padding: borderSize,
-
-        // 【修改点 2】增加图片之间的间距，让绿色也能在图片中间显示出来
-        gap: borderSize
-      }}
-    >
-      {/* 遮罩层 */}
-      <div style={{
-        position: 'absolute',
-
-        // 【修改点 3】让遮罩层也往里缩，不要盖住绿色的边框
-        top: borderSize,
-        left: borderSize,
-        right: borderSize,
-        bottom: borderSize,
-        // (去掉原来的 width: 100% 和 height: 100%)
-
-        background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)',
-        zIndex: 10,
-        padding: '20px', // 内部文字的边距可以稍微减小一点
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        pointerEvents: 'none',
-        boxSizing: 'border-box'
-      }}>
-         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <div>
-              <div style={{ fontFamily: '"Courier New", monospace', fontSize: '11px', color: '#DCEDC8', marginBottom: '5px' }}>
-                THE DARKROOM // 35MM
-              </div>
-              <h3 style={{ fontFamily: '"Georgia", serif', fontSize: '32px', color: '#fff', margin: 0 }}>
-                Visual Records.
-              </h3>
-            </div>
-            <motion.div animate={{ x: hover ? 5 : 0 }} style={{ opacity: 0.8 }}>
-              <ArrowUpRight color="#fff" size={28} />
-            </motion.div>
-         </div>
-      </div>
-
-      {photos.map((src, idx) => (
-        <div key={idx} style={{ flex: 1, height: '100%', overflow: 'hidden', position: 'relative' }}>
-          <motion.img
-            src={src}
-            alt="gallery"
-            animate={{
-              scale: hover ? 1.05 : 1,
-              filter: hover ? 'grayscale(0%) brightness(100%)' : 'grayscale(40%) brightness(80%)'
-            }}
-            transition={{ duration: 0.5 }}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        </div>
-      ))}
-
-    </motion.div>
-  );
-};
-
-const LandBlock = ({ title, subtitle, desc, icon, color, hoverColor, textColor, isDark, height, onClick }) => {
-    // ... 代码不变 ...
-    // 确保这里用的是 height: height || '280px'
-    const [hover, setHover] = useState(false);
-    const mainTextColor = textColor || (isDark ? '#ECEFF1' : '#FFFFFF');
-    const subTextColor = isDark ? '#B0BEC5' : 'rgba(255,255,255,0.8)';
-
+// --- 子组件：图片卡片 ---
+const PhotoCard = ({ photo, style, onClick }) => {
     return (
-      <motion.div
-        onClick={onClick}
-        onHoverStart={() => setHover(true)}
-        onHoverEnd={() => setHover(false)}
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        style={{
-          backgroundColor: hover ? hoverColor : color,
-          // 确保使用了传入的 height
-          height: height || '280px',
-          padding: '30px',
-          cursor: 'pointer',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          position: 'relative',
-          transition: 'background-color 0.4s ease',
-           boxSizing: 'border-box'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', color: mainTextColor }}>
-            <div style={{ padding: '8px', backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '50%' }}>
-            {icon}
-            </div>
-            <motion.div animate={{ x: hover ? 3 : 0, y: hover ? -3 : 0 }} style={{ opacity: hover ? 1 : 0.5 }}>
-            <ArrowUpRight size={20} />
-            </motion.div>
-        </div>
+        <motion.div
+            onClick={onClick}
+            whileHover={{ y: -5 }}
+            style={{
+                ...style,
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: '2px',
+                cursor: 'pointer',
+                backgroundColor: '#eee',
+                group: true // 为了让子元素响应 hover
+            }}
+            className="photo-card"
+        >
+            {/* 图片本体：使用缩略图以提升性能 */}
+            <img
+                src={`${API_BASE}${photo.thumb}`}
+                alt="grid"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s',objectPosition: 'center 30%' }}
+            />
 
-        <div>
-            <div style={{ fontFamily: '"Courier New", monospace', fontSize: '10px', color: subTextColor, marginBottom: '5px', textTransform: 'uppercase' }}>
-            {subtitle}
+            {/* 遮罩层：只展示描述文字 */}
+            <div className="card-overlay">
+                <div style={{ flex: 1 }} /> {/* Spacer */}
+                <p style={{
+                    margin: 0,
+                    fontFamily: '"Georgia", serif',
+                    fontSize: '14px',
+                    color: '#fff',
+                    fontStyle: 'italic',
+                    textShadow: '0 2px 5px rgba(0,0,0,0.5)',
+                    // 限制行数
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+                }}>
+                    "{photo.desc}"
+                </p>
+                <div style={{
+                    marginTop: '10px',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: '10px',
+                    color: 'rgba(255,255,255,0.7)',
+                    textTransform: 'uppercase'
+                }}>
+                    {photo.date}
+                </div>
             </div>
-            <h3 style={{ fontFamily: '"Georgia", serif', fontSize: '24px', color: mainTextColor, margin: '0 0 5px 0', fontWeight: 'normal' }}>
-            {title}
-            </h3>
-            <p style={{ fontFamily: '"Helvetica Neue", sans-serif', fontSize: '12px', color: subTextColor, margin: 0, lineHeight: '1.4', opacity: 0.8 }}>
-            {desc}
-            </p>
-        </div>
 
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'6\' height=\'6\' viewBox=\'0 0 6 6\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'0.03\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M5 0h1L0 6V5zM6 5v1H5z\'/%3E%3C/g%3E%3C/svg%3E")', pointerEvents: 'none' }} />
-    </motion.div>
-  );
+            <style>{`
+                .photo-card:hover img { transform: scale(1.05); }
+                .card-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+                    padding: 20px;
+                    display: flex; flexDirection: column;
+                    opacity: 0; transition: opacity 0.3s;
+                }
+                .photo-card:hover .card-overlay { opacity: 1; }
+            `}</style>
+        </motion.div>
+    );
 };
 
+// --- 子组件：查看更多块 ---
+const ViewAllBlock = ({ onClick, count }) => {
+    return (
+        <motion.div
+            onClick={onClick}
+            whileHover={{ backgroundColor: '#000' }} // 悬浮变更黑
+            style={{
+                backgroundColor: COLORS.darkBlock,
+                borderRadius: '2px',
+                padding: '30px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                color: '#fff',
+                position: 'relative'
+            }}
+        >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <ImageIcon size={24} color="rgba(255,255,255,0.3)" />
+                <ArrowUpRight size={20} />
+            </div>
+
+            <div>
+                <div style={{ fontFamily: '"Courier New", monospace', fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginBottom: '5px' }}>
+                    FULL COLLECTION
+                </div>
+                <h3 style={{ fontFamily: '"Georgia", serif', fontSize: '24px', margin: 0, fontWeight: 'normal' }}>
+                    Gallery.
+                </h3>
+            </div>
+        </motion.div>
+    );
+};
 
 export default TerrestrialGrid;

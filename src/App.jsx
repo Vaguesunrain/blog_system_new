@@ -12,6 +12,8 @@ import Read from './components/blog_use/Read';
 import BlogManage from './components/BlogManage';
 import UserAuthSystem from './components/UserAuthSystem';
 import { UserProvider } from './context/UserContext';
+import Gallery from './pages/Gallery';
+import SharePhoto from './pages/SharePhoto';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation(); // 获取当前路径，用于触发动画
@@ -58,6 +60,14 @@ function App() {
                   {/* 确保这里的 path 和上面定义的 isBlogManagePage 匹配 */}
                   <Route path="/blog-manage" element={<BlogManage />} />
 
+                  <Route path="/gallery" element={
+                    <PageWrapper><Gallery /></PageWrapper>
+                  } />
+                  <Route path="/share-photo" element={
+  <PageWrapper>
+    <SharePhoto />
+  </PageWrapper>
+} />
                 </Routes>
 
                 {/* 登录弹窗系统也放在 Provider 内部，这样登录后可以直接更新 Context */}
