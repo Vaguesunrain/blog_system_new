@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UploadCloud, Tag, X, Save, ChevronLeft, Clock, AlignLeft, BookOpen, PenTool, Film, Image as ImageIcon } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Footer from './Footer';
-import NasaEditor from './editor/NasaEditor';
-import { API_BASE } from '../data/config.js';
+import Footer from '../Footer.jsx';
+import NasaEditor from './NasaEditor.jsx';
+import { API_BASE } from '../../data/config.js';
 import write_bg from '../assets/natural-3273491.jpg';
 
 // ... (COLORS, BOOKMARK_IMGS, getArticle, save, etc. 保持不变) ...
