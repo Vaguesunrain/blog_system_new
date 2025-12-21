@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../Footer';
 import CinematicCard from '../CinematicCard';
 import { API_BASE } from '../../data/config';
-import ThemeHistory from '../ThemeHistory';
+import ThemeHistory from './ThemeHistory';
 import Newsletter from '../Newsletter';
 import TerrestrialGrid from '../TerrestrialGrid';
 import AdviceSection from '../AdviceSection';

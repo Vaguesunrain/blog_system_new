@@ -76,14 +76,14 @@ const ThemeHistory = () => {
               <VersionNode
                 label="Solar"
                 desc="v2.0_The_Warmth"
-                link="https://github.com/" // 你的链接
+                link="https://github.com/Vaguesunrain/blog_system_new/tree/stars_blog" // 你的链接
                 delay={0.3}
               />
 
               <VersionNode
                 label="Stars"
                 desc="v1.0_The_Origin"
-                link="https://github.com/" // 你的链接
+                link="https://github.com/Vaguesunrain/blog_system_new/tree/legacy" // 你的链接
                 delay={0.5}
               />
 
