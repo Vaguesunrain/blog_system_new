@@ -2,12 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../Footer';
-import CinematicCard from '../CinematicCard';
+import CinematicCard from './CinematicCard';
 import { API_BASE } from '../../data/config';
 import ThemeHistory from './ThemeHistory';
-import Newsletter from '../Newsletter';
+import Newsletter from './Newsletter';
 import TerrestrialGrid from '../TerrestrialGrid';
-import AdviceSection from '../AdviceSection';
+import AdviceSection from './AdviceSection';
 import Home_bg from '../../assets/home_header_bg.avif';
 // 1. Mock 数据
 const MOCK_POSTS = [
