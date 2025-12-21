@@ -46,37 +46,46 @@ def upload_photo():
     user_id = session['user']
 
     if file and allowed_file(file.filename):
-        # 1. 确保目录存在
-        # 假设你的 Flask app 配置了 UPLOAD_FOLDER = 'static/uploads/photos'
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'photos')
-        os.makedirs(upload_folder, exist_ok=True)
+        # 1. 基础上传目录
+        base_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'photos')
 
-        # 2. 生成安全且唯一的文件名
+        # 2. [新增] 生成日期子目录
+        now = datetime.now()
+        date_folder = now.strftime('%Y/%m') # 使用 / 作为路径分隔符(兼容URL)
+
+        save_folder = os.path.join(base_folder, *date_folder.split('/'))
+
+        # 如果目录不存在，创建它
+        os.makedirs(save_folder, exist_ok=True)
+
+        # 3. 生成文件名
         ext = file.filename.rsplit('.', 1)[1].lower()
-        unique_name = f"{uuid.uuid4().hex}"
-        filename = f"{unique_name}.{ext}"
-        thumb_filename = f"{unique_name}_thumb.jpg" # 缩略图统一存为 JPG
+        unique_id = uuid.uuid4().hex
+        name_only = f"{unique_id}.{ext}"
+        thumb_name_only = f"{unique_id}_thumb.jpg"
 
-        file_path = os.path.join(upload_folder, filename)
-        thumb_path = os.path.join(upload_folder, thumb_filename)
+        # 物理全路径
+        file_path = os.path.join(save_folder, name_only)
+        thumb_path = os.path.join(save_folder, thumb_name_only)
 
-        # 3. 保存原图
+        # 4. 保存文件
         file.save(file_path)
-
-        # 4. 生成缩略图
         create_thumbnail(file_path, thumb_path)
 
-        # 5. 写入数据库
-        # 确保 BlogUser 存在 (虽然通常 Session 里的用户肯定存在，但为了外键约束安全)
+        # 5. [关键] 存入数据库的相对路径
+        db_filename = f"{date_folder}/{name_only}"
+        db_thumb_filename = f"{date_folder}/{thumb_name_only}"
+
+        # 确保 User 存在
         user = BlogUser.query.filter_by(username=user_id).first()
         if not user:
-            user = BlogUser(username=user_id) # 懒创建
+            user = BlogUser(username=user_id)
             db.session.add(user)
 
         new_photo = Photo(
             user_id=user_id,
-            filename=filename,
-            thumb_filename=thumb_filename,
+            filename=db_filename,        # 存的是: 2024/05/uuid.jpg
+            thumb_filename=db_thumb_filename,
             description=description
         )
         db.session.add(new_photo)
@@ -139,35 +148,32 @@ def get_my_photos():
         'has_more': (offset + limit) < total
     })
 
-
-# --- 4. 删除图片 API ---
 @photo_bp.route('/delete-photo/<int:photo_id>', methods=['DELETE'])
 def delete_photo(photo_id):
     if 'user' not in session:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
 
     user_id = session['user']
-
-    # 查找图片且确认是当前用户的
     photo = Photo.query.filter_by(id=photo_id, user_id=user_id).first()
 
     if not photo:
-        return jsonify({'status': 'error', 'message': 'Photo not found or permission denied'}), 404
+        return jsonify({'status': 'error', 'message': 'Photo not found'}), 404
 
     try:
-        # 1. 删除磁盘文件
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'photos')
+        base_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'photos')
+
+        # photo.filename 可能是 "2024/05/abc.jpg" 也可能是老的 "abc.jpg"
+        # os.path.join 都能正确处理
         if photo.filename:
-            path = os.path.join(upload_folder, photo.filename)
-            if os.path.exists(path):
-                os.remove(path)
+            full_path = os.path.join(base_folder, os.path.normpath(photo.filename))
+            if os.path.exists(full_path):
+                os.remove(full_path)
 
         if photo.thumb_filename:
-            thumb_path = os.path.join(upload_folder, photo.thumb_filename)
-            if os.path.exists(thumb_path):
-                os.remove(thumb_path)
+            thumb_full_path = os.path.join(base_folder, os.path.normpath(photo.thumb_filename))
+            if os.path.exists(thumb_full_path):
+                os.remove(thumb_full_path)
 
-        # 2. 删除数据库记录
         db.session.delete(photo)
         db.session.commit()
 

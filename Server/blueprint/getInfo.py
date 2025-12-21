@@ -218,8 +218,26 @@ def user_info_handler():
 
         updated_fields = []
         if 'nickname' in req_data:
-             current_data['nickname'] = req_data['nickname']
-             updated_fields.append('nickname')
+            new_nickname = req_data['nickname']
+            try:
+                blog_user = BlogUser.query.filter_by(username=username).first()
+                if not blog_user:
+                    # 如果记录不存在（老用户首次操作），创建一条
+                    blog_user = BlogUser(username=username)
+                    db.session.add(blog_user)
+
+                blog_user.nickname = new_nickname
+                db.session.commit()
+                print(f"[SYNC] Updated BlogUser nickname for {username} to {new_nickname}")
+            except Exception as e:
+                db.session.rollback()
+                print(f"[SYNC ERROR] Failed to update BlogUser: {e}")
+            # -------------------------------
+
+            current_data['nickname'] = new_nickname
+            updated_fields.append('nickname')
+
+
 
         if 'motto' in req_data:
             current_data['MOTTO'] = req_data['motto']
