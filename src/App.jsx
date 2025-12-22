@@ -14,12 +14,15 @@ import UserAuthSystem from './components/UserAuthSystem';
 import { UserProvider } from './context/UserContext';
 import Gallery from './pages/Gallery';
 import SharePhoto from './pages/SharePhoto';
+import SearchResult from './pages/SearchResult';
+import PublicAuthorSpace from './pages/PublicAuthorSpace';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation(); // 获取当前路径，用于触发动画
 
   const isReadPage = location.pathname.startsWith('/read/');
    const isBlogManagePage = location.pathname == '/blog-manage';
+   const ispublicAuthorPage = location.pathname.startsWith('/author/');
   return (
     // 3. [关键位置] UserProvider 包裹一切
     <UserProvider>
@@ -32,7 +35,7 @@ function App() {
                4. Navbar 显示逻辑
                只要路径变化，App 组件就会重绘，这里就会重新判断
             */}
-            {!isReadPage && !isBlogManagePage && <Navbar key="navbar" />}
+            {!isReadPage && !isBlogManagePage && !ispublicAuthorPage &&<Navbar key="navbar" />}
 
             <div style={{ paddingTop: '0px' }}>
               <AnimatePresence mode="wait">
@@ -67,6 +70,14 @@ function App() {
   <PageWrapper>
     <SharePhoto />
   </PageWrapper>
+} />
+
+                <Route path="/search" element={
+  <PageWrapper><SearchResult /></PageWrapper>
+} />
+
+<Route path="/author/:username" element={
+  <PageWrapper><PublicAuthorSpace /></PageWrapper>
 } />
                 </Routes>
 

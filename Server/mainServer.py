@@ -7,6 +7,7 @@ from blueprint.md_file import mdfile_bp
 from blueprint.admin import admin_bp
 from blueprint.manage_bp import manage_bp
 from blueprint.photo_bp import photo_bp
+from blueprint.search_bp import search_bp
 from models import db
 
 app = Flask(__name__)
@@ -21,6 +22,7 @@ app.register_blueprint(mdpic_bp)
 app.register_blueprint(mdfile_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(photo_bp)
+app.register_blueprint(search_bp)
 app.config['PERMANENT_SESSION_LIFETIME'] = 360000
 app.config['SESSION_PERMANENT'] = True
 
