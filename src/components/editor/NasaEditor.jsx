@@ -4,6 +4,7 @@ import gfm from '@bytemd/plugin-gfm';
 import gemoji from '@bytemd/plugin-gemoji';
 import highlight from '@bytemd/plugin-highlight';
 import math from '@bytemd/plugin-math';
+import mermaid from '@bytemd/plugin-mermaid'
 import 'katex/dist/katex.css'; // 必须引入 katex 的样式文件！
 import 'bytemd/dist/index.css';
 import 'highlight.js/styles/vs2015.css';
@@ -16,6 +17,7 @@ const plugins = [
   gemoji(),
   highlight(),
  math(),
+ mermaid(),
 ];
 
 const NasaEditor = ({ value, onChange }) => {

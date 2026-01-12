@@ -14,6 +14,7 @@
     "@bytemd/plugin-gfm": "^1.22.0",
     "@bytemd/plugin-highlight": "^1.22.0",
     "@bytemd/plugin-math": "^1.22.0",
+    "@bytemd/plugin-mermaid": "^1.22.0",
     "@bytemd/react": "^1.22.0",
     "@tailwindcss/vite": "^4.1.17",
     "bytemd": "^1.22.0",

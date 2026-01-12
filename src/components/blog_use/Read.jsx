@@ -6,6 +6,7 @@ import gfm from '@bytemd/plugin-gfm';
 import gemoji from '@bytemd/plugin-gemoji';
 import highlight from '@bytemd/plugin-highlight';
 import math from '@bytemd/plugin-math';
+import mermaid from '@bytemd/plugin-mermaid'
 import 'katex/dist/katex.css'; // 必须引入 katex 的样式文件！
 import { ArrowLeft, AlignLeft, User } from 'lucide-react';
 import Footer from '../Footer';
@@ -15,7 +16,7 @@ import '../../bytemd-override.css';
 
 import bgImage from '../../assets/read-bg.jpg';
 
-const plugins = [math(),gfm(), gemoji(), highlight(), ];
+const plugins = [math(),gfm(), gemoji(), highlight(),mermaid(), ];
 
 const Read = () => {
     const { id } = useParams();
