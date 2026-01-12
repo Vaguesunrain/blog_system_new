@@ -50,7 +50,7 @@ const Home = () => {
             category: (art.tags && art.tags.length > 0) ? art.tags[0].toUpperCase() : 'NARRATIVE',
             author: art.author_nickname || art.author_username,
             date: art.date.split(' ')[0].replace(/-/g, '.'),
-            coverImage: getMoodImage(art.id.toString()),
+            coverImage: art.cover_image || 'https://images.unsplash.com/photo-1468581264429-2548ef9eb732?q=80&w=1000&auto=format&fit=crop',
             isReal: true
           }));
           setDbPosts(formatted);

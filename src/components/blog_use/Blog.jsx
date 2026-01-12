@@ -53,6 +53,7 @@ const Blog = () => {
             category: (art.tags && art.tags.length > 0) ? art.tags[0].toUpperCase() : 'NOTE',
             date: art.date.split(' ')[0].replace(/-/g, '.'),
             views: art.views || 0,
+            coverImage: art.cover_image || getCardImage(art.id),
             isReal: true
           }));
           setDbArticles(formatted);
@@ -140,7 +141,8 @@ const Blog = () => {
                    <h2 style={{ fontSize: '42px', fontFamily: '"Georgia", serif', margin: 0, color: COLORS.textMain, lineHeight: 1.1, fontWeight: 'normal' }}>{hottestPosts[0].title}</h2>
 
                    <div style={{ margin: '30px 0', height: '220px', overflow: 'hidden' }}>
-                      <img src={getCardImage(0)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(20%)' }} />
+                    <img src={hottestPosts[0].coverImage} alt={hottestPosts[0].title} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(20%)' }} />
+
                    </div>
 
                    <p style={{ fontSize: '16px', color: COLORS.textSub, lineHeight: 1.6, fontFamily: '"Georgia", serif', maxWidth: '100%', margin: 0 }}>{hottestPosts[0].excerpt}</p>
@@ -157,7 +159,7 @@ const Blog = () => {
                         post={hottestPosts[1]}
                         bgColor={COLORS.warmEarth}
                         textColor="#FDFBF7"
-                        imgIndex={1}
+                        imageUrl={hottestPosts[1].coverImage}
                         onClick={() => handlePostClick(hottestPosts[1])}
                     />
                 )}
@@ -168,7 +170,7 @@ const Blog = () => {
                         post={hottestPosts[2]}
                         bgColor={COLORS.deepBlue}
                         textColor="#FFFFFF"
-                        imgIndex={2}
+                        imageUrl={hottestPosts[2].coverImage}
                         onClick={() => handlePostClick(hottestPosts[2])}
                     />
                 )}
@@ -241,7 +243,7 @@ const Blog = () => {
 };
 
 
-const SmallCard = ({ post, bgColor, textColor, imgIndex, onClick }) => {
+const SmallCard = ({ post, bgColor, textColor, imageUrl, onClick }) => {
     return (
         <motion.div
             whileHover={{ scale: 0.98 }}
@@ -288,7 +290,7 @@ const SmallCard = ({ post, bgColor, textColor, imgIndex, onClick }) => {
                 {/* 右侧：方形图片 */}
                 <div style={{ width: '100px', height: '100px', flexShrink: 0 }}>
                     <img
-                        src={getCardImage(imgIndex)}
+                        src={imageUrl}
                         alt=""
                         style={{
                             width: '100%', height: '100%', objectFit: 'cover',

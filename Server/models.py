@@ -30,7 +30,7 @@ class Article(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     views = db.Column(db.Integer, default=0)
     summary = db.Column(db.String(500), nullable=True)
-
+    cover_image = db.Column(db.String(500), nullable=True)
     # 关系
     tags = db.relationship('Tag', secondary=article_tags, backref=db.backref('articles', lazy='dynamic'))
 
@@ -46,7 +46,9 @@ class Article(db.Model):
             'author': self.user_id,
             'author_username': self.user_id,
             'author_nickname': display_name,
+            'cover_image': self.cover_image,
             'tags': [tag.name for tag in self.tags]
+
         }
     def to_summary_dict(self):
         preview_text = self.summary if self.summary else (self.content_md[:150] + '...' if self.content_md else '')
@@ -62,6 +64,7 @@ class Article(db.Model):
             'author': self.user_id,
             'author_nickname': display_name,
             'author_username': self.user_id, # 原始用户名，用于拼头像链接
+            'cover_image': self.cover_image,
             'tags': [tag.name for tag in self.tags]
         }
     def to_dict(self):

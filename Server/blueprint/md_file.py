@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 import models
-
+import re
 # 然后通过 models. 访问其中的内容
 db = models.db
 Article = models.Article
@@ -23,7 +23,7 @@ def save_article():
     markdown = data.get('markdown')
     tags_list = data.get('tags', [])
     status = data.get('status', 'draft') # published 或 draft
-    excerpt = data.get('excerpt', '') 
+    excerpt = data.get('excerpt', '')
     if not title:
         return jsonify({'status': 'error', 'message': '标题不能为空'}), 400
 
@@ -41,7 +41,15 @@ def save_article():
         article.title = title
         article.content_md = markdown
         article.status = status
-        article.summary = excerpt 
+        article.summary = excerpt
+
+        image_match = re.search(r'!\[.*?\]\(([^)\s]+)', markdown)
+        if image_match:
+            # 如果找到图片，将链接存入 cover_image 字段
+            article.cover_image = image_match.group(1)
+        else:
+            # 如果没有找到图片，将字段设为 None
+            article.cover_image = None
         # --- 3. 处理标签 (核心逻辑：自动去重、自动创建) ---
         # 先清空当前文章的标签关联
         article.tags = []
