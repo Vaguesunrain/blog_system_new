@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, session
+from datetime import datetime
 import models
 import re
 # 然后通过 models. 访问其中的内容
@@ -42,7 +43,7 @@ def save_article():
         article.content_md = markdown
         article.status = status
         article.summary = excerpt
-
+        article.updated_at = datetime.now()
         image_match = re.search(r'!\[.*?\]\(([^)\s]+)', markdown)
         if image_match:
             # 如果找到图片，将链接存入 cover_image 字段

@@ -27,7 +27,7 @@ class Article(db.Model):
     content_md = db.Column(db.Text, nullable=True)     # Markdown 原始内容
     status = db.Column(db.String(20), default='draft') # 'draft' 或 'published'
     created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now)#, onupdate=datetime.now)
     views = db.Column(db.Integer, default=0)
     summary = db.Column(db.String(500), nullable=True)
     cover_image = db.Column(db.String(500), nullable=True)
