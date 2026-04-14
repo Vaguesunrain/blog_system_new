@@ -49,6 +49,7 @@ def signup():
 
             # 3. Session设置
             session['user'] = name
+            session.permanent = True
             response = jsonify({'success': True, 'message': 'Signup successful'})
             response.set_cookie('username', name, max_age=360000, httponly=True)
 

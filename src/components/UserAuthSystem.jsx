@@ -4,7 +4,7 @@ import { User, LogIn, UserPlus, Power, LayoutDashboard, ChevronLeft } from 'luci
 import { useNavigate } from 'react-router-dom';
 import LoginTerminal from './LoginPostcard.jsx';
 import { API_BASE } from '../data/config.js';
-
+import { useUser } from '../context/UserContext';
 const UserAuthSystem = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // 菜单展开状态
   const [isDocked, setIsDocked] = useState(false);     // 停靠（缩进）状态
@@ -13,7 +13,7 @@ const UserAuthSystem = () => {
   const [terminalMode, setTerminalMode] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
-
+  const { setError, setUserInfo } = useUser();
   const navigate = useNavigate();
   const dockTimerRef = useRef(null);
 
@@ -64,8 +64,14 @@ const UserAuthSystem = () => {
   };
 
   const handleLoginSuccess = async (username) => {
+        // 清除全局的鉴权失败报错，并同步用户名
+    if (setError) setError(null);
+    if (setUserInfo) {
+        setUserInfo(prev => ({ ...prev, name: username }));
+    }
     setCurrentUser(username);
     setTerminalMode(null);
+
     const url = await fetchUserAvatar();
     if (url) setAvatarUrl(url);
   };
