@@ -11,9 +11,12 @@ from blueprint.search_bp import search_bp
 from models import db
 
 app = Flask(__name__)
-allowed_origins = ["http://vagueame.top",
-        "http://vagueame.top:5174",
-        "http://vagueame.top:2222"]
+allowed_origins = [
+    "https://vagueame.top",
+    "https://www.vagueame.top",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174"
+]
 CORS(app, supports_credentials=True, origins=allowed_origins)  # 允许跨域请求
 app.secret_key = 'your-secret-key'  # 用于会话加密
 app.register_blueprint(manage_bp)

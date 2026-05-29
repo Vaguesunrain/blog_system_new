@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(), // 注册插件
   ],
+  server: {
+    hmr: false, // ❌ 彻底关闭热更新的 WebSocket 连接，从根源解决挂梯子卡顿
+  }
 })

@@ -16,6 +16,47 @@ import Gallery from './pages/Gallery';
 import SharePhoto from './pages/SharePhoto';
 import SearchResult from './pages/SearchResult';
 import PublicAuthorSpace from './pages/PublicAuthorSpace';
+import { API_BASE } from './data/config'; //为了修正markdown里旧的API_BASE引用路径
+
+if (typeof window !== 'undefined' && !window.__FETCH_INTERCEPTED__) {
+  window.__FETCH_INTERCEPTED__ = true; // 防止 React 路由重绘时重复拦截
+  const ORIGINAL_FETCH = window.fetch;
+
+  window.fetch = async (...args) => {
+    // 1. 让原本的请求正常发出去
+    const response = await ORIGINAL_FETCH(...args);
+
+    // 2. 备份原生的 json 解析方法
+    const originalJson = response.json;
+
+    // 3. 拦截并重写 json() 方法
+    response.json = async () => {
+      // 拿到后端原本返回的原始数据
+      const data = await originalJson.call(response);
+      if (!data) return data;
+
+      try {
+        // 将整个对象转为字符串，进行全局“降维打击”批量替换
+        let jsonStr = JSON.stringify(data);
+
+        // 如果文本里包含当年的老旧本地/frp端口地址，直接强行掰直成最新的加密 API 基地址
+        if (jsonStr.includes('http://vagueame.top:5000')) {
+          // 替换掉文本里所有的旧图片根路径
+          jsonStr = jsonStr.replaceAll('http://vagueame.top:5000', API_BASE);
+          return JSON.parse(jsonStr); // 返回洗干净后的完美数据
+        }
+      } catch (e) {
+        console.error("Data tracking error:", e);
+      }
+
+      return data;
+    };
+
+    return response;
+  };
+}
+
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation(); // 获取当前路径，用于触发动画

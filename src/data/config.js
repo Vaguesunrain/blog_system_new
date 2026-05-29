@@ -1,1 +1,1 @@
-export const API_BASE = 'http://vagueame.top:5000';
+export const API_BASE = 'https://api.vagueame.top';
